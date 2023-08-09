@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "playlist manager",
+  "version": "1.0",
+
+  "description": "combine playlists across different sites",
+
+  "icons": {
+    "48": "icons/1-l-big.png"
+  },
+
+  "permissions": ["activeTab", "tabs", "<all_urls>", "*://www.youtube.com/*"],
+
+  "browser_action": {
+    "default_icon": "icons/1-l-big.png",
+    "default_title": "playlist manager",
+    "default_popup": "popup/portal.html",
+    "browser_style": true
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "playlist.manager@example.com"
+    }
+  },
+
+  "background": {
+    "scripts": ["background_scripts/background.js"],
+    "persistent": true
+  }
+}
