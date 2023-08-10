@@ -7,6 +7,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "start": "node src/index.js",
+    "migrate": "npx sequelize-cli db:migrate"
+  },
   "dependencies": {
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
@@ -15,6 +19,7 @@
     "morgan": "^1.10.0",
     "pg": "^8.7.3",
     "sequelize": "^6.32.1",
+    "sequelize-cli": "^6.6.1",
     "uuid": "^8.3.2"
   }
 }
