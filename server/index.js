@@ -4,8 +4,9 @@ import morgan from "morgan";
 import cors from "cors";
 import { Sequelize, DataTypes } from "sequelize";
 import dotenv from "dotenv";
-import router from "./src/routes/server";
+import * as routers from "./src/routes";
 import { defTrack, defArtist, defAuthorship } from "./src/models";
+import { stripUrls } from "./src/middleware";
 
 // config environment variables
 dotenv.config();
@@ -27,13 +28,17 @@ try {
 
 // create express app
 const app = express();
+app.use(bodyParser.json()); // parse request body as json
+app.use(morgan("dev")); // log all requests
+app.use(cors()); // cross origin resource sharing
 
-app.use(bodyParser.json());
-app.use(morgan("dev"));
-app.use(cors());
+// add middleware
+app.use(stripUrls);
 
 // add routes
-app.use("/", router);
+app.use("/artist", routers.artistRouter);
+app.use("/playlist", routers.playlistRouter);
+app.use("/track", routers.trackRouter);
 
 // start app
 app.listen(5000, () => {

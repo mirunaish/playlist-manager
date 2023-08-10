@@ -26,7 +26,7 @@ export function defArtist(sequelize) {
 
 export function defAuthorship(sequelize) {
   return sequelize.define(
-    "Authorship",
+    "TrackArtist",
     {
       id: { type: DataTypes.UUID },
       trackId: {
@@ -38,6 +38,6 @@ export function defAuthorship(sequelize) {
         references: { model: sequelize.models.Artist, key: "id" },
       },
     },
-    { timestamps: false }
+    { tableName: "track-artist", timestamps: false }
   );
 }
