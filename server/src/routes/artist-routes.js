@@ -1,5 +1,5 @@
 import Router from "express";
-import * as db from "../services/artist-service";
+import * as db from "../services/artist-service.js";
 
 const artistRouter = Router();
 

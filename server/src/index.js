@@ -4,9 +4,9 @@ import morgan from "morgan";
 import cors from "cors";
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
-import * as routers from "./src/routes";
-import * as define from "./src/models";
-import { stripUrls } from "./src/middleware";
+import * as routers from "./routes/index.js";
+import * as define from "./models.js";
+import { stripUrls } from "./middleware.js";
 
 // config environment variables
 dotenv.config();
@@ -37,6 +37,8 @@ app.use(cors()); // cross origin resource sharing
 
 // add middleware
 app.use(stripUrls);
+
+console.log("this stuff works");
 
 // add routes
 app.use("/artist", routers.artistRouter);

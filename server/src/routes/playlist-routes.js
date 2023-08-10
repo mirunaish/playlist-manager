@@ -1,5 +1,5 @@
 import Router from "express";
-import * as db from "../services/playlist-service";
+import * as db from "../services/playlist-service.js";
 
 const playlistRouter = Router();
 

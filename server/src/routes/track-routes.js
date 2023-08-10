@@ -1,5 +1,5 @@
 import Router from "express";
-import * as db from "../services/track-service";
+import * as db from "../services/track-service.js";
 
 const trackRouter = Router();
 

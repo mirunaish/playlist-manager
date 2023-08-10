@@ -1,4 +1,4 @@
-import { sequelize, Track, Artist, Authorship } from "../..";
+import { sequelize, Track, Artist, TrackArtist } from "../../src/index.js";
 
 // filter + sort tracks
 export async function getPlaylist(filters) {

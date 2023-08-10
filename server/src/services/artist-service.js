@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { sequelize, Artist } from "../..";
+import { sequelize, Artist } from "../../src/index.js";
 
 export async function getAllArtists() {
   const inquiry = "SELECT id, name FROM artists ORDER BY name";

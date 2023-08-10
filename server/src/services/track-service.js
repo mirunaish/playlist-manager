@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { sequelize, Track, Artist, Authorship } from "../..";
+import { sequelize, Track, Artist, TrackArtist } from "../../src/index.js";
 
 export async function getTrackById(id) {
   const inquiry = "SELECT * FROM tracks WHERE id='" + id + "'";
