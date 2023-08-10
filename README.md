@@ -10,7 +10,11 @@ firefox extension that combines playlists across different sites
 
 2. Create database `playlists` using pgAdmin
 
-3. Replace `<user>` and `<password>` in the [`.env`](server/.env) file with your postgreSQL credentials
+3. Create file `.env` in the [`server`](server/) directory:
+
+```
+DATABASE_URL=postgres://user:password@localhost:5432/playlists
+```
 
 4. Migrate the database: `npm run migrate`
 
