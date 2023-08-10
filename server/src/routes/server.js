@@ -1,18 +1,10 @@
-import * as db from "./database.js";
+import Router from "express";
+import * as db from "../services/database.js";
 
-import express from "express";
-import bodyParser from "body-parser";
-import morgan from "morgan";
-import cors from "cors";
-
-const app = express();
-
-app.use(bodyParser.json());
-app.use(morgan("dev"));
-app.use(cors());
+const router = Router();
 
 // strip urls from supported sites
-app.use((req, res, next) => {
+router.use((req, res, next) => {
   function stripURL(url) {
     if (url.includes("youtube")) {
       // remove everything after the first argument
@@ -32,14 +24,14 @@ app.use((req, res, next) => {
 });
 
 // get all artists
-app.get("/artists", async (req, res) => {
+router.get("/artists", async (req, res) => {
   const artists = await db.getAllArtists();
   res.json(artists);
 });
 
 // get playlist (id, title, and artist for each track)
 // query contains filters
-app.get("/playlist", async (req, res) => {
+router.get("/playlist", async (req, res) => {
   try {
     const playlist = await db.getPlaylist(req.query);
     res.status(200).json(playlist);
@@ -50,7 +42,7 @@ app.get("/playlist", async (req, res) => {
 });
 
 // get all info about one track given id
-app.get("/id", async (req, res) => {
+router.get("/id", async (req, res) => {
   try {
     const { id } = req.query;
     const track = await db.getTrackById(id);
@@ -62,7 +54,7 @@ app.get("/id", async (req, res) => {
 });
 
 // get info about track given url
-app.get("/url", async (req, res) => {
+router.get("/url", async (req, res) => {
   try {
     const { url } = req.query;
     let track = await db.getTrackByUrl(url);
@@ -74,7 +66,7 @@ app.get("/url", async (req, res) => {
 });
 
 // insert new track
-app.post("/add", async (req, res) => {
+router.post("/add", async (req, res) => {
   try {
     const track = await db.add(req.body);
     res.status(200).json(track);
@@ -85,7 +77,7 @@ app.post("/add", async (req, res) => {
 });
 
 // edit track
-app.post("/edit", async (req, res) => {
+router.post("/edit", async (req, res) => {
   try {
     const { id, ...trackData } = req.body;
     const track = await db.edit(id, trackData);
@@ -96,6 +88,4 @@ app.post("/edit", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log(`Server is running on port 5000.`);
-});
+export default router;

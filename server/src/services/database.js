@@ -1,20 +1,5 @@
-import pg from "pg";
 import { v4 as uuid } from "uuid";
-import dotenv from "dotenv";
-dotenv.config();
-
-var pgClient = new pg.Client(process.env.DATABASE_URL);
-pgClient.connect();
-
-async function select(inquiry) {
-  var response = await pgClient.query(inquiry);
-  return response.rows;
-}
-
-// non-select query (does not return anything)
-async function query(inquiry) {
-  await pgClient.query(inquiry);
-}
+import { sequelize, Track, Artist, Authorship } from "../..";
 
 // prepare user-imputted values for sql query
 function s(string) {
