@@ -1,34 +1,53 @@
 import { DataTypes } from "sequelize";
 
-export function defTrack(sequelize) {
+export function artist(sequelize) {
   return sequelize.define(
-    "Track",
+    "Artist",
     {
-      id: { type: DataTypes.UUID },
-      url: { type: DataTypes.STRING, allowNull: false },
-      title: { type: DataTypes.STRING, allowNull: false },
-      rating: { type: DataTypes.INTEGER, allowNull: false }, // 0-6
+      id: { type: DataTypes.UUID, primaryKey: true },
+      name: { type: DataTypes.STRING, allowNull: false },
+      starred: { type: DataTypes.BOOLEAN, allowNull: false },
+      group: { type: DataTypes.UUID, allowNull: true },
     },
     { timestamps: false }
   );
 }
 
-export function defArtist(sequelize) {
+export function tag(sequelize) {
   return sequelize.define(
-    "Artist",
+    "Tag",
     {
-      id: { type: DataTypes.UUID },
+      id: { type: DataTypes.UUID, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },
     },
     { timestamps: false }
   );
 }
 
-export function defAuthorship(sequelize) {
+export function track(sequelize) {
+  return sequelize.define(
+    "Track",
+    {
+      id: { type: DataTypes.UUID, primaryKey: true },
+      url: { type: DataTypes.STRING, allowNull: false },
+      title: { type: DataTypes.STRING, allowNull: false },
+      length: { type: DataTypes.INTEGER, allowNull: false }, // in seconds
+      imageLink: { type: DataTypes.STRING, allowNull: true },
+      rating: { type: DataTypes.INTEGER, allowNull: false }, // 0-6
+      zoneId: {
+        type: DataTypes.UUID,
+        references: { model: sequelize.models.Zone },
+      },
+    },
+    { timestamps: false }
+  );
+}
+
+export function trackArtist(sequelize) {
   return sequelize.define(
     "TrackArtist",
     {
-      id: { type: DataTypes.UUID },
+      id: { type: DataTypes.UUID, primaryKey: true },
       trackId: {
         type: DataTypes.UUID,
         references: { model: sequelize.models.Track, key: "id" },
@@ -37,7 +56,37 @@ export function defAuthorship(sequelize) {
         type: DataTypes.UUID,
         references: { model: sequelize.models.Artist, key: "id" },
       },
+      main: { type: DataTypes.BOOLEAN, allowNull: false },
     },
-    { tableName: "track-artist", timestamps: false }
+    { tableName: "track_artist", timestamps: false }
+  );
+}
+
+export function trackTag(sequelize) {
+  return sequelize.define(
+    "TrackTag",
+    {
+      id: { type: DataTypes.UUID, primaryKey: true },
+      trackId: {
+        type: DataTypes.UUID,
+        references: { model: sequelize.models.Track, key: "id" },
+      },
+      tagId: {
+        type: DataTypes.UUID,
+        references: { model: sequelize.models.Tag, key: "id" },
+      },
+    },
+    { tableName: "track_tag", timestamps: false }
+  );
+}
+
+export function zone(sequelize) {
+  return sequelize.define(
+    "Zone",
+    {
+      id: { type: DataTypes.UUID, primaryKey: true },
+      name: { type: DataTypes.STRING, allowNull: false },
+    },
+    { timestamps: false }
   );
 }

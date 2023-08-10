@@ -2,10 +2,10 @@ import express from "express";
 import bodyParser from "body-parser";
 import morgan from "morgan";
 import cors from "cors";
-import { Sequelize, DataTypes } from "sequelize";
+import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 import * as routers from "./src/routes";
-import { defTrack, defArtist, defAuthorship } from "./src/models";
+import * as define from "./src/models";
 import { stripUrls } from "./src/middleware";
 
 // config environment variables
@@ -15,9 +15,12 @@ dotenv.config();
 export const sequelize = new Sequelize(process.env.DATABASE_URL); // , { logging: false }
 
 // define + export models
-export const Track = defTrack(sequelize, DataTypes);
-export const Artist = defArtist(sequelize, DataTypes);
-export const Authorship = defAuthorship(sequelize, DataTypes);
+export const Zone = define.zone(sequelize);
+export const Artist = define.artist(sequelize);
+export const Tag = define.tag(sequelize);
+export const Track = define.track(sequelize);
+export const TrackArtist = define.trackArtist(sequelize);
+export const TrackTag = define.trackTag(sequelize);
 
 try {
   await sequelize.authenticate();
@@ -38,7 +41,9 @@ app.use(stripUrls);
 // add routes
 app.use("/artist", routers.artistRouter);
 app.use("/playlist", routers.playlistRouter);
+app.use("/tag", routers.tagRouter);
 app.use("/track", routers.trackRouter);
+app.use("/zone", routers.zoneRouter);
 
 // start app
 app.listen(5000, () => {
