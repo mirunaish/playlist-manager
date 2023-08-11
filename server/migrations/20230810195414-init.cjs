@@ -30,6 +30,10 @@ module.exports = {
         {
           id: { type: Sequelize.UUID, primaryKey: true },
           name: { type: Sequelize.STRING, allowNull: false },
+          zoneId: {
+            type: Sequelize.UUID,
+            references: { model: "zones", key: "id" },
+          },
         },
         { transaction }
       );
@@ -45,7 +49,7 @@ module.exports = {
           rating: { type: Sequelize.INTEGER, allowNull: false }, // 0-6
           zoneId: {
             type: Sequelize.UUID,
-            references: { model: "zones" },
+            references: { model: "zones", key: "id" },
           },
         },
         { transaction }
@@ -84,28 +88,29 @@ module.exports = {
         { transaction }
       );
 
-      transaction.commit();
+      await transaction.commit();
     } catch (e) {
       console.error(e);
-      transaction.rollback();
+      await transaction.rollback();
       throw e;
     }
   },
 
   async down(queryInterface, Sequelize) {
-    const transaction = await queryInterface.startTransaction();
+    const transaction = queryInterface.sequelize.transaction();
     try {
-      await queryInterface.dropTable("track_tag");
-      await queryInterface.dropTable("track_artist");
-      await queryInterface.dropTable("tracks");
-      await queryInterface.dropTable("tags");
-      await queryInterface.dropTable("artists");
-      await queryInterface.dropTable("zones");
+      await queryInterface.dropTable("track_tag", { transaction });
+      await queryInterface.dropTable("track_artist", { transaction });
+      await queryInterface.dropTable("tracks", { transaction });
+      await queryInterface.dropTable("tags", { transaction });
+      await queryInterface.dropTable("artists", { transaction });
+      await queryInterface.dropTable("zones", { transaction });
 
-      await queryInterface.commitTransaction();
+      await transaction.commit();
     } catch (e) {
       console.error(e);
-      queryInterface.rollbackTransaction();
+      await transaction.rollback();
+      throw e;
     }
   },
 };

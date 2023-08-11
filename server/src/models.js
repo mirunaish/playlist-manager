@@ -19,6 +19,10 @@ export function tag(sequelize) {
     {
       id: { type: DataTypes.UUID, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },
+      zoneId: {
+        type: DataTypes.UUID,
+        references: { model: "zones", key: "id" },
+      },
     },
     { timestamps: false }
   );

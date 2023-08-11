@@ -38,8 +38,6 @@ app.use(cors()); // cross origin resource sharing
 // add middleware
 app.use(stripUrls);
 
-console.log("this stuff works");
-
 // add routes
 app.use("/artist", routers.artistRouter);
 app.use("/playlist", routers.playlistRouter);
