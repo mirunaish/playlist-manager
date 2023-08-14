@@ -22,10 +22,11 @@ DATABASE_URL=postgres://user:password@localhost:5432/playlists
 
 ### Extension
 
+1. Run `cd extension; npm run build`
 1. On Firefox, go to `about:debugging#/runtime/this-firefox`
-2. Click on `Load Temporary Add-on...`
-3. Select [`manifest.json`](extension/manifest.json)
-4. You will have to repeat this process every time Firefox is restarted
+1. Click on `Load Temporary Add-on...`
+1. Select `manifest.json` from the generated build folder
+1. You will have to repeat this process every time Firefox is restarted
 
 ## Tech Stack
 
@@ -37,12 +38,14 @@ DATABASE_URL=postgres://user:password@localhost:5432/playlists
   - Sequelize
   - dotenv
 - Frontend
-  - JavaScript
+  - React
+  - [Create React App](https://github.com/facebook/create-react-app)
+  - [complex-browserext](https://www.npmjs.com/package/cra-template-complex-browserext) template
   - Firefox extension API
-  - HTML
 
 ## Sources
 
+- [React extension tutorial](https://medium.com/swlh/bootstrapping-complex-chrome-firefox-edge-extensions-with-create-react-app-667be8df35d7)
 - Documentation
   - [Express](https://expressjs.com/en/guide/routing.html)
   - [Sequelize](https://sequelize.org/docs/v6/)

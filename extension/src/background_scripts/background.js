@@ -1,3 +1,9 @@
+/* eslint-disable no-unused-vars */
+
+import { SERVER_URL } from "../consts";
+
+console.log("background page works");
+
 // make a request to the server
 async function request(path, options = {}) {
   try {
@@ -6,7 +12,7 @@ async function request(path, options = {}) {
     // if get, cannot use body. use query instead
     if (options.method === "GET" && options.body) {
       let reqQuery = "?";
-      for (key in options.body) {
+      for (var key in options.body) {
         reqQuery += key + "=" + encodeURIComponent(options.body[key]) + "&";
       }
       reqQuery = reqQuery.slice(0, -1);
@@ -18,7 +24,7 @@ async function request(path, options = {}) {
       options.headers = { "Content-Type": "application/json" };
     }
 
-    const response = await fetch("http://localhost:5000" + path, options);
+    const response = await fetch(SERVER_URL + path, options);
     return { ok: response.ok, body: await response.json() };
   } catch (e) {
     console.log(e);
@@ -204,7 +210,7 @@ browser.runtime.onMessage.addListener((message) => {
     } else if (message.action === "previous") {
       previous();
     }
-  } else if (message.type == "info-retrieved") {
+  } else if (message.type === "info-retrieved") {
     insertGuessedInfo(message.payload);
   } else {
     console.log("background received unknown message");
@@ -217,7 +223,7 @@ browser.tabs.onUpdated.addListener(
   async (tabId, changeInfo, tabInfo) => {
     if (
       siteSupported(tabInfo.url) &&
-      tabId == playingTabId &&
+      tabId === playingTabId &&
       changeInfo.status === "complete"
     ) {
       try {
@@ -240,7 +246,7 @@ browser.tabs.onUpdated.addListener(
 
 // add event listener that stops playing if tab is closed
 browser.tabs.onRemoved.addListener(async (tabId) => {
-  if (isPlaying && tabId == playingTabId) {
+  if (isPlaying && tabId === playingTabId) {
     await stopPlaying();
   }
 });

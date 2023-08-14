@@ -1,13 +1,26 @@
+:root {
+  --background: #1e1e1e;
+  --text: #ffffff;
+  --text-disabled: #969696;
+  --primary: #d631d6;
+  --primary-disabled: #961296;
+  --error: #fc3f52;
+  --success: #3ffc5b;
+}
+
 html,
 body {
   width: 550px;
   height: 600px;
-  background-color: #1e1e1e;
+  background-color: var(--background);
   font-family: "Arial";
   font-size: 15px;
-  color: white;
+  color: var(--text);
   border-radius: 8px;
   margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 p,
@@ -32,13 +45,14 @@ p {
 }
 .fineprint {
   font-size: 12px;
-  color: #969696;
+  color: var(--text-disabled);
 }
+
 .error {
-  color: #fc3f52;
+  color: var(--error);
 }
 .success {
-  color: #3ffc5b;
+  color: var(--success);
 }
 
 table {
@@ -63,15 +77,15 @@ div.list-div {
 }
 table.list {
   border-collapse: collapse;
-  border: 1px solid white;
+  border: 1px solid var(--text-disabled);
   width: 100%;
 }
 table.list > tr > td {
   padding-left: 15px;
   text-align: left;
-  border: 1px solid white;
+  border: 1px solid var(--text-disabled);
   font-size: 14px;
-  color: white;
+  color: var(--text);
   padding-top: 10px;
   padding-bottom: 10px;
 }
@@ -79,10 +93,10 @@ table.list > tr > td:hover {
   background-color: #424242;
 }
 table.list > tr > td.selected {
-  background-color: #d631d6;
+  background-color: var(--primary);
 }
 table.list > tr > td.selected:hover {
-  background-color: #961296;
+  background-color: var(--primary-disabled);
 }
 table.list > tr > td > p.track {
   color: white;
@@ -140,7 +154,7 @@ select > option:checked {
 }
 
 input {
-  background-color: #1e1e1e;
+  background-color: var(--bg-color);
   color: white;
   border: 1px solid white;
   border-radius: 4px;
