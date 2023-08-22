@@ -13,20 +13,16 @@ module.exports = {
 // Function to override the CRA webpack config
 function override(config, env) {
   // Replace single entry point in the config with multiple ones
-  // Note: you may remove any property below except "popup" to exclude respective entry point from compilation
   config.entry = {
     popup: paths.appIndexJs,
     options: paths.appSrc + "/options.js",
     background: paths.appSrc + "/background_scripts/background.js",
-    content1: paths.appSrc + "/content_scripts/get_title_and_artist.js",
-    content2: paths.appSrc + "/content_scripts/insert_listener.js",
+    get_title_and_artist:
+      paths.appSrc + "/content_scripts/get_title_and_artist.js",
+    insert_listener: paths.appSrc + "/content_scripts/insert_listener.js",
   };
   // Change output filename template to get rid of hash there
   config.output.filename = "static/js/[name].js";
-
-  // disable wrapping in bootstrap functions
-  // https://stackoverflow.com/questions/66087526/webpack-do-not-use-webpackboostrap-function-wrappers
-  config.output.iife = false;
 
   // Disable built-in SplitChunksPlugin
   config.optimization.splitChunks = {
@@ -105,7 +101,16 @@ function override(config, env) {
     /GenerateSW/i.test(name)
   );
 
+  // disable wrapping in bootstrap functions
+  // https://stackoverflow.com/questions/66087526/webpack-do-not-use-webpackboostrap-function-wrappers
+  // this is so background script functions are exposed to the global scope
+  config.output.iife = false;
+
+  // enable babel config file
+  config.module.rules[1].oneOf[3].options.babelrc = true;
+
   // replace terser plugin with one that excludes background script
+  // this is to workaround the tree shaking that removes unused functions
   const terserPlugin = new TerserPlugin({
     extractComments: true,
     parallel: true,
@@ -116,6 +121,10 @@ function override(config, env) {
     (name) => /TerserPlugin/i.test(name),
     terserPlugin
   );
+
+  // temporarily disable minimizer (for more helpful error messages)
+  config.optimization.minimize = false;
+  config.optimization.minimizer = [];
 
   return config;
 }
