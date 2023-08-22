@@ -23,18 +23,9 @@ body {
   overflow: hidden;
 }
 
-p,
-div,
-td {
-  text-align: center;
-}
-
 p {
   line-height: 1;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  margin-left: 0px;
-  margin-right: 0px;
+  margin: 4px;
 }
 
 .title {
@@ -55,61 +46,36 @@ p {
   color: var(--success);
 }
 
-table {
-  border-collapse: collapse;
-}
-
-td {
-  vertical-align: middle;
-}
-
-table.options {
-  width: 100%;
-  table-layout: fixed;
-}
-
-div.list-div {
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  scrollbar-width: none;
-  margin: 0px;
-}
-table.list {
-  border-collapse: collapse;
-  border: 1px solid var(--text-disabled);
-  width: 100%;
-}
-table.list > tr > td {
-  padding-left: 15px;
-  text-align: left;
-  border: 1px solid var(--text-disabled);
-  font-size: 14px;
-  color: var(--text);
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-table.list > tr > td:hover {
-  background-color: #424242;
-}
-table.list > tr > td.selected {
+.tabs {
   background-color: var(--primary);
-}
-table.list > tr > td.selected:hover {
-  background-color: var(--primary-disabled);
-}
-table.list > tr > td > p.track {
-  color: white;
-}
-table.list > tr > td > p.artist {
-  color: lightpink;
-}
 
-.padded {
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-left: 8px;
-  padding-right: 8px;
+  white-space: nowrap;
+
+  box-sizing: border-box;
+  height: 40px;
+  padding-top: 3.5px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+.scrollable-container {
+  overflow: scroll;
+  scrollbar-width: none;
+  white-space: nowrap;
+
+  border: 0px 1px 0px 1px var(--text);
+}
+.tab {
+  display: inline-block;
+  background-color: var(--primary-disabled);
+  border-radius: 8px;
+
+  padding: 5px;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.tab.selected {
+  background-color: var(--primary);
+  border: 1px var(--text);
 }
 
 button {

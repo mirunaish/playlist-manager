@@ -92,8 +92,19 @@ function siteSupported(url) {
   return result;
 }
 
+async function getSupportedTabs() {
+  return await browser.tabs.query({
+    url: supportedSites,
+    // active, audible, discarded, muted
+  });
+}
+
 async function getActiveTab() {
-  return (await browser.tabs.query({ active: true, currentWindow: true }))[0];
+  const tab = (
+    await browser.tabs.query({ active: true, currentWindow: true })
+  )[0];
+  if (siteSupported(tab.url)) return tab;
+  else return null;
 }
 
 // cache array of artists
@@ -230,7 +241,7 @@ browser.tabs.onUpdated.addListener(
         // content script won't run if it already has
         // if page is refreshed content script will run again
         await browser.tabs.executeScript(playingTabId, {
-          file: "/content_scripts/insert_listener.js",
+          file: "insert_listener.js",
         });
       } catch (e) {
         console.log(e);
