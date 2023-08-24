@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import Status from "./components/Status";
 import Tabs from "./components/Tabs";
@@ -7,27 +7,21 @@ import { useBackground } from "../../hooks";
 function App() {
   const background = useBackground();
 
-  const [allTabs, setAllTabs] = useState([]);
-  const [selectedTab, setSelectedTab] = useState("+");
+  const [selectedTabId, setSelectedTabId] = useState("+");
 
-  // ask background script for all supported site tabs in browser
+  // ask background script for selected tab
   useEffect(() => {
     (async () => {
-      setAllTabs(await background.getSupportedTabs());
-      const selectedTab = await background.getActiveTab();
-      if (selectedTab) setSelectedTab(selectedTab);
+      const tab = await background.getActiveTab();
+      if (tab) setSelectedTabId(tab.id);
     })();
   }, [background]);
 
   return (
     <>
-      <Tabs
-        allTabs={allTabs}
-        selectedTab={selectedTab}
-        selectTab={setSelectedTab}
-      ></Tabs>
+      <Tabs selectedTabId={selectedTabId} selectTab={setSelectedTabId} />
 
-      <Status></Status>
+      <Status />
     </>
   );
 }
