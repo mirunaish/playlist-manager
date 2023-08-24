@@ -22,9 +22,7 @@ function Rating({
     return a;
   }, [extended]);
 
-  /**
-   * should the icon at this index be colored in or not?
-   */
+  /** should the icon at this index be colored in or not? */
   const indexSelected = useCallback(
     (i) => {
       return (
@@ -34,15 +32,7 @@ function Rating({
     [multiselect, rating]
   );
 
-  // all icons will have these classes
-  const className = useMemo(
-    () => "rating-icon" + (disabled ? " disabled" : ""),
-    [disabled]
-  );
-
-  /**
-   *  on clicking index'th icon, call onChange with new value
-   */
+  /** on clicking index'th icon, call onChange with new value */
   function updateRating(index) {
     if (disabled) return;
 
@@ -62,12 +52,14 @@ function Rating({
   }
 
   return (
-    <div>
+    <div className={"rating"}>
       {icons.map((icon, index) => {
         return (
           <Icon
-            type={icon}
-            className={className + (indexSelected(index) ? " selected" : "")}
+            icon={icon}
+            size={20}
+            className={disabled ? " disabled" : ""}
+            type={indexSelected(index) ? Icons.FILL : Icons.STROKE}
             onClick={() => updateRating(index)}
           />
         );

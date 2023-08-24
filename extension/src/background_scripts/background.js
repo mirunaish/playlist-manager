@@ -1,10 +1,45 @@
 /* eslint-disable no-unused-vars */
 
-import { SERVER_URL } from "../consts";
+import {
+  MessageTypes,
+  SERVER_URL,
+  SUPPORTED_SITES,
+  StatusTypes,
+} from "../consts";
 
-console.log("background page works");
+/** update status bar in popup with info (default), error, or success */
+async function updateStatus(message, statusType) {
+  await browser.runtime.sendMessage({
+    type: MessageTypes.STATUS_UPDATE,
+    message,
+    statusType,
+  });
+}
 
-// make a request to the server
+/** make selected tab active and window focused */
+async function switchToTab(id) {
+  const window = (await browser.tabs.get(id)).windowId;
+  // focus window and make tab active
+  await browser.windows.update(window, { focused: true });
+  await browser.tabs.update(id, { active: true });
+}
+
+/** insert a content script */
+async function insertScript(tabId, scriptPath) {
+  try {
+    await browser.tabs.executeScript(tabId, {
+      file: scriptPath,
+    });
+  } catch (e) {
+    console.error(e);
+    updateStatus("Failed to execute the content script.", StatusTypes.ERROR);
+  }
+}
+
+/**
+ * make a request to the server
+ * options format: {method, body}
+ */
 async function request(path, options = {}) {
   try {
     if (!options.method) options.method = "GET";
@@ -27,96 +62,118 @@ async function request(path, options = {}) {
     const response = await fetch(SERVER_URL + path, options);
     return { ok: response.ok, body: await response.json() };
   } catch (e) {
-    console.log(e);
-    throw "could not connect to server";
+    console.error(e);
+    throw Error("could not connect to server");
   }
 }
 
-// to be set by popup
-let updatePopup = () => {};
-let announceError = (message, type) => {};
-let insertGuessedInfo = (payload) => {};
-function setFunctions(update, error, insert) {
-  updatePopup = () => {
-    try {
-      update();
-    } catch (e) {}
-  };
-  announceError = (message, type) => {
-    try {
-      error(message, type);
-    } catch (e) {}
-  };
-  insertGuessedInfo = (payload) => {
-    try {
-      insert(payload);
-    } catch (e) {}
-  };
-}
-
-// info about track playing
-let isPlaying = false; // are we currently playing a playlist
-let playingTabId = null; // tab that playlist is playing in, if playing a playlist
-let playlist = [];
-let playingIndex = null; // the track currently playing, as an index into playlist
-let playingTrack = null; // the track currently playing, as an object
-let activeFilters = null; // filters
-
-function getPlayingInfo() {
-  return {
-    isPlaying,
-    playingTabId,
-    playlist,
-    playingIndex,
-    playingTrack,
-    activeFilters,
-  };
-}
-
-const supportedSites = ["*://www.youtube.com/*", "*://soundcloud.com/*"];
-const supportedRegex = [
-  /.*:\/\/www\.youtube\.com\/watch.*/,
-  /.*:\/\/soundcloud\.com\/.*\/.*/,
-];
-
-// given url, determine whether it is a supported site
-function siteSupported(url) {
-  // the page is a new tab
-  if (!url) return false;
-
-  let result = false;
-  supportedRegex.forEach((site) => {
-    result = url.match(site) ? true : result;
-  });
-
-  return result;
-}
-
 async function getSupportedTabs() {
-  return await browser.tabs.query({
-    url: supportedSites,
-    // active, audible, discarded, muted
+  // keys to get for each tab
+  const keys = ["id", "title", "audible", "discarded", "muted"];
+
+  let tabs = {};
+
+  function appendTabData(tab) {
+    // select keys from tab data
+    let tabData = {};
+    keys.forEach((key) => {
+      tabData += { [key]: tab[key] };
+    });
+
+    // add track data, if tracked
+    const trackData = null;
+
+    // add playlist data, if playlist
+    const playlistData = playlists[tab.id];
+
+    tabs[tab.id] = { tab: tabData, track: trackData, playlist: playlistData };
+  }
+
+  // add supported site tabs
+  (await browser.tabs.query({ url: SUPPORTED_SITES })).forEach(appendTabData);
+  // add audible tabs (or replace if key already exists)
+  (await browser.tabs.query({ audible: true })).forEach(appendTabData);
+
+  tabs.map((tab) => {
+    return { tab: { id: tab.id, active: tab.active }, track: {} };
   });
 }
 
-async function getActiveTab() {
-  const tab = (
-    await browser.tabs.query({ active: true, currentWindow: true })
+/**
+ * active tab in current window if it's supported >
+ * audible tab >
+ * null
+ */
+async function getMostImportantTabId() {
+  const activeTab = (
+    await browser.tabs.query({
+      url: SUPPORTED_SITES,
+      active: true,
+      currentWindow: true,
+    })
   )[0];
-  if (siteSupported(tab.url)) return tab;
-  else return null;
+  if (activeTab) return activeTab.id;
+
+  const audibleTab = (
+    await browser.tabs.query({
+      audible: true,
+    })
+  )[0];
+  if (audibleTab) return audibleTab.id;
+
+  return null;
 }
 
 // cache array of artists
-let artistCache = [];
-let artistCacheValid = false;
-async function getAllArtists() {
-  if (artistCacheValid) return artistCache;
+const artistCache = {
+  valid: false,
+  zoneId: null,
+  data: [],
+};
+async function getAllArtists(zoneId) {
+  if (artistCache.valid && zoneId === artistCache.zoneId)
+    return artistCache.data;
 
-  artistCache = (await request("/artists")).body;
-  artistCacheValid = true;
-  return artistCache;
+  artistCache.data = (await request("/artists", { body: { zoneId } })).body;
+  artistCache.zoneId = zoneId;
+  artistCache.valid = true;
+  return artistCache.data;
 }
+
+/** get info about a tab playing an untracked track */
+async function getUntrackedInfo(tabId) {
+  // TODO
+
+  // insert content script
+  try {
+    await browser.tabs.executeScript(tabId, {
+      file: "./get_title_and_artist.js",
+    });
+  } catch (e) {
+    console.error(e);
+    updateStatus("failed to execute the content script.", StatusTypes.ERROR);
+  }
+
+  // listen for messages from content script
+
+  return {
+    title: "test " + tabId,
+    author: "test",
+  };
+}
+
+/**
+ * all playlists playing.
+ * tabid: {list: array of tracks, index: index of track playing,
+ * currTrack: track object, filters: applied filters}
+ */
+const playlists = {};
+
+function getPlaylistInfo(tabId) {
+  return playlists[tabId];
+}
+
+/*
 
 // start playlist button was pressed
 async function startPlaying(filters) {
@@ -126,7 +183,7 @@ async function startPlaying(filters) {
   // get playlist from backend
   const response = await request("/playlist", { body: filters });
   if (!response.ok) {
-    throw "no tracks matching filter found";
+    throw Error("no tracks matching filter found");
   }
   playlist = response.body;
 
@@ -241,11 +298,11 @@ browser.tabs.onUpdated.addListener(
         // content script won't run if it already has
         // if page is refreshed content script will run again
         await browser.tabs.executeScript(playingTabId, {
-          file: "insert_listener.js",
+          file: "./insert_listener.js",
         });
       } catch (e) {
-        console.log(e);
-        announceError("failed to execute the content script.", "error");
+        console.error(e);
+        updateStatus("failed to execute the content script.", { error: true });
       }
     }
   },
@@ -255,9 +312,21 @@ browser.tabs.onUpdated.addListener(
   }
 );
 
+// add event listener that refreshes popup if tabs change
+// TODO
+
 // add event listener that stops playing if tab is closed
 browser.tabs.onRemoved.addListener(async (tabId) => {
   if (isPlaying && tabId === playingTabId) {
     await stopPlaying();
+  }
+});
+
+*/
+
+browser.runtime.onMessage.addListener((message) => {
+  if (message.type === MessageTypes.STATUS_UPDATE) {
+    // forward status updates from components to status component
+    browser.runtime.sendMessage(message);
   }
 });

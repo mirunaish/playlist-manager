@@ -54,4 +54,5 @@ DATABASE_URL=postgres://user:password@localhost:5432/playlists
   - [Firefox extensions](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions)
   - [Webpack](https://webpack.js.org/concepts/) and [Babel](https://babeljs.io/docs/)
 - StackOverflow
+- [howtocenterincss](http://howtocenterincss.com/)
 - [Youtube](https://commons.wikimedia.org/wiki/File:YouTube_Logo_2017.svg) and [Soundcloud](https://commons.wikimedia.org/wiki/File:Soundcloud_logo.svg) logos from Wikimedia

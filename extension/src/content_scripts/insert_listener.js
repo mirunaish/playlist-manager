@@ -1,3 +1,5 @@
+import { MessageTypes } from "../consts";
+
 (function () {
   // only run once
   if (window.hasRun) {
@@ -7,13 +9,13 @@
 
   const forward = async () => {
     await browser.runtime.sendMessage({
-      type: "media-control",
+      type: MessageTypes.MEDIA_CONTROL,
       action: "next",
     });
   };
   const backward = async () => {
     await browser.runtime.sendMessage({
-      type: "media-control",
+      type: MessageTypes.MEDIA_CONTROL,
       action: "previous",
     });
   };

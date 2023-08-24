@@ -22,9 +22,7 @@ function Tabs({ selectedTabId, selectTab }) {
     })();
   }, [background]);
 
-  /**
-   * enable horizontal scrolling with mouse
-   */
+  /** enable horizontal scrolling with mouse */
   function scroll(e) {
     // https://stackoverflow.com/questions/68658249/how-to-do-react-horizontal-scroll-using-mouse-wheel
     if (isMouse(e)) {

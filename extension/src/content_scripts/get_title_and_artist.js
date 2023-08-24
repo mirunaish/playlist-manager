@@ -1,3 +1,5 @@
+import { MessageTypes } from "../consts";
+
 (function () {
   let fullTitle = "";
   let posterName = "";
@@ -65,7 +67,7 @@
 
   // send data to background script
   browser.runtime.sendMessage({
-    type: "info-retrieved",
+    type: MessageTypes.TRACK_INFO,
     payload: parseData(),
   });
 })();

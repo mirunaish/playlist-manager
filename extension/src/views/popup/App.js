@@ -12,16 +12,17 @@ function App() {
   // ask background script for selected tab
   useEffect(() => {
     (async () => {
-      const tab = await background.getActiveTab();
+      const tab = await background.getMostImportantTab();
       if (tab) setSelectedTabId(tab.id);
     })();
   }, [background]);
 
   return (
     <>
-      <Tabs selectedTabId={selectedTabId} selectTab={setSelectedTabId} />
-
+      {/* status is first so the status update listener is added before other components are rendered */}
       <Status />
+
+      <Tabs selectedTabId={selectedTabId} selectTab={setSelectedTabId} />
     </>
   );
 }

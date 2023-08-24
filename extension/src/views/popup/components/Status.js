@@ -1,22 +1,30 @@
 import React, { useEffect, useState } from "react";
+import { MessageTypes } from "../../../consts";
 
 function Status() {
-  console.log("rendering status");
+  const [status, setStatus] = useState({ message: "", type: "" });
 
-  const [status, setStatus] = useState("");
+  function updateStatus(message, type) {
+    setStatus({ message, type });
+  }
 
-  const updateStatus = (message, sender, sendResponse) => {
-    // do something here
-
-    setStatus(message);
-  };
-
-  // listen for messages from background
+  // listen for status messages from background
   useEffect(() => {
-    browser.runtime.onMessage.addListener(updateStatus);
-  }, []);
+    browser.runtime.onMessage.addListener((message) => {
+      if (message.type === MessageTypes.STATUS_UPDATE) {
+        updateStatus(message.message, message.statusType);
+      }
+    });
+  });
 
-  return <p>{status}</p>;
+  return (
+    <div
+      className={"status " + status.type}
+      onClick={() => updateStatus("", "")}
+    >
+      <p>{status.message}</p>
+    </div>
+  );
 }
 
 export default Status;
