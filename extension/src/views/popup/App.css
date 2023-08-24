@@ -20,7 +20,7 @@ body {
   height: 600px;
   background-color: var(--background);
   font-family: "Arial";
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text);
   border-radius: 8px;
   margin: 0 auto;
@@ -39,7 +39,7 @@ body {
   box-sizing: border-box;
   height: 40px;
   overflow: hidden;
-  padding-top: 3.5px;
+  padding-top: 4px;
   padding-left: 2px;
   padding-right: 2px;
 }
@@ -66,7 +66,7 @@ body {
 }
 .tab.selected {
   background-color: var(--primary);
-  padding-bottom: 10px;
+  padding-bottom: 12px;
 }
 .tab.selected:hover {
   background-color: var(--primary-dark);
@@ -94,14 +94,13 @@ button {
   width: 120px;
   text-align: center;
   display: inline-block;
-  font-size: 16px;
+  font-size: 14px;
   margin: 4px 2px;
   transition-duration: 0.1s;
   background-color: var(--secondary);
   border-radius: 4px;
-  border: 1px solid var(--secondary-text);
 }
-button > .buttonicon > path {
+button > .button-icon > path {
   fill: var(--secondary-text);
 }
 button:hover {
@@ -110,29 +109,37 @@ button:hover {
 button.primary {
   background-color: var(--primary);
   color: var(--primary-text);
-  border: 1px solid var(--primary-text);
 }
-button.primary > .buttonicon > path {
+button.primary > .button-icon > path {
   fill: var(--primary-text);
 }
 button.primary:hover {
   background-color: var(--primary-dark);
 }
+.button-icon {
+  vertical-align: middle;
+  margin: 0px 5px 0px 0px;
+}
+.button-icon > path {
+  fill: var(--secondary-text);
+}
 
 select {
-  background-color: var(--primary);
-  color: var(--primary-text);
-  font-size: 15px;
-  border: 1px solid var(--primary-text);
+  background-color: var(--secondary);
+  color: var(--secondary-text);
+  border: none;
   border-radius: 4px;
+  font-size: 14px;
   padding: 5px;
-  width: 100%;
   margin-left: 2px;
   margin-right: 2px;
 }
+select:hover {
+  background-color: var(--secondary-dark);
+}
 select > option:hover,
 select > option:checked {
-  background-color: black;
+  background-color: var(--secondary-dark);
 }
 
 input {
@@ -140,7 +147,29 @@ input {
   color: var(--text);
   border: 1px solid var(--ui);
   border-radius: 4px;
+  font-size: 14px;
   padding: 5px;
+}
+
+.rating-icon {
+  margin: 3px 1.5px;
+}
+.rating-icon > path,
+.rating-icon.disabled:hover > path {
+  fill: none;
+  stroke-width: 5px;
+  stroke: var(--text);
+}
+.rating-icon:hover > path {
+  stroke: var(--text-fineprint);
+}
+.rating-icon.selected > path,
+.rating-icon.selected.disabled:hover > path {
+  fill: var(--text);
+}
+.rating-icon.selected:hover > path {
+  fill: var(--text-fineprint);
+  stroke: var(--text-fineprint);
 }
 
 .hidden {
