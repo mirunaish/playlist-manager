@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { MessageTypes } from "./consts";
+import { MessageTypes } from "../../consts";
 
 /** get a reference to the background page to call its functions directly */
 export function useBackground() {

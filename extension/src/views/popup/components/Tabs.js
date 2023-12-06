@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { isMouse, shortenTitle } from "../../../util";
-import { useBackground } from "../../../hooks";
+import { isMouse, shorten } from "../../../util";
+import { useBackground } from "../hooks";
 
 function Tab({ tab, selected, onClick }) {
   return (
     <div onClick={onClick} className={"tab" + (selected ? " selected" : "")}>
-      <p>{shortenTitle(tab.title)}</p>
+      <p>{shorten(tab.title ?? "Untitled")}</p>
     </div>
   );
 }
 
 function Tabs({ selectedTabId, selectTab }) {
   const background = useBackground();
-  const [allTabs, setAllTabs] = useState([]);
+  const [allTabs, setAllTabs] = useState([]); // tabId: tab object
 
   // ask background script for all supported site tabs in browser
   useEffect(() => {
@@ -80,17 +80,19 @@ function Tabs({ selectedTabId, selectTab }) {
         <p>{"⚙"}</p>
       </div>
       <div className="scrollable-container" onWheel={scroll}>
-        {allTabs.map((tab) => {
-          return (
-            <Tab
-              key={tab.id}
-              tab={tab}
-              selected={selectedTabId === tab.id}
-              onClick={() => selectOrSwitch(tab.id)}
-              color={tab.color}
-            />
-          );
-        })}
+        {Object.values(allTabs)
+          .map((tab) => tab.tab)
+          .map((tab) => {
+            return (
+              <Tab
+                key={tab.id}
+                tab={tab}
+                selected={selectedTabId === tab.id}
+                onClick={() => selectOrSwitch(tab.id)}
+                color={tab.color}
+              />
+            );
+          })}
       </div>
     </div>
   );

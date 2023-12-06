@@ -9,6 +9,12 @@ export const SUPPORTED_REGEX = [
   /.*:\/\/soundcloud\.com\/.*\/.*/,
 ];
 
+export const Pages = {
+  UNTRACKED: "UNTRACKED",
+  TRACKED: "TRACKED",
+  PLAYLIST: "PLAYLIST",
+};
+
 export const MessageTypes = {
   STATUS_UPDATE: "status-update",
   TRACK_INFO: "track-info",

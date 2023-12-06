@@ -43,6 +43,7 @@ DATABASE_URL=postgres://user:password@localhost:5432/playlists
   - React
   - [Create React App](https://github.com/facebook/create-react-app)
   - [complex-browserext](https://www.npmjs.com/package/cra-template-complex-browserext) template
+  - [React App Rewired](https://github.com/timarney/react-app-rewired)
   - Firefox extension API
 
 ## Sources

@@ -97,7 +97,7 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    const transaction = queryInterface.sequelize.transaction();
+    const transaction = await queryInterface.sequelize.transaction();
     try {
       await queryInterface.dropTable("track_tag", { transaction });
       await queryInterface.dropTable("track_artist", { transaction });

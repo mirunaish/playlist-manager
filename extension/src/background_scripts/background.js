@@ -1,11 +1,7 @@
 /* eslint-disable no-unused-vars */
 
-import {
-  MessageTypes,
-  SERVER_URL,
-  SUPPORTED_SITES,
-  StatusTypes,
-} from "../consts";
+import { MessageTypes, Pages, SUPPORTED_SITES, StatusTypes } from "../consts";
+import { pick } from "../util";
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
@@ -32,71 +28,77 @@ async function insertScript(tabId, scriptPath) {
     });
   } catch (e) {
     console.error(e);
-    updateStatus("Failed to execute the content script.", StatusTypes.ERROR);
+    throw Error("Failed to execute " + scriptPath);
   }
 }
 
-/**
- * make a request to the server
- * options format: {method, body}
- */
-async function request(path, options = {}) {
+async function getTabType(tabId) {
+  if (getPlaylistInfo(tabId)) return Pages.PLAYLIST;
+  if (await getTrackedInfo(tabId)) return Pages.TRACKED;
+  if (await getUntrackedInfo(tabId)) return Pages.UNTRACKED;
+
+  return null;
+}
+
+/** get info about a tab playing an untracked track */
+async function getUntrackedInfo(tabId) {
+  // TODO
+
+  // insert content script
   try {
-    if (!options.method) options.method = "GET";
-
-    // if get, cannot use body. use query instead
-    if (options.method === "GET" && options.body) {
-      let reqQuery = "?";
-      for (var key in options.body) {
-        reqQuery += key + "=" + encodeURIComponent(options.body[key]) + "&";
-      }
-      reqQuery = reqQuery.slice(0, -1);
-      path += reqQuery;
-      delete options.body;
-    }
-    if (options.body) {
-      options.body = JSON.stringify(options.body);
-      options.headers = { "Content-Type": "application/json" };
-    }
-
-    const response = await fetch(SERVER_URL + path, options);
-    return { ok: response.ok, body: await response.json() };
+    await insertScript(tabId, "./get_title_and_artist.js");
   } catch (e) {
     console.error(e);
-    throw Error("could not connect to server");
+    updateStatus("failed to execute the content script.", StatusTypes.ERROR);
   }
+
+  // listen for messages from content script
+
+  return {
+    title: "test " + tabId,
+    author: "test",
+  };
 }
 
-async function getSupportedTabs() {
+/** get info about a tab playing a tracked track */
+async function getTrackedInfo(tabId) {
+  // TODO
+  // if does not exist, return null
+  // else return track
+
+  return null;
+}
+
+function getTabData(tab) {
   // keys to get for each tab
   const keys = ["id", "title", "audible", "discarded", "muted"];
 
+  // select keys from tab data
+  let tabData = pick(tab, keys);
+
+  // add track data, if tracked
+  const trackData = getTrackedInfo(tab.url);
+
+  // add playlist data, if playlist
+  const playlistData = playlists[tab.id];
+
+  return { tab: tabData, track: trackData, playlist: playlistData };
+}
+
+/** get limited info about all tabs, for rendering tab bar */
+async function getSupportedTabs() {
   let tabs = {};
 
-  function appendTabData(tab) {
-    // select keys from tab data
-    let tabData = {};
-    keys.forEach((key) => {
-      tabData += { [key]: tab[key] };
-    });
-
-    // add track data, if tracked
-    const trackData = null;
-
-    // add playlist data, if playlist
-    const playlistData = playlists[tab.id];
-
-    tabs[tab.id] = { tab: tabData, track: trackData, playlist: playlistData };
-  }
-
   // add supported site tabs
-  (await browser.tabs.query({ url: SUPPORTED_SITES })).forEach(appendTabData);
+  (await browser.tabs.query({ url: SUPPORTED_SITES })).forEach(
+    (tab) => (tabs[tab.id] = getTabData(tab.id))
+  );
   // add audible tabs (or replace if key already exists)
-  (await browser.tabs.query({ audible: true })).forEach(appendTabData);
+  (await browser.tabs.query({ audible: true })).forEach(
+    (tab) => (tabs[tab.id] = getTabData(tab.id))
+  );
 
-  tabs.map((tab) => {
-    return { tab: { id: tab.id, active: tab.active }, track: {} };
-  });
+  return tabs;
 }
 
 /**
@@ -138,28 +140,6 @@ async function getAllArtists(zoneId) {
   artistCache.zoneId = zoneId;
   artistCache.valid = true;
   return artistCache.data;
-}
-
-/** get info about a tab playing an untracked track */
-async function getUntrackedInfo(tabId) {
-  // TODO
-
-  // insert content script
-  try {
-    await browser.tabs.executeScript(tabId, {
-      file: "./get_title_and_artist.js",
-    });
-  } catch (e) {
-    console.error(e);
-    updateStatus("failed to execute the content script.", StatusTypes.ERROR);
-  }
-
-  // listen for messages from content script
-
-  return {
-    title: "test " + tabId,
-    author: "test",
-  };
 }
 
 /**
