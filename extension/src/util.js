@@ -4,7 +4,7 @@ import { SERVER_URL, SUPPORTED_REGEX } from "./consts";
  * make a request to the server
  * options format: { method, body }
  */
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
   try {
     if (!options.method) options.method = "GET";
 
@@ -26,7 +26,7 @@ async function request(path, options = {}) {
     const response = await fetch(SERVER_URL + path, options);
     return { ok: response.ok, body: await response.json() };
   } catch (e) {
-    console.error(e);
+    console.error("request error:", e);
     throw Error("Could not connect to server.");
   }
 }
@@ -69,4 +69,32 @@ export function pick(object, keys) {
     newObj = { ...newObj, [key]: object[key] };
   });
   return newObj;
+}
+
+/** given an array of objects with ids, return a record from id to object */
+export function buildRecord(array) {
+  let record = {};
+  array.forEach((element) => {
+    record = { ...record, [element.id]: element };
+  });
+
+  return record;
+}
+
+/**
+ * get the left and right neighbors of this index in an array
+ * as a {left, right} object. if index is 0 or the last one, loop around to the
+ * beginning / end
+ */
+export function getNeighbors(array, index) {
+  // javascript modulo does not loop negative numbers around to the end. annoying
+  // https://stackoverflow.com/questions/4467539/javascript-modulo-gives-a-negative-result-for-negative-numbers
+  function mod(n, m) {
+    return ((n % m) + m) % m;
+  }
+  // get neighbors of an element; loop around if at beginning or end
+  const left = array[mod(index - 1, array.length)]; // previous element
+  const right = array[mod(index + 1, array.length)]; // next element
+
+  return { left, right };
 }

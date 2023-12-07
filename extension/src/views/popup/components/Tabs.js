@@ -12,7 +12,7 @@ function Tab({ tab, selected, onClick }) {
 
 function Tabs({ selectedTabId, selectTab }) {
   const background = useBackground();
-  const [allTabs, setAllTabs] = useState([]); // tabId: tab object
+  const [allTabs, setAllTabs] = useState({}); // tabId: tab object
 
   // ask background script for all supported site tabs in browser
   useEffect(() => {
@@ -50,6 +50,7 @@ function Tabs({ selectedTabId, selectTab }) {
     if (elem?.parentElement === div) elem.scrollIntoView(false);
   }, [selectedTabId, allTabs]);
 
+  // TODO change this to callback / effect?
   /**
    * if tab is selected, switch to tab in browser.
    * otherwise, select tab

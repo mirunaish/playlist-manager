@@ -10,6 +10,9 @@ export const SUPPORTED_REGEX = [
 ];
 
 export const Pages = {
+  NEW_TAB: "NEW_TAB",
+  SETTINGS: "SETTINGS",
+
   UNTRACKED: "UNTRACKED",
   TRACKED: "TRACKED",
   PLAYLIST: "PLAYLIST",
@@ -18,15 +21,11 @@ export const Pages = {
 export const MessageTypes = {
   STATUS_UPDATE: "status-update",
   TRACK_INFO: "track-info",
+  UNTRACK_INFO: "untrack-info",
   MEDIA_CONTROL: "media-control",
 };
 
 export const StatusTypes = {
   ERROR: "error",
   SUCCESS: "success",
-};
-
-export const UNTRACKED_ZONE = {
-  name: "Untracked",
-  id: "0",
 };

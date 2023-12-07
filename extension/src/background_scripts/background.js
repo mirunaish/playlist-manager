@@ -1,15 +1,19 @@
 /* eslint-disable no-unused-vars */
 
 import { MessageTypes, Pages, SUPPORTED_SITES, StatusTypes } from "../consts";
-import { pick } from "../util";
+import { request, pick, buildRecord } from "../util";
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
-  await browser.runtime.sendMessage({
-    type: MessageTypes.STATUS_UPDATE,
-    message,
-    statusType,
-  });
+  try {
+    await browser.runtime.sendMessage({
+      type: MessageTypes.STATUS_UPDATE,
+      message,
+      statusType,
+    });
+  } catch (e) {
+    console.error('failed to update status "' + message + '";', e);
+  }
 }
 
 /** make selected tab active and window focused */
@@ -21,23 +25,20 @@ async function switchToTab(id) {
 }
 
 /** insert a content script */
-async function insertScript(tabId, scriptPath) {
-  try {
-    await browser.tabs.executeScript(tabId, {
-      file: scriptPath,
-    });
-  } catch (e) {
-    console.error(e);
-    throw Error("Failed to execute " + scriptPath);
-  }
+async function insertScript(tabId, scriptName) {
+  console.log(tabId, "./" + scriptName);
+  await browser.tabs.executeScript(tabId, {
+    // in the source the content scripts are in a separate folder
+    // but in the build folder they're in the same folder as the background script
+    file: "./" + scriptName,
+  });
 }
 
 async function getTabType(tabId) {
   if (getPlaylistInfo(tabId)) return Pages.PLAYLIST;
   if (await getTrackedInfo(tabId)) return Pages.TRACKED;
-  if (await getUntrackedInfo(tabId)) return Pages.UNTRACKED;
 
-  return null;
+  return Pages.UNTRACKED;
 }
 
 /** get info about a tab playing an untracked track */
@@ -46,18 +47,25 @@ async function getUntrackedInfo(tabId) {
 
   // insert content script
   try {
-    await insertScript(tabId, "./get_title_and_artist.js");
+    await insertScript(tabId, "get_title_and_artist.js");
   } catch (e) {
     console.error(e);
-    updateStatus("failed to execute the content script.", StatusTypes.ERROR);
+    updateStatus("could not get track info.", StatusTypes.ERROR);
   }
 
-  // listen for messages from content script
-
-  return {
-    title: "test " + tabId,
-    author: "test",
-  };
+  // will listen for messages from content script and call insert guessed info
+}
+// content script listener calls this function to send untracked data
+/** send message with untracked info to the popup */
+async function insertGuessedInfo(info) {
+  try {
+    await browser.runtime.sendMessage({
+      type: MessageTypes.UNTRACK_INFO,
+      ...info,
+    });
+  } catch (e) {
+    console.error('failed to insert info "' + info + '";', e);
+  }
 }
 
 /** get info about a tab playing a tracked track */
@@ -91,11 +99,11 @@ async function getSupportedTabs() {
 
   // add supported site tabs
   (await browser.tabs.query({ url: SUPPORTED_SITES })).forEach(
-    (tab) => (tabs[tab.id] = getTabData(tab.id))
+    (tab) => (tabs[tab.id] = getTabData(tab))
   );
   // add audible tabs (or replace if key already exists)
   (await browser.tabs.query({ audible: true })).forEach(
-    (tab) => (tabs[tab.id] = getTabData(tab.id))
+    (tab) => (tabs[tab.id] = getTabData(tab))
   );
 
   return tabs;
@@ -126,6 +134,20 @@ async function getMostImportantTabId() {
   return null;
 }
 
+// also cache zones
+const zoneCache = {
+  valid: false,
+  data: {},
+};
+async function getAllZones() {
+  if (zoneCache.valid) return zoneCache.data;
+
+  const zones = (await request("/zone")).body;
+  zoneCache.data = buildRecord(zones);
+  zoneCache.valid = true;
+  return zoneCache.data;
+}
+
 // cache array of artists
 const artistCache = {
   valid: false,
@@ -136,7 +158,8 @@ async function getAllArtists(zoneId) {
   if (artistCache.valid && zoneId === artistCache.zoneId)
     return artistCache.data;
 
-  artistCache.data = (await request("/artists", { body: { zoneId } })).body;
+  const artists = (await request("/artists", { body: { zoneId } })).body;
+  artistCache.data = buildRecord(artists);
   artistCache.zoneId = zoneId;
   artistCache.valid = true;
   return artistCache.data;
@@ -144,8 +167,12 @@ async function getAllArtists(zoneId) {
 
 /**
  * all playlists playing.
- * tabid: {list: array of tracks, index: index of track playing,
- * currTrack: track object, filters: applied filters}
+ * tabid: {
+ *   list: array of tracks,
+ *   index: index of track playing,
+ *   currTrack: track object,
+ *   filters: applied filters
+ * }
  */
 const playlists = {};
 
@@ -248,65 +275,65 @@ async function changeTrack(index) {
   loadTrack();
 }
 
+*/
+
 // receive messages from content script
 // content script also catches next and previous hardware key presses
 browser.runtime.onMessage.addListener((message) => {
   // if message is previous or next
   if (message.type === "media-control") {
     if (message.action === "next") {
-      next();
+      //next();
     } else if (message.action === "previous") {
-      previous();
+      //previous();
     }
   } else if (message.type === "info-retrieved") {
     insertGuessedInfo(message.payload);
   } else {
-    console.log("background received unknown message");
-    console.log(message);
+    console.warn("background received unknown message", message);
   }
 });
 
 // add event listener that injects content script after the page loads
-browser.tabs.onUpdated.addListener(
-  async (tabId, changeInfo, tabInfo) => {
-    if (
-      siteSupported(tabInfo.url) &&
-      tabId === playingTabId &&
-      changeInfo.status === "complete"
-    ) {
-      try {
-        // content script won't run if it already has
-        // if page is refreshed content script will run again
-        await browser.tabs.executeScript(playingTabId, {
-          file: "./insert_listener.js",
-        });
-      } catch (e) {
-        console.error(e);
-        updateStatus("failed to execute the content script.", { error: true });
-      }
-    }
-  },
-  {
-    urls: supportedSites,
-    properties: ["status"],
-  }
-);
+// browser.tabs.onUpdated.addListener(
+//   async (tabId, changeInfo, tabInfo) => {
+//     if (
+//       siteSupported(tabInfo.url) &&
+//       tabId === playingTabId &&
+//       changeInfo.status === "complete"
+//     ) {
+//       try {
+//         // content script won't run if it already has
+//         // if page is refreshed content script will run again
+//         await browser.tabs.executeScript(playingTabId, {
+//           file: "./insert_listener.js",
+//         });
+//       } catch (e) {
+//         console.error(e);
+//         updateStatus("failed to execute the content script.", { error: true });
+//       }
+//     }
+//   },
+//   {
+//     urls: supportedSites,
+//     properties: ["status"],
+//   }
+// );
 
 // add event listener that refreshes popup if tabs change
 // TODO
 
 // add event listener that stops playing if tab is closed
-browser.tabs.onRemoved.addListener(async (tabId) => {
-  if (isPlaying && tabId === playingTabId) {
-    await stopPlaying();
-  }
-});
+// browser.tabs.onRemoved.addListener(async (tabId) => {
+//   if (isPlaying && tabId === playingTabId) {
+//     await stopPlaying();
+//   }
+// });
 
-*/
-
+// if popup components want to update the status they send a message to the
+// background script which then forwards it to the status component
 browser.runtime.onMessage.addListener((message) => {
   if (message.type === MessageTypes.STATUS_UPDATE) {
-    // forward status updates from components to status component
     browser.runtime.sendMessage(message);
   }
 });
