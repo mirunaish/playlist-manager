@@ -26,11 +26,12 @@ async function switchToTab(id) {
 
 /** insert a content script */
 async function insertScript(tabId, scriptName) {
-  console.log(tabId, "./" + scriptName);
+  const scriptPath = "static/js/" + scriptName;
+  console.log(tabId, scriptPath);
   await browser.tabs.executeScript(tabId, {
     // in the source the content scripts are in a separate folder
     // but in the build folder they're in the same folder as the background script
-    file: "./" + scriptName,
+    file: scriptPath,
   });
 }
 
@@ -43,25 +44,22 @@ async function getTabType(tabId) {
 
 /** get info about a tab playing an untracked track */
 async function getUntrackedInfo(tabId) {
-  // TODO
-
-  // insert content script
   try {
+    // insert content script
     await insertScript(tabId, "get_title_and_artist.js");
+    // will listen for messages from content script and call insertGuessedInfo
   } catch (e) {
-    console.error(e);
+    console.error("could not get track info:", e);
     updateStatus("could not get track info.", StatusTypes.ERROR);
   }
-
-  // will listen for messages from content script and call insert guessed info
 }
 // content script listener calls this function to send untracked data
 /** send message with untracked info to the popup */
 async function insertGuessedInfo(info) {
   try {
     await browser.runtime.sendMessage({
-      type: MessageTypes.UNTRACK_INFO,
-      ...info,
+      type: MessageTypes.TRACK_INFO_FORWARD,
+      payload: info,
     });
   } catch (e) {
     console.error('failed to insert info "' + info + '";', e);
@@ -281,13 +279,13 @@ async function changeTrack(index) {
 // content script also catches next and previous hardware key presses
 browser.runtime.onMessage.addListener((message) => {
   // if message is previous or next
-  if (message.type === "media-control") {
+  if (message.type === MessageTypes.MEDIA_CONTROL) {
     if (message.action === "next") {
       //next();
     } else if (message.action === "previous") {
       //previous();
     }
-  } else if (message.type === "info-retrieved") {
+  } else if (message.type === MessageTypes.TRACK_INFO) {
     insertGuessedInfo(message.payload);
   } else {
     console.warn("background received unknown message", message);

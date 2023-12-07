@@ -3,6 +3,7 @@ import { MessageTypes } from "../consts";
 (function () {
   let fullTitle = "";
   let posterName = "";
+  let imageLink = "";
 
   // get the text inside an element
   function getText(sel) {
@@ -11,9 +12,10 @@ import { MessageTypes } from "../consts";
 
   function youtube() {
     fullTitle = document.title.slice(0, -10);
-    posterName = getText(
-      "ytd-video-owner-renderer.ytd-video-secondary-info-renderer ytd-channel-name a"
-    );
+    posterName = getText("a.yt-formatted-string");
+
+    const vidId = window.location.href.match(/(?<=watch\?v=)[a-zA-Z0-9_\\-]*/g);
+    imageLink = "https://i.ytimg.com/vi/" + vidId + "/hqdefault.jpg";
   }
 
   function soundcloud() {
@@ -52,7 +54,7 @@ import { MessageTypes } from "../consts";
     title = title.trim().replace(/ +/g, " ");
     artist = artist.trim().replace(/ +/g, " ");
 
-    return { title, artist };
+    return { title, artist, imageLink };
   }
 
   const where = window.location.href;

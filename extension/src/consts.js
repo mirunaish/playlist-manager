@@ -21,7 +21,7 @@ export const Pages = {
 export const MessageTypes = {
   STATUS_UPDATE: "status-update",
   TRACK_INFO: "track-info",
-  UNTRACK_INFO: "untrack-info",
+  TRACK_INFO_FORWARD: "track-info-forward",
   MEDIA_CONTROL: "media-control",
 };
 

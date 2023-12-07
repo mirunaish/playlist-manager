@@ -15,7 +15,7 @@ function Status() {
         updateStatus(message.message, message.statusType);
       }
     });
-  });
+  }, []);
 
   return (
     <div
