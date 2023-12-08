@@ -1,15 +1,16 @@
 :root {
   --background: #201e1f;
-  --background-accent: #322c2f;
+  --backgroundAccent: #322c2f;
   --ui: #9d6790;
   --text: #faf1f9;
-  --text-fineprint: #d6b2ce;
+  --textFineprint: #d6b2ce;
   --primary: #d631d6;
-  --primary-dark: #961296;
-  --primary-text: #faf1f9;
+  --primaryDark: #961296;
+  --primaryText: #faf1f9;
   --secondary: #969696;
-  --secondary-dark: #565656;
-  --secondary-text: #ffffff;
+  --secondaryDark: #565656;
+  --secondaryText: #ffffff;
+  --hue: 0deg;
   --error: #fc3f52;
   --success: #3ffc5b;
 }
@@ -30,7 +31,7 @@ body {
 }
 
 .tabs {
-  background-color: var(--background-accent);
+  background-color: var(--backgroundAccent);
 
   white-space: nowrap;
 
@@ -62,19 +63,19 @@ body {
   margin-right: 2px;
 }
 .tab:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--secondaryDark);
 }
 .tab.selected {
   background-color: var(--primary);
   padding-bottom: 18px;
 }
 .tab.selected:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--primaryDark);
 }
 
 .zone {
   background-color: var(--primary);
-  color: var(--primary-text);
+  color: var(--primaryText);
 
   height: 38px;
 
@@ -124,12 +125,15 @@ p {
 }
 .fineprint {
   font-size: 12px;
-  color: var(--text-fineprint);
+  color: var(--textFineprint);
 }
 
 img {
   object-fit: contain;
   width: 100%;
+}
+.hue {
+  filter: hue-rotate(var(--hue));
 }
 
 svg {
@@ -150,7 +154,7 @@ svg.stroke > path {
 }
 
 button {
-  color: var(--secondary-text);
+  color: var(--secondaryText);
   border: none;
   padding: 5px;
   width: 120px;
@@ -163,22 +167,22 @@ button {
   border-radius: 4px;
 }
 button > svg > path {
-  fill: var(--secondary-text);
-  stroke: var(--secondary-text);
+  fill: var(--secondaryText);
+  stroke: var(--secondaryText);
 }
 button:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--secondaryDark);
 }
 button.primary {
   background-color: var(--primary);
-  color: var(--primary-text);
+  color: var(--primaryText);
 }
 button.primary > svg > path {
-  fill: var(--primary-text);
-  stroke: var(--primary-text);
+  fill: var(--primaryText);
+  stroke: var(--primaryText);
 }
 button.primary:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--primaryDark);
 }
 button > svg {
   padding: 0px 5px 0px 0px;
@@ -186,7 +190,7 @@ button > svg {
 
 select {
   background-color: var(--secondary);
-  color: var(--secondary-text);
+  color: var(--secondaryText);
   border: none;
   border-radius: 4px;
   font-size: 14px;
@@ -195,15 +199,15 @@ select {
   margin-right: 2px;
 }
 select:hover {
-  background-color: var(--secondary-dark);
+  background-color: var(--secondaryDark);
 }
 select > option:hover,
 select > option:checked {
-  background-color: var(--secondary-dark);
+  background-color: var(--secondaryDark);
 }
 
 input {
-  background-color: var(--background-accent);
+  background-color: var(--backgroundAccent);
   color: var(--text);
   border: 1px solid var(--ui);
   border-radius: 4px;
@@ -220,8 +224,8 @@ input {
   stroke: var(--primary);
 }
 .rating > svg:hover > path {
-  fill: var(--primary-dark);
-  stroke: var(--primary-dark);
+  fill: var(--primaryDark);
+  stroke: var(--primaryDark);
 }
 .rating > svg.disabled:hover > path {
   fill: var(--primary);

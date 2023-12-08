@@ -36,25 +36,30 @@ function ZoneBanner({
       (async () => {
         const zones = await background.getAllZones();
         const index = Object.keys(zones).indexOf(zoneId);
-        setNeighbors(getNeighbors(Object.values(zones), index));
+        if (Object.keys(zones).length <= 1) setNeighbors(null);
+        else setNeighbors(getNeighbors(Object.values(zones), index));
       })();
     else setNeighbors(null);
   }, [background, zoneId]);
 
   const getGradient = useCallback(
     (d) => {
+      if (!neighbors) return "var(--primary)";
+
       let gradient = "linear-gradient(to " + d + ", ";
       gradient += "var(--primary), ";
-      gradient += neighbors[d].color + ", " + neighbors[d].color + ")";
+      const neighborColor = Themes[neighbors[d].theme]?.primary;
+      gradient += neighborColor + ", " + neighborColor + ")";
       console.log(gradient);
       return gradient;
     },
-    [zoneId, zone, neighbors]
+    [neighbors]
   );
 
   return (
     <div className="zone">
       {!disabled &&
+        neighbors &&
         [Icons.LEFT, Icons.RIGHT].map((direction, i, array) => (
           <div
             onClick={() => setZoneId(neighbors[direction].id)}
