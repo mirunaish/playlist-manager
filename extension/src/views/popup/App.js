@@ -28,8 +28,14 @@ function App() {
   // set the page type
   useEffect(() => {
     (async () => {
-      if (selectedTabId === "+") return Pages.NEW_TAB;
-      if (selectedTabId === "settings") return Pages.SETTINGS;
+      if (selectedTabId === "+") {
+        setPage(Pages.NEW_TAB);
+        return;
+      }
+      if (selectedTabId === "settings") {
+        setPage(Pages.SETTINGS);
+        return;
+      }
       const type = await background.getTabType(selectedTabId);
       setPage(type);
     })();

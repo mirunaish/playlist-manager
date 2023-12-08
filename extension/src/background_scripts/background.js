@@ -27,7 +27,6 @@ async function switchToTab(id) {
 /** insert a content script */
 async function insertScript(tabId, scriptName) {
   const scriptPath = "static/js/" + scriptName;
-  console.log(tabId, scriptPath);
   await browser.tabs.executeScript(tabId, {
     // in the source the content scripts are in a separate folder
     // but in the build folder they're in the same folder as the background script
@@ -75,34 +74,45 @@ async function getTrackedInfo(tabId) {
   return null;
 }
 
-function getTabData(tab) {
+async function getTabData(tab) {
   // keys to get for each tab
-  const keys = ["id", "title", "audible", "discarded", "muted"];
+  const keys = ["id", "title", "audible", "discarded", "muted", "index"];
 
   // select keys from tab data
-  let tabData = pick(tab, keys);
+  const tabData = pick(tab, keys);
 
   // add track data, if tracked
-  const trackData = getTrackedInfo(tab.url);
+  // will put title in tab title
+  const trackData = await getTrackedInfo(tab.url);
 
   // add playlist data, if playlist
   const playlistData = playlists[tab.id];
 
-  return { tab: tabData, track: trackData, playlist: playlistData };
+  // get zone color
+  const zoneTheme = trackData
+    ? (await getAllZones())[trackData.zoneId].theme
+    : null;
+
+  return { tab: tabData, track: trackData, playlist: playlistData, zoneTheme };
 }
 
 /** get limited info about all tabs, for rendering tab bar */
 async function getSupportedTabs() {
-  let tabs = {};
+  let tabs = [];
 
-  // add supported site tabs
-  (await browser.tabs.query({ url: SUPPORTED_SITES })).forEach(
-    (tab) => (tabs[tab.id] = getTabData(tab))
-  );
-  // add audible tabs (or replace if key already exists)
-  (await browser.tabs.query({ audible: true })).forEach(
-    (tab) => (tabs[tab.id] = getTabData(tab))
-  );
+  // put in id:object map to only keep one copy of each tab
+  const allTabs = Object.values({
+    ...buildRecord(await browser.tabs.query({ url: SUPPORTED_SITES })), // supported site tabs
+    ...buildRecord(await browser.tabs.query({ audible: true })), // audible tabs
+  });
+
+  // get tab data for each tab and push to array
+  for (let tab of allTabs) {
+    tabs.push(await getTabData(tab));
+  }
+
+  // sort tabs by index
+  tabs.sort((a, b) => a.tab.index - b.tab.index);
 
   return tabs;
 }

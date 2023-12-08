@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { isMouse, shorten } from "../../../util";
 import { useBackground } from "../hooks";
+import { Themes } from "../../../themes";
 
 function Tab({ tab, selected, onClick }) {
   return (
@@ -12,7 +13,7 @@ function Tab({ tab, selected, onClick }) {
 
 function Tabs({ selectedTabId, selectTab }) {
   const background = useBackground();
-  const [allTabs, setAllTabs] = useState({}); // tabId: tab object
+  const [allTabs, setAllTabs] = useState([]); // [{tab, track, playlist, zoneTheme}]
 
   // ask background script for all supported site tabs in browser
   useEffect(() => {
@@ -81,19 +82,17 @@ function Tabs({ selectedTabId, selectTab }) {
         <p>{"⚙"}</p>
       </div>
       <div className="scrollable-container" onWheel={scroll}>
-        {Object.values(allTabs)
-          .map((tab) => tab.tab)
-          .map((tab) => {
-            return (
-              <Tab
-                key={tab.id}
-                tab={tab}
-                selected={selectedTabId === tab.id}
-                onClick={() => selectOrSwitch(tab.id)}
-                color={tab.color}
-              />
-            );
-          })}
+        {allTabs.map((data) => {
+          return (
+            <Tab
+              key={data.tab.id}
+              tab={data.tab}
+              selected={selectedTabId === data.tab.id}
+              onClick={() => selectOrSwitch(data.tab.id)}
+              color={Themes[data.zoneTheme]?.primary}
+            />
+          );
+        })}
       </div>
     </div>
   );
