@@ -7,11 +7,12 @@ import { Icons } from "../icons";
 import ZoneBanner from "../components/ZoneBanner";
 import { MessageTypes, StatusTypes } from "../../../consts";
 
+const initialTrackInfo = { rating: 0 };
+
 function Untracked({ selectedTabId }) {
   const background = useBackground();
   const updateStatus = useStatusUpdate();
 
-  const initialTrackInfo = { rating: 0 };
   const [trackInfo, setTrackInfo] = useState(initialTrackInfo);
   const updateFields = useCallback(
     (fields) => {
@@ -20,28 +21,34 @@ function Untracked({ selectedTabId }) {
     [trackInfo]
   );
 
-  // set track info on message from background (who's just forwarding it from content script)
   useEffect(() => {
-    // listen for track info messages
-    browser.runtime.onMessage.addListener((message) => {
+    // tab changed. reset track info
+    setTrackInfo(initialTrackInfo);
+  }, [selectedTabId]);
+
+  // set track info
+  useEffect(() => {
+    // listener function that sets track data
+    const listener = (message) => {
       if (message.type === MessageTypes.TRACK_INFO_FORWARD) {
-        // populate track info with received data
         console.log("setting track info from content script:", message.payload);
+
+        // remove listener
+        browser.runtime.onMessage.removeListener(listener);
+
+        // populate track info with received data
         updateFields(message.payload);
       }
-    });
-  }, [updateFields]);
+    };
 
-  // ask background to send track info message at some point
-  useEffect(() => {
-    // tab changed. reset track info TODO doesn't work
-    setTrackInfo(initialTrackInfo);
-    // ask background script to get track info from page
-    background.getUntrackedInfo(selectedTabId);
-  }, [background, selectedTabId]);
+    // if title has not been set,
+    if (!trackInfo.title) {
+      // listen for track info messages
+      browser.runtime.onMessage.addListener(listener);
+      // ask background script to get track info from page
+      background.getUntrackedInfo(selectedTabId);
+    }
 
-  // set zone id to default zone
-  useEffect(() => {
     if (!trackInfo.zoneId) {
       (async () => {
         // TODO ask background for default zone to auto select
@@ -49,7 +56,7 @@ function Untracked({ selectedTabId }) {
         updateFields({ zoneId: Object.keys(zones)[0] });
       })();
     }
-  }, [background, selectedTabId, trackInfo, updateFields]);
+  }, [updateFields, trackInfo, background, selectedTabId]);
 
   const save = useCallback(async () => {
     console.log("save button pressed");
@@ -57,23 +64,21 @@ function Untracked({ selectedTabId }) {
     // await background.add(trackInfo);
   }, [background, trackInfo, updateStatus]);
 
-  console.log(trackInfo);
-
   return (
     <div>
       <ZoneBanner title="Untracked" disabled={true} />
 
       <Thumbnail src={trackInfo.imageLink} alt="thumbnail" />
       <input
-        value={trackInfo.title}
+        value={trackInfo.title ?? ""}
         onChange={(e) => updateFields({ title: e.target.value })}
       />
       <input
-        value={trackInfo.artist}
+        value={trackInfo.artist ?? ""}
         onChange={(e) => updateFields({ artist: e.target.value })}
       />
       <input
-        value={trackInfo.imageLink}
+        value={trackInfo.imageLink ?? ""}
         onChange={(e) => updateFields({ imageLink: e.target.value })}
       ></input>
       <Rating
