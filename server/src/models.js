@@ -8,6 +8,10 @@ export function artist(sequelize) {
       name: { type: DataTypes.STRING, allowNull: false },
       starred: { type: DataTypes.BOOLEAN, allowNull: false },
       group: { type: DataTypes.UUID, allowNull: true },
+      zoneId: {
+        type: DataTypes.UUID,
+        references: { model: sequelize.models.Zone, key: "id" },
+      },
     },
     { timestamps: false }
   );
@@ -21,7 +25,7 @@ export function tag(sequelize) {
       name: { type: DataTypes.STRING, allowNull: false },
       zoneId: {
         type: DataTypes.UUID,
-        references: { model: "zones", key: "id" },
+        references: { model: sequelize.models.Zone, key: "id" },
       },
     },
     { timestamps: false }
@@ -40,7 +44,7 @@ export function track(sequelize) {
       rating: { type: DataTypes.INTEGER, allowNull: false }, // 0-6
       zoneId: {
         type: DataTypes.UUID,
-        references: { model: sequelize.models.Zone },
+        references: { model: sequelize.models.Zone, key: "id" },
       },
     },
     { timestamps: false }
@@ -86,11 +90,12 @@ export function trackTag(sequelize) {
 
 export function zone(sequelize) {
   return sequelize.define(
-    "Zone",
+    "Zone", // TODO should this be lowercase zone?
     {
       id: { type: DataTypes.UUID, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },
+      theme: { type: DataTypes.STRING, allowNull: false },
     },
-    { timestamps: false }
+    { tableName: "zones", timestamps: false }
   );
 }

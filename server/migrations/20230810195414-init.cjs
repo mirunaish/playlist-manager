@@ -10,6 +10,7 @@ module.exports = {
         {
           id: { type: Sequelize.UUID, primaryKey: true },
           name: { type: Sequelize.STRING, allowNull: false },
+          theme: { type: Sequelize.STRING, allowNull: false },
         },
         { transaction }
       );
@@ -21,6 +22,10 @@ module.exports = {
           name: { type: Sequelize.STRING, allowNull: false },
           starred: { type: Sequelize.BOOLEAN, allowNull: false },
           group: { type: Sequelize.UUID, allowNull: true },
+          zoneId: {
+            type: Sequelize.UUID,
+            references: { model: "zones", key: "id" },
+          },
         },
         { transaction }
       );
