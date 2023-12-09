@@ -6,6 +6,7 @@ import Thumbnail from "../components/Thumbnail";
 import { Icons } from "../icons";
 import ZoneBanner from "../components/ZoneBanner";
 import { MessageTypes, StatusTypes } from "../../../consts";
+import PlayBar from "../components/PlayBar";
 
 const initialTrackInfo = { rating: 0 };
 
@@ -64,7 +65,7 @@ function Untracked({ selectedTabId }) {
     <div>
       <ZoneBanner title="Untracked" disabled={true} />
 
-      <Thumbnail src={trackInfo.imageLink} alt="thumbnail" />
+      <Thumbnail src={trackInfo.imageLink} />
       <input
         value={trackInfo.title ?? ""}
         onChange={(e) => updateFields({ title: e.target.value })}
@@ -88,6 +89,8 @@ function Untracked({ selectedTabId }) {
         onClick={save}
         icon={{ icon: Icons.YOUTUBE, type: Icons.FILL }}
       />
+
+      <PlayBar totalTime={60 * 3} currentTime={44} />
     </div>
   );
 }

@@ -12,9 +12,16 @@ export const Icons = {
 
   LEFT: "left",
   RIGHT: "right",
+  PLAY: "play",
+  PAUSE: "pause",
+  NEXT: "next",
+  PREVIOUS: "previous",
+  RESTART: "restart",
+
   STAR4: "star4",
   STAR5: "star5",
   STAR6: "star6",
+
   YOUTUBE: "youtube",
   SOUNDCLOUD: "soundcloud",
 };
@@ -27,6 +34,7 @@ export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
     height: size,
   };
 
+  // TODO
   switch (icon) {
     case Icons.LEFT:
       return <Left {...props} />;
