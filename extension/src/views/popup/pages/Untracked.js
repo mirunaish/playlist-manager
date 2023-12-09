@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Rating from "../components/Rating";
 import Button from "../components/Button";
-import { useBackground, useStatusUpdate } from "../hooks";
+import { useBackground, useListener, useStatusUpdate } from "../hooks";
 import Thumbnail from "../components/Thumbnail";
 import { Icons } from "../icons";
 import ZoneBanner from "../components/ZoneBanner";
@@ -12,6 +12,7 @@ const initialTrackInfo = { rating: 0 };
 function Untracked({ selectedTabId }) {
   const background = useBackground();
   const updateStatus = useStatusUpdate();
+  const trackInfoListener = useListener();
 
   const [trackInfo, setTrackInfo] = useState(initialTrackInfo);
   const updateFields = useCallback(
@@ -30,11 +31,12 @@ function Untracked({ selectedTabId }) {
   useEffect(() => {
     // listener function that sets track data
     const listener = (message) => {
-      if (message.type === MessageTypes.TRACK_INFO_FORWARD) {
+      console.log("message is", message);
+      if (message && message.type === MessageTypes.TRACK_INFO_FORWARD) {
         console.log("setting track info from content script:", message.payload);
 
         // remove listener
-        browser.runtime.onMessage.removeListener(listener);
+        trackInfoListener.remove();
 
         // populate track info with received data
         updateFields(message.payload);
@@ -44,7 +46,8 @@ function Untracked({ selectedTabId }) {
     // if title has not been set,
     if (!trackInfo.title) {
       // listen for track info messages
-      browser.runtime.onMessage.addListener(listener);
+      console.log("adding the listener");
+      trackInfoListener.add(listener);
       // ask background script to get track info from page
       background.getUntrackedInfo(selectedTabId);
     }
@@ -56,7 +59,13 @@ function Untracked({ selectedTabId }) {
         updateFields({ zoneId: Object.keys(zones)[0] });
       })();
     }
-  }, [updateFields, trackInfo, background, selectedTabId]);
+  }, [updateFields, trackInfo, background, selectedTabId, trackInfoListener]);
+
+  // remove listener when unmounting component
+  // useEffect(() => () => {
+  //   console.log("component is removing its listener");
+  //   trackInfoListener.remove();
+  // });
 
   const save = useCallback(async () => {
     console.log("save button pressed");

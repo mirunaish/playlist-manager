@@ -1,4 +1,6 @@
-import { useCallback, useMemo } from "react";
+// @ts-nocheck
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MessageTypes } from "../../consts";
 
 /** get a reference to the background page to call its functions directly */
@@ -22,4 +24,31 @@ export function useStatusUpdate() {
       statusType: type,
     });
   }, []);
+}
+
+/** add and remove background script listeners */
+export function useListener() {
+  const [listener, setListener] = useState(null);
+
+  const add = (func) => {
+    if (listener) browser.runtime.onMessage.removeListener(listener);
+    browser.runtime.onMessage.addListener(func);
+    setListener(func);
+  };
+
+  const remove = () => {
+    if (!listener) return;
+    console.log("removing listener on request");
+    browser.runtime.onMessage.removeListener(listener);
+  };
+
+  // remove listener when unmounting
+  useEffect(() => () => {
+    console.log("cleanup; listener is", listener);
+    if (!listener) return;
+    console.log("removing listener on cleanup");
+    browser.runtime.onMessage.removeListener(listener);
+  });
+
+  return { add, remove };
 }
