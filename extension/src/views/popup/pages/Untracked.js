@@ -22,51 +22,38 @@ function Untracked({ selectedTabId }) {
     [trackInfo]
   );
 
+  // on first render, add listener that adds track info from content script
   useEffect(() => {
-    // tab changed. reset track info
-    setTrackInfo(initialTrackInfo);
-  }, [selectedTabId]);
-
-  // set track info
-  useEffect(() => {
-    // listener function that sets track data
     const listener = (message) => {
-      console.log("message is", message);
       if (message && message.type === MessageTypes.TRACK_INFO_FORWARD) {
         console.log("setting track info from content script:", message.payload);
-
-        // remove listener
-        trackInfoListener.remove();
 
         // populate track info with received data
         updateFields(message.payload);
       }
     };
 
-    // if title has not been set,
-    if (!trackInfo.title) {
-      // listen for track info messages
-      console.log("adding the listener");
-      trackInfoListener.add(listener);
-      // ask background script to get track info from page
-      background.getUntrackedInfo(selectedTabId);
-    }
+    console.log("adding track info listener");
+    trackInfoListener.add(listener);
 
-    if (!trackInfo.zoneId) {
-      (async () => {
-        // TODO ask background for default zone to auto select
-        const zones = await background.getAllZones();
-        updateFields({ zoneId: Object.keys(zones)[0] });
-      })();
-    }
-  }, [updateFields, trackInfo, background, selectedTabId, trackInfoListener]);
+    // on cleanup, remove this listener (?)
+    return trackInfoListener.remove;
+  }, []);
 
-  // remove listener when unmounting component
-  // useEffect(() => () => {
-  //   console.log("component is removing its listener");
-  //   trackInfoListener.remove();
-  // });
+  // whenever tab is changed, ask background for info about new track
+  useEffect(() => {
+    // ask background script to get track info from page
+    background.getUntrackedInfo(selectedTabId);
+    // background will later send a message with the info which the listener will catch
 
+    (async () => {
+      // TODO ask background for default zone to auto select
+      const zones = await background.getAllZones();
+      updateFields({ zoneId: Object.keys(zones)[0] });
+    })();
+  }, [selectedTabId]);
+
+  // save untracked track to backend
   const save = useCallback(async () => {
     console.log("save button pressed");
     updateStatus({ message: "this is a test", type: StatusTypes.SUCCESS });

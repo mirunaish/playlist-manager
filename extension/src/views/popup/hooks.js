@@ -43,12 +43,14 @@ export function useListener() {
   };
 
   // remove listener when unmounting
-  useEffect(() => () => {
-    console.log("cleanup; listener is", listener);
-    if (!listener) return;
-    console.log("removing listener on cleanup");
-    browser.runtime.onMessage.removeListener(listener);
-  });
+  useEffect(
+    () => () => {
+      if (!listener) return;
+      console.log("removing listener on cleanup");
+      browser.runtime.onMessage.removeListener(listener);
+    },
+    []
+  );
 
   return { add, remove };
 }
