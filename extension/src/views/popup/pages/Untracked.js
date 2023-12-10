@@ -7,21 +7,18 @@ import { Icons } from "../icons";
 import ZoneBanner from "../components/ZoneBanner";
 import { MessageTypes, StatusTypes } from "../../../consts";
 import PlayBar from "../components/PlayBar";
-
-const initialTrackInfo = { rating: 0 };
+import ZonesDropdown from "../components/ZonesDropdown";
 
 function Untracked({ selectedTabId }) {
   const background = useBackground();
   const updateStatus = useStatusUpdate();
   const trackInfoListener = useListener();
 
-  const [trackInfo, setTrackInfo] = useState(initialTrackInfo);
-  const updateFields = useCallback(
-    (fields) => {
-      setTrackInfo({ ...trackInfo, ...fields });
-    },
-    [trackInfo]
-  );
+  // need to separate track data into two to prevent threads from overwriting data from each other
+  // TODO find a better way to do this?
+  const [untrackedInfo, setUntrackedInfo] = useState({}); // info from the content script
+  const [trackInfo, setTrackInfo] = useState({ rating: 0, length: 0 }); // info from background + defaults
+  // TODO add length from content script
 
   // on first render, add listener that adds track info from content script
   useEffect(() => {
@@ -30,7 +27,7 @@ function Untracked({ selectedTabId }) {
         console.log("setting track info from content script:", message.payload);
 
         // populate track info with received data
-        updateFields(message.payload);
+        setUntrackedInfo(message.payload);
       }
     };
 
@@ -47,41 +44,58 @@ function Untracked({ selectedTabId }) {
     background.getUntrackedInfo(selectedTabId);
     // background will later send a message with the info which the listener will catch
 
+    // add zone
     (async () => {
       // TODO ask background for default zone to auto select
       const zones = await background.getAllZones();
-      updateFields({ zoneId: Object.keys(zones)[0] });
+      setTrackInfo({ ...trackInfo, zoneId: Object.keys(zones)[0] });
     })();
   }, [selectedTabId]);
 
   // save untracked track to backend
   const save = useCallback(async () => {
-    console.log("save button pressed");
-    updateStatus({ message: "this is a test", type: StatusTypes.SUCCESS });
-    // await background.add(trackInfo);
-  }, [background, trackInfo, updateStatus]);
+    console.log("saving track", { ...trackInfo, ...untrackedInfo });
+    await background.add({ ...trackInfo, ...untrackedInfo });
+  }, [background, trackInfo, untrackedInfo]);
 
   return (
     <div>
       <ZoneBanner title="Untracked" disabled={true} />
 
-      <Thumbnail src={trackInfo.imageLink} />
+      <Thumbnail src={untrackedInfo.imageLink} />
+
+      <p>{untrackedInfo.url}</p>
+
       <input
-        value={trackInfo.title ?? ""}
-        onChange={(e) => updateFields({ title: e.target.value })}
+        value={untrackedInfo.title ?? ""}
+        onChange={(e) => {
+          setUntrackedInfo({ ...untrackedInfo, title: e.target.value });
+        }}
       />
       <input
-        value={trackInfo.artist ?? ""}
-        onChange={(e) => updateFields({ artist: e.target.value })}
+        value={untrackedInfo.artist ?? ""}
+        onChange={(e) => {
+          setUntrackedInfo({ ...untrackedInfo, artist: e.target.value });
+        }}
       />
       <input
-        value={trackInfo.imageLink ?? ""}
-        onChange={(e) => updateFields({ imageLink: e.target.value })}
+        value={untrackedInfo.imageLink ?? ""}
+        onChange={(e) => {
+          setUntrackedInfo({ ...untrackedInfo, imageLink: e.target.value });
+        }}
       ></input>
       <Rating
         value={trackInfo.rating}
         extended={true}
-        onChange={(e) => updateFields({ rating: e.target.value })}
+        onChange={(e) => {
+          setTrackInfo({ ...trackInfo, rating: e.target.value });
+        }}
+      />
+      <ZonesDropdown
+        selectedZoneId={trackInfo.zoneId}
+        setZoneId={(v) => {
+          setTrackInfo({ ...trackInfo, zoneId: v });
+        }}
       />
 
       <Button

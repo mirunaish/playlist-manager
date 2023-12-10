@@ -3,7 +3,7 @@ import { sequelize, Track, Artist, TrackArtist } from "../../src/index.js";
 import { artistMatch } from "./artist-service.js";
 
 export async function getTrackById(id) {
-  let track = Track.findOne({ where: { id } });
+  let track = await Track.findOne({ where: { id } });
   if (track == null) throw "could not find track";
   track.artist = await getTrackArtists(track.id);
 
@@ -11,7 +11,7 @@ export async function getTrackById(id) {
 }
 
 export async function getTrackByUrl(url) {
-  let track = Track.findOne({ where: { url } });
+  let track = await Track.findOne({ where: { url } });
   if (track == null) throw "could not find track";
   track.artist = await getTrackArtists(track.id);
 
@@ -28,7 +28,6 @@ export async function getTrackArtists(trackId) {
   // get all artists on this track
   const result = await Artist.findAll({
     include: [{ model: TrackArtist, required: true, where: { trackId } }],
-    where: [],
   });
 
   // list the names separated by commas
@@ -52,7 +51,7 @@ export async function add(data) {
   await Track.create({ ...trackData, id });
 
   // create mapping to artists
-  const artistIds = await artistMatch(artist);
+  const artistIds = await artistMatch(artist, data.zoneId);
   await editTrackArtists(id, artistIds);
 
   // return the new track object
@@ -63,11 +62,14 @@ export async function add(data) {
 export async function edit(id, data) {
   const { artist, ...trackData } = data;
 
+  // get current track data
+  const currentData = await getTrackById(id);
+
   // update track
   await Track.update({ ...trackData }, { where: { id } });
 
   // update artist mapping
-  const artistIds = await artistMatch(artist);
+  const artistIds = await artistMatch(artist, currentData.zoneId);
   await editTrackArtists(id, artistIds);
 
   // return edited track
@@ -81,6 +83,6 @@ async function editTrackArtists(trackId, artistIds) {
 
   // add new ones
   for (let artistId of artistIds) {
-    TrackArtist.create({ id: uuid(), artistId, trackId });
+    await TrackArtist.create({ id: uuid(), artistId, trackId, main: false });
   }
 }

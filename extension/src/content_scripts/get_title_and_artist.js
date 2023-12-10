@@ -4,6 +4,7 @@ import { MessageTypes } from "../consts";
   let fullTitle = "";
   let posterName = "";
   let imageLink = "";
+  let url = "";
 
   // get the text inside an element
   function getText(sel) {
@@ -16,6 +17,8 @@ import { MessageTypes } from "../consts";
 
     const vidId = window.location.href.match(/(?<=watch\?v=)[a-zA-Z0-9_\\-]*/g);
     imageLink = "https://i.ytimg.com/vi/" + vidId + "/hqdefault.jpg";
+
+    url = window.location.href.replace(/&.*/, "");
   }
 
   function soundcloud() {
@@ -54,7 +57,7 @@ import { MessageTypes } from "../consts";
     title = title.trim().replace(/ +/g, " ");
     artist = artist.trim().replace(/ +/g, " ");
 
-    return { title, artist, imageLink };
+    return { title, artist, imageLink, url };
   }
 
   const where = window.location.href;

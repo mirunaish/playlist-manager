@@ -13,7 +13,7 @@ export function artist(sequelize) {
         references: { model: sequelize.models.Zone, key: "id" },
       },
     },
-    { timestamps: false }
+    { tableName: "artists", timestamps: false }
   );
 }
 
@@ -28,7 +28,7 @@ export function tag(sequelize) {
         references: { model: sequelize.models.Zone, key: "id" },
       },
     },
-    { timestamps: false }
+    { tableName: "tags", timestamps: false }
   );
 }
 
@@ -47,7 +47,7 @@ export function track(sequelize) {
         references: { model: sequelize.models.Zone, key: "id" },
       },
     },
-    { timestamps: false }
+    { tableName: "tracks", timestamps: false }
   );
 }
 
@@ -64,7 +64,7 @@ export function trackArtist(sequelize) {
         type: DataTypes.UUID,
         references: { model: sequelize.models.Artist, key: "id" },
       },
-      main: { type: DataTypes.BOOLEAN, allowNull: false },
+      main: { type: DataTypes.BOOLEAN, allowNull: false }, // TODO
     },
     { tableName: "track_artist", timestamps: false }
   );
@@ -89,7 +89,7 @@ export function trackTag(sequelize) {
 }
 
 export function zone(sequelize) {
-  return sequelize.define(
+  const Zone = sequelize.define(
     "Zone", // TODO should this be lowercase zone?
     {
       id: { type: DataTypes.UUID, primaryKey: true },
@@ -98,4 +98,28 @@ export function zone(sequelize) {
     },
     { tableName: "zones", timestamps: false }
   );
+}
+
+export function associations(sequelize) {
+  const m = sequelize.models;
+
+  m.Artist.belongsTo(m.Zone, { foreignKey: "zoneId" });
+  m.Artist.hasMany(m.TrackArtist, { foreignKey: "artistId" });
+
+  m.Tag.belongsTo(m.Zone, { foreignKey: "zoneId" });
+  m.Tag.hasMany(m.TrackTag, { foreignKey: "tagId" });
+
+  m.Track.belongsTo(m.Zone, { foreignKey: "zoneId" });
+  m.Track.hasMany(m.TrackArtist, { foreignKey: "trackId" });
+  m.Track.hasMany(m.TrackTag, { foreignKey: "trackId" });
+
+  m.TrackArtist.belongsTo(m.Track, { foreignKey: "trackId" });
+  m.TrackArtist.belongsTo(m.Artist, { foreignKey: "artistId" });
+
+  m.TrackTag.belongsTo(m.Track, { foreignKey: "trackId" });
+  m.TrackTag.belongsTo(m.Tag, { foreignKey: "tagId" });
+
+  m.Zone.hasMany(m.Track, { foreignKey: "zoneId" });
+  m.Zone.hasMany(m.Artist, { foreignKey: "zoneId" });
+  m.Zone.hasMany(m.Tag, { foreignKey: "zoneId" });
 }

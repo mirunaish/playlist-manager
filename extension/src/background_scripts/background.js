@@ -27,6 +27,7 @@ async function switchToTab(id) {
 /** insert a content script */
 async function insertScript(tabId, scriptName) {
   const scriptPath = "static/js/" + scriptName;
+  console.log("inserting script ", scriptPath, "into tab", tabId);
   await browser.tabs.executeScript(tabId, {
     // in the source the content scripts are in a separate folder
     // but in the build folder they're in the same folder as the background script
@@ -61,7 +62,7 @@ async function insertGuessedInfo(info) {
       payload: info,
     });
   } catch (e) {
-    console.error('failed to insert info "' + info + '";', e);
+    console.error('failed to insert info "' + JSON.stringify(info) + '";', e);
   }
 }
 
@@ -74,26 +75,8 @@ async function getTrackedInfo(tabId) {
   return null;
 }
 
-async function getTabData(tab) {
-  // keys to get for each tab
-  const keys = ["id", "title", "audible", "discarded", "muted", "index"];
-
-  // select keys from tab data
-  const tabData = pick(tab, keys);
-
-  // add track data, if tracked
-  // will put title in tab title
-  const trackData = await getTrackedInfo(tab.url);
-
-  // add playlist data, if playlist
-  const playlistData = playlists[tab.id];
-
-  // get zone color
-  const zoneTheme = trackData
-    ? (await getAllZones())[trackData.zoneId].theme
-    : null;
-
-  return { tab: tabData, track: trackData, playlist: playlistData, zoneTheme };
+async function getTab(tabId) {
+  return await browser.tabs.get(tabId);
 }
 
 /** get limited info about all tabs, for rendering tab bar */
@@ -106,9 +89,32 @@ async function getSupportedTabs() {
     ...buildRecord(await browser.tabs.query({ audible: true })), // audible tabs
   });
 
+  // keys to get for each tab
+  const keys = ["id", "title", "audible", "discarded", "muted", "index"];
+
   // get tab data for each tab and push to array
   for (let tab of allTabs) {
-    tabs.push(await getTabData(tab));
+    // select keys from tab data
+    const tabData = pick(tab, keys);
+
+    // add track data, if tracked
+    // will put track title in tab
+    const trackData = await getTrackedInfo(tab.url);
+
+    // add playlist data, if playlist
+    const playlistData = playlists[tab.id];
+
+    // get zone color
+    const zoneTheme = trackData
+      ? (await getAllZones())[trackData.zoneId].theme
+      : null;
+
+    tabs.push({
+      tab: tabData,
+      track: trackData,
+      playlist: playlistData,
+      zoneTheme,
+    });
   }
 
   // sort tabs by index
@@ -268,15 +274,22 @@ async function edit(trackData) {
   }
   return response.ok;
 }
+*/
 
 // add new track
 async function add(trackData) {
   // make request to backend
-  const response = await request("/add", { method: "POST", body: trackData });
-  if (response.ok) artistCacheValid = false;
-  return response.ok;
+  const response = await request("/track", {
+    method: "POST",
+    body: trackData,
+  });
+  if (response.ok) {
+    artistCache.valid = false;
+    updateStatus("track added successfully", StatusTypes.SUCCESS);
+  } else updateStatus("failed to add track", StatusTypes.ERROR);
 }
 
+/*
 // a list row was clicked. play that track
 async function changeTrack(index) {
   playingIndex = index;
@@ -303,6 +316,7 @@ browser.runtime.onMessage.addListener((message) => {
 });
 
 // add event listener that injects content script after the page loads
+// TODO inject listener and send track info if inactive tab becomes active
 // browser.tabs.onUpdated.addListener(
 //   async (tabId, changeInfo, tabInfo) => {
 //     if (
