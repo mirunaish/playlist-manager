@@ -1,54 +1,39 @@
+import { Op } from "sequelize";
 import { sequelize, Track, Artist, TrackArtist } from "../../src/index.js";
+import { getTrackArtists } from "./track-service.js";
 
 // filter + sort tracks
 export async function getPlaylist(filters) {
-  // build query
-  const where = [];
+  // build filters
+  let where = {};
+  const include = [];
 
   // add rating filters
   if (filters.rating != null) {
-    if (filters.rating === "3+") {
-      where.push("rating IN ('3', '4', '5')");
-    } else {
-      where.push("rating='" + s(filters.rating) + "'");
-    }
+    where = { ...where, rating: { [Op.in]: filters.rating } };
   }
 
   // add artist filters
   if (filters.artist != null) {
-    if (filters.artist === "not star") {
-      // get list of non-starred artists
-      // todo fix this
-      let inquiry = "SELECT id FROM artists WHERE";
-      inquiry += "(SELECT COUNT(*) FROM authorships WHERE artist=artists.id)<3";
-      let notStar = await select(inquiry);
+    // artist filter is either "starred", "not starred", or an array of names
 
-      let clause = "artists.id IN (none";
-      notStar.forEach((artist) => {
-        clause += ", '" + artist + "'";
-      });
-      clause += ")";
-      where.push(clause);
+    include.push({ model: TrackArtist, required: true });
+
+    let artistWhere;
+    if (filters.artist === "starred") {
+      artistWhere = { starred: true };
+    } else if (filters.artist === "not starred") {
+      artistWhere = { starred: false };
     } else {
-      where.push("artists.id='" + filters.artist + "'");
+      artistWhere = { id: { [Op.in]: filters.artist } };
     }
+    include.push({ model: Artist, required: true, where: artistWhere });
   }
 
-  let inquiry = "SELECT tracks.id, tracks.title FROM tracks";
-  if (filters.artist != null) {
-    inquiry += " JOIN authorships ON tracks.id=authorships.track";
-    inquiry += " JOIN artists ON authorships.artist=artists.id";
-  }
-  if (where.length > 0) {
-    inquiry += " WHERE ";
-    for (let i = 0; i < where.length - 1; i++) {
-      inquiry += where[i] + " AND ";
-    }
-    inquiry += where[where.length - 1];
-  }
+  // add tag filters TODO
 
   // get playlist with filters
-  let playlist = await select(inquiry);
+  let playlist = await Track.findAll({ where, include });
 
   if (playlist.length == 0) {
     throw "found no tracks matching these filters";
@@ -56,12 +41,12 @@ export async function getPlaylist(filters) {
 
   // TODO simplify this?
   // get artists for each track
-  for (let i = 0; i < playlist.length; i++) {
-    playlist[i].artist = await getTrackArtists(playlist[i].id);
+  for (let track of playlist) {
+    track.artist = await getTrackArtists(track.id);
   }
 
-  // sort
-  if (filters["sort"] === "shuffle") {
+  // sort TODO add more sorts
+  if (filters.sort === "shuffle") {
     // shuffle the playlist
     for (let i = 0; i < playlist.length - 1; i++) {
       // pick random track and move it to the front
