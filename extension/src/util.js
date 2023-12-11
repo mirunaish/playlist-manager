@@ -1,8 +1,9 @@
-import { SERVER_URL, SUPPORTED_REGEX } from "./consts";
+import { SERVER_URL, SupportedSites } from "./consts";
 
 /**
- * make a request to the server
- * options format: { method, body }
+ * make a request to the server.
+ * options format: { method, body }.
+ * default method is GET
  */
 export async function request(path, options = {}) {
   try {
@@ -51,12 +52,10 @@ export function siteSupported(url) {
   // the page is a new tab
   if (!url) return false;
 
-  let result = false;
-  SUPPORTED_REGEX.forEach((site) => {
-    result = url.match(site) ? true : result;
-  });
-
-  return result;
+  for (let site of Object.values(SupportedSites)) {
+    if (url.match(site.regex)) return true;
+  }
+  return false;
 }
 
 /**

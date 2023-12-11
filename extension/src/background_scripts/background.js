@@ -1,12 +1,16 @@
 /* eslint-disable no-unused-vars */
 
-import { MessageTypes, Pages, SUPPORTED_SITES, StatusTypes } from "../consts";
+import { MessageTypes, Pages, StatusTypes, SUPPORTED_QUERY } from "../consts";
 import { request, pick, buildRecord } from "../util";
+
+// this is to prevent error messages everywhere
+// @ts-ignore
+const getBrowser = () => browser;
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
   try {
-    await browser.runtime.sendMessage({
+    await getBrowser().runtime.sendMessage({
       type: MessageTypes.STATUS_UPDATE,
       message,
       statusType,
@@ -18,21 +22,25 @@ async function updateStatus(message, statusType) {
 
 /** make selected tab active and window focused */
 async function switchToTab(id) {
-  const window = (await browser.tabs.get(id)).windowId;
+  const window = (await getTab(id)).windowId;
   // focus window and make tab active
-  await browser.windows.update(window, { focused: true });
-  await browser.tabs.update(id, { active: true });
+  await getBrowser().windows.update(window, { focused: true });
+  await getBrowser().tabs.update(id, { active: true });
 }
 
 /** insert a content script */
 async function insertScript(tabId, scriptName) {
   const scriptPath = "static/js/" + scriptName;
   console.log("inserting script ", scriptPath, "into tab", tabId);
-  await browser.tabs.executeScript(tabId, {
+  await getBrowser().tabs.executeScript(tabId, {
     // in the source the content scripts are in a separate folder
     // but in the build folder they're in the same folder as the background script
     file: scriptPath,
   });
+}
+
+async function getTab(tabId) {
+  return await getBrowser().tabs.get(tabId);
 }
 
 async function getTabType(tabId) {
@@ -57,7 +65,7 @@ async function getUntrackedInfo(tabId) {
 /** send message with untracked info to the popup */
 async function insertGuessedInfo(info) {
   try {
-    await browser.runtime.sendMessage({
+    await getBrowser().runtime.sendMessage({
       type: MessageTypes.TRACK_INFO_FORWARD,
       payload: info,
     });
@@ -75,18 +83,14 @@ async function getTrackedInfo(tabId) {
   return null;
 }
 
-async function getTab(tabId) {
-  return await browser.tabs.get(tabId);
-}
-
 /** get limited info about all tabs, for rendering tab bar */
 async function getSupportedTabs() {
   let tabs = [];
 
   // put in id:object map to only keep one copy of each tab
   const allTabs = Object.values({
-    ...buildRecord(await browser.tabs.query({ url: SUPPORTED_SITES })), // supported site tabs
-    ...buildRecord(await browser.tabs.query({ audible: true })), // audible tabs
+    ...buildRecord(await getBrowser().tabs.query({ url: SUPPORTED_QUERY })), // supported site tabs
+    ...buildRecord(await getBrowser().tabs.query({ audible: true })), // audible tabs
   });
 
   // keys to get for each tab
@@ -130,8 +134,8 @@ async function getSupportedTabs() {
  */
 async function getMostImportantTabId() {
   const activeTab = (
-    await browser.tabs.query({
-      url: SUPPORTED_SITES,
+    await getBrowser().tabs.query({
+      url: SUPPORTED_QUERY,
       active: true,
       currentWindow: true,
     })
@@ -139,7 +143,7 @@ async function getMostImportantTabId() {
   if (activeTab) return activeTab.id;
 
   const audibleTab = (
-    await browser.tabs.query({
+    await getBrowser().tabs.query({
       audible: true,
     })
   )[0];
@@ -166,7 +170,7 @@ async function getAllZones() {
 const artistCache = {
   valid: false,
   zoneId: null,
-  data: [],
+  data: {},
 };
 async function getAllArtists(zoneId) {
   if (artistCache.valid && zoneId === artistCache.zoneId)
@@ -300,7 +304,7 @@ async function changeTrack(index) {
 
 // receive messages from content script
 // content script also catches next and previous hardware key presses
-browser.runtime.onMessage.addListener((message) => {
+getBrowser().runtime.onMessage.addListener((message) => {
   // if message is previous or next
   if (message.type === MessageTypes.MEDIA_CONTROL) {
     if (message.action === "next") {
@@ -354,8 +358,8 @@ browser.runtime.onMessage.addListener((message) => {
 
 // if popup components want to update the status they send a message to the
 // background script which then forwards it to the status component
-browser.runtime.onMessage.addListener((message) => {
+getBrowser().runtime.onMessage.addListener((message) => {
   if (message.type === MessageTypes.STATUS_UPDATE) {
-    browser.runtime.sendMessage(message);
+    getBrowser().runtime.sendMessage(message);
   }
 });
