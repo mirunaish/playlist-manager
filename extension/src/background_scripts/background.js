@@ -1,6 +1,12 @@
 /* eslint-disable no-unused-vars */
 
-import { MessageTypes, Pages, StatusTypes, SUPPORTED_QUERY } from "../consts";
+import {
+  MessageTypes,
+  Pages,
+  StatusTypes,
+  SUPPORTED_QUERY,
+  SupportedSites,
+} from "../consts";
 import { request, pick, buildRecord } from "../util";
 
 // this is to prevent error messages everywhere
@@ -76,11 +82,12 @@ async function insertGuessedInfo(info) {
 
 /** get info about a tab playing a tracked track */
 async function getTrackedInfo(tabId) {
-  // TODO
-  // if does not exist, return null
-  // else return track
+  // get tab url
+  const url = (await getTab(tabId)).url;
 
-  return null;
+  const { ok, body } = await request("/track/url", { body: { url } });
+  if (!ok) return null;
+  return body;
 }
 
 /** get limited info about all tabs, for rendering tab bar */
@@ -181,6 +188,15 @@ async function getAllArtists(zoneId) {
   artistCache.zoneId = zoneId;
   artistCache.valid = true;
   return artistCache.data;
+}
+
+/** search for a track on one of the supported sites in a new tab */
+async function search(query, site) {
+  const url = SupportedSites[site].getQuery(query);
+  await getBrowser().tabs.create({
+    url,
+    active: true,
+  });
 }
 
 /**

@@ -1,23 +1,27 @@
-import React, { useCallback, useMemo, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Rating from "../components/Rating";
 import Button from "../components/Button";
-import { useBackground, useListener, useStatusUpdate } from "../hooks";
+import { useBackground, useListener } from "../hooks";
 import Thumbnail from "../components/Thumbnail";
-import { Icons } from "../icons";
 import ZoneBanner from "../components/ZoneBanner";
-import { MessageTypes, StatusTypes } from "../../../consts";
+import { MessageTypes, SupportedSites } from "../../../consts";
 import PlayBar from "../components/PlayBar";
 import ZonesDropdown from "../components/ZonesDropdown";
 
 function Untracked({ selectedTabId }) {
   const background = useBackground();
-  const updateStatus = useStatusUpdate();
   const trackInfoListener = useListener();
 
   // need to separate track data into two to prevent threads from overwriting data from each other
   // TODO find a better way to do this?
-  const [untrackedInfo, setUntrackedInfo] = useState({}); // info from the content script
-  const [trackInfo, setTrackInfo] = useState({ rating: 0, length: 0 }); // info from background + defaults
+  const [untrackedInfo, setUntrackedInfo] = useState({
+    title: null,
+    artist: null,
+    imageLink: null,
+    url: null,
+    length: 0,
+  }); // info from the content script
+  const [trackInfo, setTrackInfo] = useState({ zoneId: null, rating: 0 }); // info from background + defaults
   // TODO add length from content script
 
   // on first render, add listener that adds track info from content script
@@ -52,6 +56,17 @@ function Untracked({ selectedTabId }) {
     })();
   }, [selectedTabId]);
 
+  const search = useCallback(async (site) => {
+    // background will open a new tab with the search
+    await background.search(
+      untrackedInfo.artist + " - " + untrackedInfo.title,
+      site
+    );
+    // close the popup
+    // @ts-ignore
+    window.close();
+  }, []);
+
   // save untracked track to backend
   const save = useCallback(async () => {
     console.log("saving track", { ...trackInfo, ...untrackedInfo });
@@ -65,6 +80,14 @@ function Untracked({ selectedTabId }) {
       <Thumbnail src={untrackedInfo.imageLink} />
 
       <p>{untrackedInfo.url}</p>
+
+      <p>Search for this track on:</p>
+      {/* render buttons for sites except ones this track is on */}
+      {Object.entries(SupportedSites).map(([site, { regex, icon }]) =>
+        untrackedInfo.url.match(regex) ? null : (
+          <Button icon={icon} onClick={() => search(site)} />
+        )
+      )}
 
       <input
         value={untrackedInfo.title ?? ""}
@@ -98,11 +121,7 @@ function Untracked({ selectedTabId }) {
         }}
       />
 
-      <Button
-        title="save"
-        onClick={save}
-        icon={{ icon: Icons.YOUTUBE, type: Icons.FILL }}
-      />
+      <Button title="save" onClick={save} />
 
       <PlayBar totalTime={60 * 3} currentTime={44} />
     </div>
