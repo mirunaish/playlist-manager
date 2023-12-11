@@ -26,6 +26,7 @@ export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
 
   // get icon from file
   useEffect(() => {
+    if (icon == undefined) return;
     (async () => {
       const { ReactComponent } = await import("./" + icon + ".svg");
       setSvg(ReactComponent);

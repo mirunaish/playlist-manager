@@ -6,14 +6,14 @@ export const SupportedSites = {
   youtube: {
     query: "*://www.youtube.com/*",
     regex: /.*:\/\/www\.youtube\.com\/watch.*/,
-
-    icon: Icons.YOUTUBE,
+    getQuery: (query) =>
+      "https://www.youtube.com/results?search_query=" +
+      encodeURIComponent(query).replaceAll("%20", "+"),
   },
   soundcloud: {
     query: "*://soundcloud.com/*",
     regex: /.*:\/\/soundcloud\.com\/.*\/.*/,
-
-    icon: Icons.SOUNDCLOUD,
+    getQuery: (query) => "https://soundcloud.com/", // TODO
   },
   spotify: {},
 };

@@ -34,7 +34,7 @@ function override(config, env) {
   // Shared minify options to be used in HtmlWebpackPlugin constructor
   const minifyOpts = {
     removeComments: true,
-    collapseWhitespace: false, // temp, for easier reading of build files
+    collapseWhitespace: false, // temp, for easier reading of build files TODO
     removeRedundantAttributes: false,
     useShortDoctype: true,
     removeEmptyAttributes: true,
@@ -123,6 +123,7 @@ function override(config, env) {
   );
 
   // temporarily disable minimizer (for more helpful error messages)
+  // TODO remove this
   config.optimization.minimize = false;
   config.optimization.minimizer = [];
 
