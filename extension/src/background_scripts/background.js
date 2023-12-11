@@ -51,7 +51,7 @@ async function getTab(tabId) {
 
 async function getTabType(tabId) {
   if (getPlaylistInfo(tabId)) return Pages.PLAYLIST;
-  if (await getTrackedInfo(tabId)) return Pages.TRACKED;
+  if ((await getTrackedInfo(tabId)) != null) return Pages.TRACKED;
 
   return Pages.UNTRACKED;
 }
@@ -110,7 +110,7 @@ async function getSupportedTabs() {
 
     // add track data, if tracked
     // will put track title in tab
-    const trackData = await getTrackedInfo(tab.url);
+    const trackData = await getTrackedInfo(tab.id);
 
     // add playlist data, if playlist
     const playlistData = playlists[tab.id];

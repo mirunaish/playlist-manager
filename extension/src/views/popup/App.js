@@ -27,6 +27,8 @@ function App() {
 
   // set the page type
   useEffect(() => {
+    setPage(null);
+
     (async () => {
       if (selectedTabId === "+") {
         setPage(Pages.NEW_TAB);

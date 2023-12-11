@@ -1,5 +1,3 @@
-import { Icons } from "./views/popup/icons";
-
 export const SERVER_URL = "http://localhost:5000";
 
 export const SupportedSites = {
@@ -15,7 +13,6 @@ export const SupportedSites = {
     regex: /.*:\/\/soundcloud\.com\/.*\/.*/,
     getQuery: (query) => "https://soundcloud.com/", // TODO
   },
-  spotify: {},
 };
 
 export const SUPPORTED_QUERY = Object.values(SupportedSites).map(

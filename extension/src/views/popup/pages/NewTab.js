@@ -42,11 +42,7 @@ function NewTab() {
     <div>
       <ZoneBanner zoneId={zoneId} setZoneId={setZoneId}></ZoneBanner>
 
-      <Button
-        title="play"
-        onClick={play}
-        icon={{ icon: Icons.YOUTUBE, type: Icons.FILL }}
-      />
+      <Button title="play" onClick={play} />
     </div>
   );
 }

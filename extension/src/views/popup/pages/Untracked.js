@@ -7,6 +7,7 @@ import ZoneBanner from "../components/ZoneBanner";
 import { MessageTypes, SupportedSites } from "../../../consts";
 import PlayBar from "../components/PlayBar";
 import ZonesDropdown from "../components/ZonesDropdown";
+import { Icons } from "../icons";
 
 function Untracked({ selectedTabId }) {
   const background = useBackground();
@@ -18,7 +19,7 @@ function Untracked({ selectedTabId }) {
     title: null,
     artist: null,
     imageLink: null,
-    url: null,
+    url: "",
     length: 0,
   }); // info from the content script
   const [trackInfo, setTrackInfo] = useState({ zoneId: null, rating: 0 }); // info from background + defaults
@@ -83,9 +84,12 @@ function Untracked({ selectedTabId }) {
 
       <p>Search for this track on:</p>
       {/* render buttons for sites except ones this track is on */}
-      {Object.entries(SupportedSites).map(([site, { regex, icon }]) =>
+      {Object.entries(SupportedSites).map(([site, { regex }]) =>
         untrackedInfo.url.match(regex) ? null : (
-          <Button icon={icon} onClick={() => search(site)} />
+          <Button
+            icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
+            onClick={() => search(site)}
+          />
         )
       )}
 

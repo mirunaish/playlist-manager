@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const Icons = {
   FILL: "fill",
@@ -22,18 +22,30 @@ export const Icons = {
 };
 
 export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
-  const [Svg, setSvg] = useState(null);
+  const SvgRef = useRef(null);
 
   // get icon from file
   useEffect(() => {
     if (icon == undefined) return;
     (async () => {
-      const { ReactComponent } = await import("./" + icon + ".svg");
-      setSvg(ReactComponent);
+      // https://stackoverflow.com/questions/61339259/how-to-dynamically-import-svg-and-render-it-inline
+      const ReactComponent = (
+        await import("!!@svgr/webpack?-svgo,+titleProp,+ref!./" + icon + ".svg")
+      ).default;
+      if (icon === Icons.YOUTUBE)
+        console.log(
+          "icon",
+          icon,
+          "at path ./" + icon + ".svg is",
+          ReactComponent
+        );
+      SvgRef.current = ReactComponent;
     })();
   }, [icon]);
 
-  if (Svg == null) return <p>loading icon</p>;
+  if (SvgRef?.current == null) return null;
+
+  const Svg = SvgRef.current;
 
   const props = {
     ...args,

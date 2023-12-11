@@ -6,6 +6,7 @@ import Thumbnail from "../components/Thumbnail";
 import Button from "../components/Button";
 import Rating from "../components/Rating";
 import PlayBar from "../components/PlayBar";
+import { Icons } from "../icons";
 
 function Tracked({ selectedTabId }) {
   const background = useBackground();
@@ -14,7 +15,7 @@ function Tracked({ selectedTabId }) {
     title: null,
     artist: null,
     imageLink: null,
-    url: null,
+    url: "",
     zoneId: null,
     length: 0,
     rating: 0,
@@ -51,11 +52,15 @@ function Tracked({ selectedTabId }) {
 
       <p>Search for this track on:</p>
       {/* render buttons for sites except ones this track is on */}
-      {Object.entries(SupportedSites).map(([site, { regex, icon }]) =>
-        trackInfo.url.match(regex) ? null : (
-          <Button icon={icon} onClick={() => search(site)} />
-        )
-      )}
+      {Object.entries(SupportedSites).map(([site, { regex }]) => {
+        return trackInfo.url.match(regex) ? null : (
+          <Button
+            key={site}
+            icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
+            onClick={() => search(site)}
+          />
+        );
+      })}
 
       <input
         value={trackInfo.title ?? ""}
