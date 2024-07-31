@@ -50,7 +50,6 @@ function ZoneBanner({
       gradient += "var(--primary), ";
       const neighborColor = Themes[neighbors[d].theme]?.primary;
       gradient += neighborColor + ", " + neighborColor + ")";
-      console.log(gradient);
       return gradient;
     },
     [neighbors]

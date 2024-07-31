@@ -1,11 +1,17 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Icon, Icons } from "../icons/index";
 
 function PlayBar({ totalTime, currentTime, disabled = false }) {
+  const [playing, setPlaying] = useState(false);
   const percentage = useMemo(
     () => (currentTime * 100) / totalTime,
     [totalTime, currentTime]
   );
+
+  const togglePlay = useCallback(() => {
+    setPlaying(!playing);
+    // TODO tell background to play/pause
+  }, [playing]);
 
   return (
     <>
@@ -44,10 +50,37 @@ function PlayBar({ totalTime, currentTime, disabled = false }) {
 
       {/* buttons */}
       <Icon
-        icon={Icons.PLAY}
+        icon={Icons.PREVIOUS}
         className="primary"
         onClick={() => {
-          // play();
+          //
+        }}
+        size={20}
+        type={Icons.FILL}
+      />
+      <Icon
+        icon={Icons.RESTART}
+        className="primary"
+        onClick={() => {
+          //
+        }}
+        size={20}
+        type={Icons.FILL}
+      />
+      <Icon
+        icon={playing ? Icons.PLAY : Icons.PAUSE}
+        className="primary"
+        onClick={() => {
+          togglePlay();
+        }}
+        size={20}
+        type={Icons.FILL}
+      />
+      <Icon
+        icon={Icons.NEXT}
+        className="primary"
+        onClick={() => {
+          //
         }}
         size={20}
         type={Icons.FILL}

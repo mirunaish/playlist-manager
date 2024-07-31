@@ -89,8 +89,8 @@ export function trackTag(sequelize) {
 }
 
 export function zone(sequelize) {
-  const Zone = sequelize.define(
-    "Zone", // TODO should this be lowercase zone?
+  return sequelize.define(
+    "Zone",
     {
       id: { type: DataTypes.UUID, primaryKey: true },
       name: { type: DataTypes.STRING, allowNull: false },

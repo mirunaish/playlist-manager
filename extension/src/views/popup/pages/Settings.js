@@ -32,7 +32,6 @@ function Settings() {
       <Button
         title="save"
         // onClick={save}
-        icon={{ icon: Icons.YOUTUBE, type: Icons.FILL }}
       />
     </div>
   );
