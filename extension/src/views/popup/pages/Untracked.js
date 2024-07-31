@@ -46,7 +46,7 @@ function Untracked({ selectedTabId }) {
   // whenever tab is changed, ask background for info about new track
   useEffect(() => {
     // ask background script to get track info from page
-    background("getUntrackedInfo", { tabId: selectedTabId });
+    background("getUntrackedInfo", selectedTabId);
     // background will later send a message with the info which the listener will catch
 
     // add zone
@@ -59,10 +59,11 @@ function Untracked({ selectedTabId }) {
 
   const search = useCallback(async (site) => {
     // background will open a new tab with the search
-    await background("searchOtherSite", {
-      query: untrackedInfo.artist + " - " + untrackedInfo.title,
-      site,
-    });
+    await background(
+      "searchOtherSite",
+      untrackedInfo.artist + " - " + untrackedInfo.title,
+      site
+    );
     // close the popup
     // @ts-ignore
     window.close();
@@ -71,7 +72,7 @@ function Untracked({ selectedTabId }) {
   // save untracked track to backend
   const save = useCallback(async () => {
     console.log("saving track", { ...trackInfo, ...untrackedInfo });
-    await background("add", { trackInfo: { ...trackInfo, ...untrackedInfo } });
+    await background("add", { ...trackInfo, ...untrackedInfo });
   }, [trackInfo, untrackedInfo]);
 
   return (

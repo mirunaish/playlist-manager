@@ -57,7 +57,7 @@ function Tabs({ selectedTabId, selectTab }) {
    */
   async function selectOrSwitch(id) {
     if (id === selectedTabId) {
-      await background("switchToTab", { id });
+      await background("switchToTab", id);
     } else {
       selectTab(id);
     }

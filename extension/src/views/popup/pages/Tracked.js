@@ -23,17 +23,18 @@ function Tracked({ selectedTabId }) {
   // ask background script for track info from database
   useEffect(() => {
     (async () => {
-      const info = await background("getTrackedInfo", { tabId: selectedTabId });
+      const info = await background("getTrackedInfo", selectedTabId);
       setTrackInfo(info);
     })();
   }, [selectedTabId]);
 
   const search = useCallback(async (site) => {
     // background will open a new tab with the search
-    await background("searchOtherSite", {
-      query: trackInfo.artist + " - " + trackInfo.title,
-      site,
-    });
+    await background(
+      "searchOtherSite",
+      trackInfo.artist + " - " + trackInfo.title,
+      site
+    );
     // close the popup
     // @ts-ignore
     window.close();
@@ -41,7 +42,7 @@ function Tracked({ selectedTabId }) {
 
   const edit = useCallback(async () => {
     console.log("edit button pressed");
-    // await background("edit", { trackInfo });
+    // await background("edit", trackInfo);
   }, [trackInfo]);
 
   return (

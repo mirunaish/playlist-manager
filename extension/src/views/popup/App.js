@@ -36,7 +36,7 @@ function App() {
         setPage(Pages.SETTINGS);
         return;
       }
-      const type = await background("getTabType", { tabId: selectedTabId });
+      const type = await background("getTabType", selectedTabId);
       setPage(type);
     })();
   }, [selectedTabId]);

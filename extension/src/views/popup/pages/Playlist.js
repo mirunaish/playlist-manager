@@ -11,9 +11,7 @@ function Playlist({ selectedTabId }) {
   // ask background script for track info from playlist
   useEffect(() => {
     (async () => {
-      const info = await background("getPlaylistInfo", {
-        tabId: selectedTabId,
-      });
+      const info = await background("getPlaylistInfo", selectedTabId);
       setTrackInfo(info);
     })();
   }, [selectedTabId]);

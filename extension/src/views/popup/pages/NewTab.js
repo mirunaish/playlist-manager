@@ -35,7 +35,7 @@ function NewTab() {
   const play = useCallback(async () => {
     console.log("play button pressed");
     updateStatus({ message: "this is a test", type: StatusTypes.SUCCESS });
-    // await background("play", { filters });
+    // await background("play", filters);
   }, [updateStatus]);
 
   return (
