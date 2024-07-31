@@ -1,6 +1,6 @@
-export const SERVER_URL = "http://localhost:5000";
+export var SERVER_URL = "http://localhost:5000";
 
-export const SupportedSites = {
+export var SupportedSites = {
   youtube: {
     query: "*://www.youtube.com/*",
     regex: /.*:\/\/www\.youtube\.com\/watch.*/,
@@ -15,11 +15,11 @@ export const SupportedSites = {
   },
 };
 
-export const SUPPORTED_QUERY = Object.values(SupportedSites).map(
+export var SUPPORTED_QUERY = Object.values(SupportedSites).map(
   (obj) => obj.query
 );
 
-export const Pages = {
+export var Pages = {
   NEW_TAB: "NEW_TAB",
   SETTINGS: "SETTINGS",
 
@@ -28,7 +28,7 @@ export const Pages = {
   PLAYLIST: "PLAYLIST",
 };
 
-export const MessageTypes = {
+export var MessageTypes = {
   FUNCTION_CALL: "function-call",
 
   STATUS_UPDATE: "status-update",
@@ -37,7 +37,7 @@ export const MessageTypes = {
   MEDIA_CONTROL: "media-control",
 };
 
-export const StatusTypes = {
+export var StatusTypes = {
   ERROR: "error",
   SUCCESS: "success",
 };
