@@ -42,11 +42,11 @@ export async function request(path, options = {}) {
 
 /** insert a content script */
 export async function insertScript(tabId, scriptName) {
+  // in the source the content scripts are in a separate folder
+  // but in the build folder they're in the same folder as the background script
   const scriptPath = "static/js/" + scriptName;
-  console.log("inserting script ", scriptPath, "into tab", tabId);
+  console.log("inserting script ", scriptName, "into tab", tabId);
   await getBrowser().tabs.executeScript(tabId, {
-    // in the source the content scripts are in a separate folder
-    // but in the build folder they're in the same folder as the background script
     file: scriptPath,
   });
 }

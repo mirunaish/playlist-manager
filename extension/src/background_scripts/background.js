@@ -322,7 +322,7 @@ export const FUNCTIONS = {
 };
 
 // receive messages from content script and popup
-getBrowser().runtime.onMessage.addListener((message) => {
+getBrowser().runtime.onMessage.addListener((message, sender) => {
   // if popup components want to update the status they send a message to the
   // background script which then forwards it to the status component
   if (message.type === MessageTypes.STATUS_UPDATE) {
@@ -340,6 +340,12 @@ getBrowser().runtime.onMessage.addListener((message) => {
 
   // content script sent track info
   else if (message.type === MessageTypes.TRACK_INFO) {
+    // console.log(
+    //   "forwarding track info from",
+    //   sender.contextId,
+    //   sender.frameId,
+    //   sender.tab.id
+    // );
     // forward to popup
     insertGuessedInfo(message.payload);
   }

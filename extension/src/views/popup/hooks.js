@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { MessageTypes } from "../../consts";
 
 /** ask background to update status bar */
@@ -17,30 +17,21 @@ export function useStatusUpdate() {
 }
 
 /** add and remove background script listeners */
-export function useListener() {
-  const [listener, setListener] = useState(null);
+export function useListener(handler) {
+  useEffect(() => {
+    // add listener
+    browser.runtime.onMessage.addListener(handler);
 
-  const add = (func) => {
-    if (listener) browser.runtime.onMessage.removeListener(listener);
-    browser.runtime.onMessage.addListener(func);
-    setListener(func);
-  };
+    // return cleanup function that removes listener
+    return () => {
+      browser.runtime.onMessage.removeListener(handler);
+    };
+  }, []);
 
-  const remove = () => {
-    if (!listener) return;
-    console.log("removing listener on request");
-    browser.runtime.onMessage.removeListener(listener);
-  };
+  // can also manually remove listener using this function
+  const remove = useCallback(() => {
+    browser.runtime.onMessage.removeListener(handler);
+  }, [handler]);
 
-  // remove listener when unmounting
-  useEffect(
-    () => () => {
-      if (!listener) return;
-      console.log("removing listener on cleanup");
-      browser.runtime.onMessage.removeListener(listener);
-    },
-    []
-  );
-
-  return { add, remove };
+  return { remove };
 }
