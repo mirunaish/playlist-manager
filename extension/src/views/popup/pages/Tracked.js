@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useBackground, useStatusUpdate } from "../hooks";
+import { useStatusUpdate } from "../hooks";
+import { background } from "../util";
 import ZoneBanner from "../components/ZoneBanner";
 import { SupportedSites } from "../../../consts";
 import Thumbnail from "../components/Thumbnail";
@@ -9,8 +10,6 @@ import PlayBar from "../components/PlayBar";
 import { Icons } from "../icons";
 
 function Tracked({ selectedTabId }) {
-  const background = useBackground();
-
   const [trackInfo, setTrackInfo] = useState({
     title: null,
     artist: null,
@@ -24,14 +23,17 @@ function Tracked({ selectedTabId }) {
   // ask background script for track info from database
   useEffect(() => {
     (async () => {
-      const info = await background.getTrackedInfo(selectedTabId);
+      const info = await background("getTrackedInfo", { tabId: selectedTabId });
       setTrackInfo(info);
     })();
-  }, [background, selectedTabId]);
+  }, [selectedTabId]);
 
   const search = useCallback(async (site) => {
     // background will open a new tab with the search
-    await background.search(trackInfo.artist + " - " + trackInfo.title, site);
+    await background("searchOtherSite", {
+      query: trackInfo.artist + " - " + trackInfo.title,
+      site,
+    });
     // close the popup
     // @ts-ignore
     window.close();
@@ -39,8 +41,8 @@ function Tracked({ selectedTabId }) {
 
   const edit = useCallback(async () => {
     console.log("edit button pressed");
-    // await background.edit(trackInfo);
-  }, [background, trackInfo]);
+    // await background("edit", { trackInfo });
+  }, [trackInfo]);
 
   return (
     <div>

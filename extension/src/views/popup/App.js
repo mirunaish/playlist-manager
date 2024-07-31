@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import Status from "./components/Status";
 import Tabs from "./components/Tabs";
@@ -6,24 +6,22 @@ import Playlist from "./pages/Playlist";
 import Tracked from "./pages/Tracked";
 import Untracked from "./pages/Untracked";
 import NewTab from "./pages/NewTab";
-import { useBackground } from "./hooks";
+import { background } from "./util";
 import { Pages } from "../../consts";
 import Settings from "./pages/Settings";
 
 function App() {
-  const background = useBackground();
-
   const [selectedTabId, setSelectedTabId] = useState("+");
   const [page, setPage] = useState(null);
 
   // ask background script for selected tab id
   useEffect(() => {
     (async () => {
-      const tabId = await background.getMostImportantTabId();
+      const tabId = await background("getMostImportantTabId");
       console.log("selected tab is", tabId);
       if (tabId) setSelectedTabId(tabId);
     })();
-  }, [background]);
+  }, []);
 
   // set the page type
   useEffect(() => {
@@ -38,10 +36,10 @@ function App() {
         setPage(Pages.SETTINGS);
         return;
       }
-      const type = await background.getTabType(selectedTabId);
+      const type = await background("getTabType", { tabId: selectedTabId });
       setPage(type);
     })();
-  }, [background, selectedTabId]);
+  }, [selectedTabId]);
 
   return (
     <>

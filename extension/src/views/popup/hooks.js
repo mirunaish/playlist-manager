@@ -1,17 +1,7 @@
 // @ts-nocheck
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MessageTypes } from "../../consts";
-
-/** get a reference to the background page to call its functions directly */
-export function useBackground() {
-  // background page probably never changes
-  const background = useMemo(() => {
-    return browser.extension.getBackgroundPage();
-  }, []);
-
-  return background;
-}
 
 /** ask background to update status bar */
 export function useStatusUpdate() {

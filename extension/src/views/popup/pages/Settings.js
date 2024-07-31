@@ -1,14 +1,13 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Rating from "../components/Rating";
 import Button from "../components/Button";
-import { useBackground, useStatusUpdate } from "../hooks";
+import { useStatusUpdate } from "../hooks";
 import Thumbnail from "../components/Thumbnail";
 import { Icons } from "../icons";
 import ZoneBanner from "../components/ZoneBanner";
 import { StatusTypes } from "../../../consts";
 
 function Settings() {
-  const background = useBackground();
   const updateStatus = useStatusUpdate();
 
   // ask background script for track info from page

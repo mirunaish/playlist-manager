@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { isMouse, shorten } from "../../../util";
-import { useBackground } from "../hooks";
+import { background } from "../util";
 import { Themes } from "../../../themes";
 
 function Tab({ tab, selected, onClick }) {
@@ -12,16 +12,15 @@ function Tab({ tab, selected, onClick }) {
 }
 
 function Tabs({ selectedTabId, selectTab }) {
-  const background = useBackground();
   const [allTabs, setAllTabs] = useState([]); // [{tab, track, playlist, zoneTheme}]
 
   // ask background script for all supported site tabs in browser
   useEffect(() => {
     (async () => {
-      const tabs = await background.getSupportedTabs();
+      const tabs = await background("getSupportedTabs");
       setAllTabs(tabs);
     })();
-  }, [background]);
+  }, []);
 
   /** enable horizontal scrolling with mouse */
   function scroll(e) {
@@ -58,7 +57,7 @@ function Tabs({ selectedTabId, selectTab }) {
    */
   async function selectOrSwitch(id) {
     if (id === selectedTabId) {
-      await background.switchToTab(id);
+      await background("switchToTab", { id });
     } else {
       selectTab(id);
     }

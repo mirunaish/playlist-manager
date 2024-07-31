@@ -29,6 +29,8 @@ export const Pages = {
 };
 
 export const MessageTypes = {
+  FUNCTION_CALL: "function-call",
+
   STATUS_UPDATE: "status-update",
   TRACK_INFO: "track-info",
   TRACK_INFO_FORWARD: "track-info-forward",

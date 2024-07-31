@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import ZoneBanner from "../components/ZoneBanner";
-import { useBackground, useStatusUpdate } from "../hooks";
+import { useStatusUpdate } from "../hooks";
+import { background } from "../util";
 
 function Playlist({ selectedTabId }) {
-  const background = useBackground();
   const updateStatus = useStatusUpdate();
 
   const [trackInfo, setTrackInfo] = useState({});
@@ -11,10 +11,12 @@ function Playlist({ selectedTabId }) {
   // ask background script for track info from playlist
   useEffect(() => {
     (async () => {
-      const info = await background.getPlaylistInfo(selectedTabId);
+      const info = await background("getPlaylistInfo", {
+        tabId: selectedTabId,
+      });
       setTrackInfo(info);
     })();
-  }, [background, selectedTabId]);
+  }, [selectedTabId]);
 
   return (
     <>
