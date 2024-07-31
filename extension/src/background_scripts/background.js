@@ -7,11 +7,8 @@ import {
   SUPPORTED_QUERY,
   SupportedSites,
 } from "../consts";
-import { request, pick, buildRecord } from "../util";
-
-// this is to prevent error messages everywhere
-// @ts-ignore
-const getBrowser = () => browser;
+import { getBrowser, getTab, insertScript, request } from "./util";
+import { pick, buildRecord } from "../util";
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
@@ -34,21 +31,7 @@ async function switchToTab(id) {
   await getBrowser().tabs.update(id, { active: true });
 }
 
-/** insert a content script */
-async function insertScript(tabId, scriptName) {
-  const scriptPath = "static/js/" + scriptName;
-  console.log("inserting script ", scriptPath, "into tab", tabId);
-  await getBrowser().tabs.executeScript(tabId, {
-    // in the source the content scripts are in a separate folder
-    // but in the build folder they're in the same folder as the background script
-    file: scriptPath,
-  });
-}
-
-async function getTab(tabId) {
-  return await getBrowser().tabs.get(tabId);
-}
-
+/** which page should show on this tab's tab? */
 async function getTabType(tabId) {
   if (getPlaylistInfo(tabId)) return Pages.PLAYLIST;
   if ((await getTrackedInfo(tabId)) != null) return Pages.TRACKED;
@@ -65,18 +48,6 @@ async function getUntrackedInfo(tabId) {
   } catch (e) {
     console.error("could not get track info:", e);
     updateStatus("could not get track info.", StatusTypes.ERROR);
-  }
-}
-// content script listener calls this function to send untracked data
-/** send message with untracked info to the popup */
-async function insertGuessedInfo(info) {
-  try {
-    await getBrowser().runtime.sendMessage({
-      type: MessageTypes.TRACK_INFO_FORWARD,
-      payload: info,
-    });
-  } catch (e) {
-    console.error('failed to insert info "' + JSON.stringify(info) + '";', e);
   }
 }
 
@@ -96,6 +67,7 @@ async function getSupportedTabs() {
 
   // put in id:object map to only keep one copy of each tab
   const allTabs = Object.values({
+    // TODO add playlist tabs, even if not supported or audible
     ...buildRecord(await getBrowser().tabs.query({ url: SUPPORTED_QUERY })), // supported site tabs
     ...buildRecord(await getBrowser().tabs.query({ audible: true })), // audible tabs
   });
@@ -148,6 +120,7 @@ async function getMostImportantTabId() {
     })
   )[0];
   if (activeTab) return activeTab.id;
+  // TODO return active tab if playlist but not supported
 
   const audibleTab = (
     await getBrowser().tabs.query({
@@ -190,14 +163,7 @@ async function getAllArtists(zoneId) {
   return artistCache.data;
 }
 
-/** search for a track on one of the supported sites in a new tab */
-async function search(query, site) {
-  const url = SupportedSites[site].getQuery(query);
-  await getBrowser().tabs.create({
-    url,
-    active: true,
-  });
-}
+// TODO move to firefox local storage
 
 /**
  * all playlists playing.
@@ -251,6 +217,12 @@ async function loadTrack() {
 
   // navigate the playing tab to new url
   await browser.tabs.update(playingTabId, { url: playingTrack.url });
+}
+
+// a list row was clicked. play that track
+async function changeTrack(index) {
+  playingIndex = index;
+  loadTrack();
 }
 
 // increase index and load next song
@@ -309,28 +281,85 @@ async function add(trackData) {
   } else updateStatus("failed to add track", StatusTypes.ERROR);
 }
 
-/*
-// a list row was clicked. play that track
-async function changeTrack(index) {
-  playingIndex = index;
-  loadTrack();
+/** search for a track on one of the supported sites in a new tab */
+async function searchOtherSite(query, site) {
+  const url = SupportedSites[site].getQuery(query);
+  await getBrowser().tabs.create({
+    url,
+    active: true,
+  });
 }
 
-*/
+// content script listener calls this function to send untracked data
+/** send message with untracked info to the popup */
+async function insertGuessedInfo(info) {
+  try {
+    await getBrowser().runtime.sendMessage({
+      type: MessageTypes.TRACK_INFO_FORWARD,
+      payload: info,
+    });
+  } catch (e) {
+    console.error('failed to insert info "' + JSON.stringify(info) + '";', e);
+  }
+}
 
-// receive messages from content script
-// content script also catches next and previous hardware key presses
-getBrowser().runtime.onMessage.addListener((message) => {
-  // if message is previous or next
-  if (message.type === MessageTypes.MEDIA_CONTROL) {
+/**
+ * background functions that can be called from popup.
+ * unfortunately i need this object because async functions cannot be accessed
+ * using other methods such as window[functionName] as far as i can tell
+ */
+export const FUNCTIONS = {
+  getSupportedTabs,
+  getMostImportantTabId,
+  getTabType,
+  getAllZones,
+  getPlaylistInfo,
+  getTrackedInfo,
+  getUntrackedInfo,
+  searchOtherSite,
+  // play,
+  // edit,
+};
+
+// receive messages from content script and popup
+getBrowser().runtime.onMessage.addListener((message, sender) => {
+  // if popup components want to update the status they send a message to the
+  // background script which then forwards it to the status component
+  if (message.type === MessageTypes.STATUS_UPDATE) {
+    getBrowser().runtime.sendMessage(message);
+  }
+
+  // content script catches next and previous hardware key presses
+  else if (message.type === MessageTypes.MEDIA_CONTROL) {
     if (message.action === "next") {
       //next();
     } else if (message.action === "previous") {
       //previous();
     }
-  } else if (message.type === MessageTypes.TRACK_INFO) {
+  }
+
+  // content script sent track info
+  else if (message.type === MessageTypes.TRACK_INFO) {
+    // console.log(
+    //   "forwarding track info from",
+    //   sender.contextId,
+    //   sender.frameId,
+    //   sender.tab.id
+    // );
+    // forward to popup
     insertGuessedInfo(message.payload);
-  } else {
+  }
+
+  // popup is asking background script to run a function
+  else if (message.type === MessageTypes.FUNCTION_CALL) {
+    // call function and return its result
+    return FUNCTIONS[message.functionName](
+      ...(message.args ? message.args : [])
+    );
+  }
+
+  // default case
+  else {
     console.warn("background received unknown message", message);
   }
 });
@@ -371,11 +400,3 @@ getBrowser().runtime.onMessage.addListener((message) => {
 //     await stopPlaying();
 //   }
 // });
-
-// if popup components want to update the status they send a message to the
-// background script which then forwards it to the status component
-getBrowser().runtime.onMessage.addListener((message) => {
-  if (message.type === MessageTypes.STATUS_UPDATE) {
-    getBrowser().runtime.sendMessage(message);
-  }
-});

@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Icon, Icons } from "../icons";
-import { useBackground } from "../hooks";
 import { Themes, changeTheme } from "../../../themes";
 import { getNeighbors } from "../../../util";
+import { background } from "../util";
 
 function ZoneBanner({
   zoneId = null,
@@ -10,8 +10,6 @@ function ZoneBanner({
   disabled = false,
   setZoneId = () => {},
 }) {
-  const background = useBackground();
-
   const [zone, setZone] = useState({ name: title, theme: Themes.DEFAULT });
   const [neighbors, setNeighbors] = useState(null);
 
@@ -19,11 +17,11 @@ function ZoneBanner({
   useEffect(() => {
     if (zoneId)
       (async () => {
-        const zones = await background.getAllZones();
+        const zones = await background("getAllZones");
         setZone(zones[zoneId]);
       })();
     else setZone({ name: title, theme: Themes.DEFAULT });
-  }, [background, zoneId, title]);
+  }, [zoneId, title]);
 
   // set css variables to theme
   useEffect(() => {
@@ -34,13 +32,13 @@ function ZoneBanner({
   useEffect(() => {
     if (zoneId)
       (async () => {
-        const zones = await background.getAllZones();
+        const zones = await background("getAllZones");
         const index = Object.keys(zones).indexOf(zoneId);
         if (Object.keys(zones).length <= 1) setNeighbors(null);
         else setNeighbors(getNeighbors(Object.values(zones), index));
       })();
     else setNeighbors(null);
-  }, [background, zoneId]);
+  }, [zoneId]);
 
   const getGradient = useCallback(
     (d) => {

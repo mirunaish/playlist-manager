@@ -32,13 +32,6 @@ export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
       const ReactComponent = (
         await import("!!@svgr/webpack?-svgo,+titleProp,+ref!./" + icon + ".svg")
       ).default;
-      if (icon === Icons.YOUTUBE)
-        console.log(
-          "icon",
-          icon,
-          "at path ./" + icon + ".svg is",
-          ReactComponent
-        );
       SvgRef.current = ReactComponent;
     })();
   }, [icon]);
