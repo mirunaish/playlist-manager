@@ -7,12 +7,19 @@ import Thumbnail from "../components/Thumbnail";
 import { Icons } from "../icons";
 import Banner from "../components/Banner";
 import { StatusTypes } from "../../../consts";
+import Filters from "../modules/Filters";
 
 /** start new custom playlist page */
 function NewMix() {
   const updateStatus = useStatusUpdate();
 
-  const [zoneId, setZoneId] = useState(null);
+  const [filters, setFilters] = useState({
+    artists: [],
+    includedTags: [],
+    excludedTags: [],
+    rating: [3, 4, 5, 6],
+    theme: "DARK_PINK",
+  });
 
   // ask background script for track info from page
   // useEffect(() => {
@@ -32,7 +39,9 @@ function NewMix() {
     <div>
       <Banner title="new mix" />
 
-      <Button title="play" onClick={play} />
+      <Filters filters={filters} setFilters={setFilters}>
+        <Button title="play" onClick={play} />
+      </Filters>
     </div>
   );
 }
