@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./App.css";
 import Status from "./modules/Status";
 import Tabs from "./modules/Tabs";
@@ -15,34 +15,38 @@ import {
 } from "./pages";
 
 function App() {
-  const [selectedTabId, setSelectedTabId] = useState("+");
-  const [page, setPage] = useState(null);
+  // made these into a single state to force both to update at the same time
+  // do not call this setter directly, use setSelectedTabId instead
+  const [{ selectedTabId, page }, _setSelectedTabIdAndPage] = useState({
+    selectedTabId: Pages.NEW_MIX,
+    page: Pages.NEW_MIX,
+  });
 
-  // ask background script for selected tab id
+  /** set the tab id and determine page type */
+  const setSelectedTabId = useCallback((tabId) => {
+    (async () => {
+      // if one of the special tabs, switch to that page
+      if (Object.values(Pages).includes(tabId)) {
+        console.log("switching to special page");
+        _setSelectedTabIdAndPage({ selectedTabId: tabId, page: tabId });
+        return;
+      }
+
+      console.log("asking background for tab type");
+      // else get type of normal tab and switch to that page
+      const type = await background("getTabType", tabId);
+      _setSelectedTabIdAndPage({ selectedTabId: tabId, page: type });
+    })();
+  }, []);
+
+  // ask background script for initial selected tab id
   useEffect(() => {
     (async () => {
       const tabId = await background("getMostImportantTabId");
       console.log("selected tab is", tabId);
       if (tabId) setSelectedTabId(tabId);
     })();
-  }, []);
-
-  // set the page type
-  useEffect(() => {
-    setPage(null);
-
-    (async () => {
-      // if one of the special tabs, switch to that page
-      if (Object.values(Pages).includes(selectedTabId)) {
-        setPage(selectedTabId);
-        return;
-      }
-
-      // else get type of normal tab and switch to that page
-      const type = await background("getTabType", selectedTabId);
-      setPage(type);
-    })();
-  }, [selectedTabId]);
+  }, [setSelectedTabId]);
 
   return (
     <>
