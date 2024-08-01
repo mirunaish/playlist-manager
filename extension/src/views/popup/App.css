@@ -73,7 +73,7 @@ body {
   background-color: var(--primaryDark);
 }
 
-.zone {
+.banner {
   background-color: var(--primary);
   color: var(--primaryText);
 
@@ -81,16 +81,16 @@ body {
 
   text-align: center;
 }
-.zone > p {
+.banner > p {
   font-size: 20px;
   line-height: 38px; /* this centers the text vertically */
 }
-.zone > div {
+.banner > div {
   height: 100%;
   width: 80px;
   line-height: 38px;
 }
-.zone > div > .icon {
+.banner > div > .icon {
   display: inline;
   line-height: 38px;
 }
