@@ -105,6 +105,9 @@ body {
   position: absolute;
   bottom: 0;
 }
+.status.info {
+  color: var(--textFineprint);
+}
 .status.error {
   color: var(--error);
 }

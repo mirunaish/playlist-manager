@@ -40,6 +40,7 @@ export var MessageTypes = {
 };
 
 export var StatusTypes = {
+  INFO: "info",
   ERROR: "error",
   SUCCESS: "success",
 };
