@@ -7,7 +7,6 @@ import Thumbnail from "../components/Thumbnail";
 import Banner from "../components/Banner";
 import { MessageTypes, SupportedSites } from "../../../consts";
 import PlayBar from "../components/PlayBar";
-// import ZonesDropdown from "../components/ZonesDropdown";
 import { Icons } from "../icons";
 
 function Untracked({ selectedTabId }) {
@@ -20,7 +19,7 @@ function Untracked({ selectedTabId }) {
     url: "",
     length: 0,
   }); // info from the content script
-  const [trackInfo, setTrackInfo] = useState({ zoneId: null, rating: 0 }); // info from background + defaults
+  const [trackInfo, setTrackInfo] = useState({ rating: 0 }); // info from background + defaults
   // TODO add length from content script
 
   // add listener that adds track info from content script
@@ -42,15 +41,6 @@ function Untracked({ selectedTabId }) {
     background("getUntrackedInfo", selectedTabId);
     // background will later send a message with the info which the listener will catch
   }, [selectedTabId]);
-
-  // useEffect(() => {
-  //   // add zone
-  //   (async () => {
-  //     // TODO ask background for default zone to auto select
-  //     const zones = await background("getAllZones");
-  //     setTrackInfo({ ...trackInfo, zoneId: Object.keys(zones)[0] });
-  //   })();
-  // }, [selectedTabId]);
 
   const search = useCallback(
     async (site) => {
@@ -117,12 +107,6 @@ function Untracked({ selectedTabId }) {
           setTrackInfo({ ...trackInfo, rating: e.target.value });
         }}
       />
-      {/* <ZonesDropdown
-        selectedZoneId={trackInfo.zoneId}
-        setZoneId={(v) => {
-          setTrackInfo({ ...trackInfo, zoneId: v });
-        }}
-      /> */}
 
       <Button title="save" onClick={save} />
 

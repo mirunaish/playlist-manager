@@ -22,17 +22,6 @@ function NewMix() {
   //   })();
   // }, [background, selectedTabId]);
 
-  // populate track info
-  useEffect(() => {
-    (async () => {
-      // TODO ask background for default zone to auto select
-      const zones = await background("getAllZones");
-      const initialZoneId = Object.keys(zones)[0]; // first zone by default
-
-      setZoneId(initialZoneId);
-    })();
-  }, []);
-
   const play = useCallback(async () => {
     console.log("play button pressed");
     updateStatus({ message: "this is a test", type: StatusTypes.SUCCESS });

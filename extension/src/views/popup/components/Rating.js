@@ -52,7 +52,7 @@ function Rating({
   }
 
   return (
-    <div className={"rating"}>
+    <div className="rating">
       {icons.map((icon, index) => {
         return (
           <Icon

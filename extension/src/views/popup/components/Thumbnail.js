@@ -13,7 +13,7 @@ function Thumbnail({ src, maxWidth = 200, square = false }) {
       src={src ?? placeholderPath}
       width={width.toString() + "px"}
       height={height.toString() + "px"}
-      alt={"thumbnail"}
+      alt="thumbnail"
       onError={(e) => {
         e.target.src = placeholderPath;
       }} // if the image cannot be loaded, use placeholder

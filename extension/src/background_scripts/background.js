@@ -298,6 +298,10 @@ export const FUNCTIONS = {
   getTrackedInfo,
   getUntrackedInfo,
   searchOtherSite,
+  getAllArtists,
+  getAllTags: () => {
+    return [];
+  },
   // play,
   // edit,
 };
@@ -333,10 +337,18 @@ getBrowser().runtime.onMessage.addListener((message, sender) => {
 
   // popup is asking background script to run a function
   else if (message.type === MessageTypes.FUNCTION_CALL) {
-    // call function and return its result
-    return FUNCTIONS[message.functionName](
-      ...(message.args ? message.args : [])
-    );
+    try {
+      // call function and return its result
+      return FUNCTIONS[message.functionName](
+        ...(message.args ? message.args : [])
+      );
+    } catch (e) {
+      console.error(
+        "failed to run function %s: %s",
+        message.functionName,
+        e.message
+      );
+    }
   }
 
   // default case

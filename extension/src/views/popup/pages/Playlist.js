@@ -18,7 +18,7 @@ function Playlist({ selectedTabId }) {
 
   return (
     <>
-      <Banner theme={""} disabled={true} />
+      <Banner theme="DARK_PINK" disabled={true} />
     </>
   );
 }

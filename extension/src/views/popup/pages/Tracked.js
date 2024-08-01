@@ -15,7 +15,6 @@ function Tracked({ selectedTabId }) {
     artist: null,
     imageLink: null,
     url: "",
-    zoneId: null,
     length: 0,
     rating: 0,
   });
@@ -47,7 +46,7 @@ function Tracked({ selectedTabId }) {
 
   return (
     <div>
-      <Banner zoneId={trackInfo.zoneId} disabled={true} />
+      <Banner theme="DARK_PINK" disabled={true} />
 
       <Thumbnail src={trackInfo.imageLink} />
 
