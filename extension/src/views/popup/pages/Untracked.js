@@ -27,9 +27,6 @@ function Untracked({ selectedTabId }) {
     if (message && message.type === MessageTypes.TRACK_INFO_FORWARD) {
       // populate track info with received data
       setUntrackedInfo(message.payload);
-
-      // remove listener
-      listener.remove();
     }
   }, []);
   const listener = useListener(handler);
