@@ -4,7 +4,7 @@ import Button from "../components/Button";
 import { useListener } from "../hooks";
 import { background } from "../util";
 import Thumbnail from "../components/Thumbnail";
-import ZoneBanner from "../components/ZoneBanner";
+import Banner from "../components/Banner";
 import { MessageTypes, SupportedSites } from "../../../consts";
 import PlayBar from "../components/PlayBar";
 // import ZonesDropdown from "../components/ZonesDropdown";
@@ -75,7 +75,7 @@ function Untracked({ selectedTabId }) {
 
   return (
     <div>
-      <ZoneBanner title="Untracked" disabled={true} />
+      <Banner title="Untracked" disabled={true} />
 
       <Thumbnail src={untrackedInfo.imageLink} />
 

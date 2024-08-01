@@ -5,10 +5,11 @@ import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import Thumbnail from "../components/Thumbnail";
 import { Icons } from "../icons";
-import ZoneBanner from "../components/ZoneBanner";
+import Banner from "../components/Banner";
 import { StatusTypes } from "../../../consts";
 
-function NewTab() {
+/** start new custom playlist page */
+function NewMix() {
   const updateStatus = useStatusUpdate();
 
   const [zoneId, setZoneId] = useState(null);
@@ -40,11 +41,11 @@ function NewTab() {
 
   return (
     <div>
-      <ZoneBanner zoneId={zoneId} setZoneId={setZoneId}></ZoneBanner>
+      <Banner title="new mix" />
 
       <Button title="play" onClick={play} />
     </div>
   );
 }
 
-export default NewTab;
+export default NewMix;

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
-import ZoneBanner from "../components/ZoneBanner";
+import Banner from "../components/Banner";
 import { SupportedSites } from "../../../consts";
 import Thumbnail from "../components/Thumbnail";
 import Button from "../components/Button";
@@ -47,7 +47,7 @@ function Tracked({ selectedTabId }) {
 
   return (
     <div>
-      <ZoneBanner zoneId={trackInfo.zoneId} disabled={true}></ZoneBanner>
+      <Banner zoneId={trackInfo.zoneId} disabled={true} />
 
       <Thumbnail src={trackInfo.imageLink} />
 

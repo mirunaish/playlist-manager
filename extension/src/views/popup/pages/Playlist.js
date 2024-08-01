@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
-import ZoneBanner from "../components/ZoneBanner";
+import Banner from "../components/Banner";
 import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
 
@@ -18,7 +18,7 @@ function Playlist({ selectedTabId }) {
 
   return (
     <>
-      <ZoneBanner zoneId={trackInfo.zoneId} disabled={true}></ZoneBanner>
+      <Banner theme={""} disabled={true} />
     </>
   );
 }

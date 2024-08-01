@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import Status from "./components/Status";
-import Tabs from "./components/Tabs";
-import Playlist from "./pages/Playlist";
-import Tracked from "./pages/Tracked";
-import Untracked from "./pages/Untracked";
-import NewTab from "./pages/NewTab";
+import Status from "./modules/Status";
+import Tabs from "./modules/Tabs";
 import { background } from "./util";
 import { Pages } from "../../consts";
-import Settings from "./pages/Settings";
+import {
+  NewMix,
+  Search,
+  Quickplay,
+  Settings,
+  Playlist,
+  Tracked,
+  Untracked,
+} from "./pages";
 
 function App() {
   const [selectedTabId, setSelectedTabId] = useState("+");
@@ -28,14 +32,13 @@ function App() {
     setPage(null);
 
     (async () => {
-      if (selectedTabId === "+") {
-        setPage(Pages.NEW_TAB);
+      // if one of the special tabs, switch to that page
+      if (Object.values(Pages).includes(selectedTabId)) {
+        setPage(selectedTabId);
         return;
       }
-      if (selectedTabId === "settings") {
-        setPage(Pages.SETTINGS);
-        return;
-      }
+
+      // else get type of normal tab and switch to that page
       const type = await background("getTabType", selectedTabId);
       setPage(type);
     })();
@@ -43,14 +46,20 @@ function App() {
 
   return (
     <>
-      {/* status is first so the status update listener is added before other components are rendered */}
+      {/*
+       * status is first so the status update listener is added
+       * before other components are rendered
+       */}
       <Status />
 
       <Tabs selectedTabId={selectedTabId} selectTab={setSelectedTabId} />
 
       {/* select page based on tab info */}
-      {page === Pages.NEW_TAB && <NewTab />}
-      {page === Pages.SETTINGS && <Settings />}
+      {page === Pages.NEW_MIX && <NewMix />}
+      {page === Pages.SEARCH && <Search />}
+      {page === Pages.QUICKPLAY && <Quickplay />}
+      {page === Pages.Settings && <Settings />}
+
       {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
       {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
       {page === Pages.UNTRACKED && <Untracked selectedTabId={selectedTabId} />}

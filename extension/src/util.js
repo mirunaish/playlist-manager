@@ -9,6 +9,10 @@ export function shorten(string) {
   return shortenedString;
 }
 
+export function humanReadable(string) {
+  return string.toLowerCase().replace("_", " ");
+}
+
 /** returns true if the scroll was a mouse, false if it was a touchpad */
 export function isMouse(event) {
   // https://stackoverflow.com/questions/10744645/detect-touchpad-vs-mouse-in-javascript
