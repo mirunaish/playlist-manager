@@ -22,7 +22,6 @@ try {
 }
 
 // define + export models
-export const Zone = define.zone(sequelize);
 export const Artist = define.artist(sequelize);
 export const Tag = define.tag(sequelize);
 export const Track = define.track(sequelize);
@@ -44,7 +43,6 @@ app.use("/artist", routers.artistRouter);
 app.use("/playlist", routers.playlistRouter);
 app.use("/tag", routers.tagRouter);
 app.use("/track", routers.trackRouter);
-app.use("/zone", routers.zoneRouter);
 
 // start app
 app.listen(5000, () => {
