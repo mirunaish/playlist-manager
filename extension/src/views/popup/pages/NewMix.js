@@ -18,6 +18,7 @@ function NewMix() {
     includedTags: [],
     excludedTags: [],
     rating: [3, 4, 5, 6],
+    name: "New Mix",
     theme: "DARK_PINK",
   });
 
@@ -37,10 +38,10 @@ function NewMix() {
 
   return (
     <div>
-      <Banner title="new mix" />
+      <Banner title="New mix" />
 
       <Filters filters={filters} setFilters={setFilters}>
-        <Button title="play" onClick={play} />
+        <Button title="Play" onClick={play} />
       </Filters>
     </div>
   );

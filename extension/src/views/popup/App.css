@@ -139,35 +139,54 @@ img {
   filter: hue-rotate(var(--hue));
 }
 
-svg {
+.icon {
   padding: 5px;
   vertical-align: middle;
 }
-svg > path {
+.icon > path {
   fill: var(--text);
   stroke: var(--text);
   stroke-width: 16px;
 }
-svg.fill > path {
+.icon.fill > path {
   stroke: none !important;
   stroke-width: 0 !important;
 }
-svg.stroke > path {
+.icon.stroke > path {
   fill: none !important;
 }
 
+button,
+input,
+select,
+.searchinput__control {
+  margin: 2px;
+}
+
+input,
+select,
+.searchinput__control {
+  background-color: var(--background);
+  color: var(--text);
+
+  border: 1px solid var(--ui);
+
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 5px;
+}
+
 button {
+  background-color: var(--secondary);
   color: var(--secondaryText);
   border: none;
+  border-radius: 4px;
+  font-size: 14px;
   padding: 5px;
   width: 120px;
   text-align: center;
   display: inline-block;
-  font-size: 14px;
-  margin: 4px 2px;
   transition-duration: 0.1s;
-  background-color: var(--secondary);
-  border-radius: 4px;
 }
 button > svg > path {
   fill: var(--secondaryText);
@@ -191,16 +210,11 @@ button > svg {
   padding: 0px 5px 0px 0px;
 }
 
-select {
-  background-color: var(--secondary);
-  color: var(--secondaryText);
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  padding: 5px;
-  margin-left: 2px;
-  margin-right: 2px;
+input::placeholder {
+  color: var(--textFineprint);
+  opacity: 1;
 }
+
 select:hover {
   background-color: var(--secondaryDark);
 }
@@ -209,13 +223,45 @@ select > option:checked {
   background-color: var(--secondaryDark);
 }
 
-input {
-  background-color: var(--backgroundAccent);
+.searchinput__control--menu-is-open {
+  border-radius: 4px 4px 0px 0px;
+}
+.searchinput__menu {
+  background-color: var(--background);
   color: var(--text);
-  border: 1px solid var(--ui);
-  border-radius: 4px;
-  font-size: 14px;
   padding: 5px;
+  border: 1px solid var(--backgroundAccent);
+  border-radius: 0px 0px 4px 4px;
+}
+.searchinput__option {
+  padding: 5px;
+}
+.searchinput__option--is-focused {
+  background: var(--backgroundAccent);
+}
+.searchinput__indicators {
+  display: none !important;
+}
+.searchinput__placeholder {
+  color: var(--textFineprint);
+}
+.searchinput__no-options-message {
+  padding: 5px;
+}
+.searchinput__no-options-message {
+  padding: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.searchinput__value-container {
+  gap: 5px;
+}
+.searchinput__multi-value {
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  gap: 3px;
 }
 
 .rating > img,

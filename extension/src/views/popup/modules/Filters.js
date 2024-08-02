@@ -1,74 +1,140 @@
 import React, { useEffect, useState } from "react";
 import Rating from "../components/Rating";
-import SearchInput from "../components/SearchInput";
+import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import ThemesDropdown from "./ThemesDropdown";
 import { background } from "../util";
 
 function Filters({ setFilters, filters = null, children }) {
-  const [artists, setArtists] = useState([]);
+  const [artists, setArtists] = useState({});
 
   useEffect(() => {
-    if (artists.length > 0) return;
     (async () => {
       const result = await background("getAllArtists");
-      if (result.length === 0) return;
+      if (!result || result.length === 0) return;
       setArtists(result);
     })();
-  }, [artists, setArtists]);
+  }, []);
 
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState({});
   useEffect(() => {
-    if (tags.length > 0) return;
     (async () => {
       const result = await background("getAllTags");
-      if (result.length === 0) return;
+      if (!result || result.length === 0) return;
       setTags(result);
     })();
-  }, [tags, setTags]);
+  }, []);
+
+  const itemStyle = {
+    padding: "4px",
+  };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <SearchInput
-          label="artist"
-          options={artists.map((artist) => ({
-            value: artist.id,
-            label: artist.name,
-          }))}
-          value={filters.artists}
-          onChange={(value) => setFilters({ ...filters, artists: value })}
-          createOption={undefined}
-        />
-        <Rating
-          multiselect
-          extended
-          value={filters.rating}
-          onChange={(value) => setFilters({ ...filters, rating: value })}
-        />
-        <ThemesDropdown
-          value={filters.theme}
-          onChange={(value) => setFilters({ ...filters, theme: value })}
-        />
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ ...itemStyle, flexGrow: 1 }}>
+          <SearchInput
+            label="Artists"
+            options={Object.values(artists).map((artist) => ({
+              value: artist.id,
+              label: artist.name,
+              star: artist.isStarred,
+              backgroundColor: artist.isStarred
+                ? "var(--primary)"
+                : "var(--backgroundAccent)",
+              color: artist.isStarred ? "var(--primary-text)" : "var(--text)",
+            }))}
+            deco={SearchInputDeco.STAR}
+            value={filters.artists}
+            onChange={(value) => setFilters({ ...filters, artists: value })}
+          />
+        </div>
+        <div style={{ ...itemStyle, width: "max-content" }}>
+          <Rating
+            multiselect
+            extended
+            value={filters.rating}
+            onChange={(value) => setFilters({ ...filters, rating: value })}
+          />
+        </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <SearchInput
-          label="include tags"
-          options={tags.map((tag) => ({
-            value: tag.id,
-            label: tag.name,
-          }))}
-          value={filters.includedTags}
-          onChange={(value) => setFilters({ ...filters, includedTags: value })}
-        />
-        <SearchInput
-          label="exclude tags"
-          options={tags.map((tag) => ({
-            value: tag.id,
-            label: tag.name,
-          }))}
-          value={filters.excludedTags}
-          onChange={(value) => setFilters({ ...filters, excludedTags: value })}
-        />
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          alignItems: "stretch",
+        }}
+      >
+        <div style={{ ...itemStyle, width: "47%" }}>
+          <SearchInput
+            label="Include tags"
+            options={Object.values(tags).map((tag) => ({
+              value: tag.id,
+              label: tag.name,
+              backgroundColor: tag.color,
+            }))}
+            deco={SearchInputDeco.TAG}
+            value={filters.includedTags}
+            onChange={(value) =>
+              setFilters({ ...filters, includedTags: value })
+            }
+            style={{ height: "100%" }}
+          />
+        </div>
+        <div style={{ ...itemStyle, width: "47%" }}>
+          <SearchInput
+            label="Exclude tags"
+            options={Object.values(tags).map((tag) => ({
+              value: tag.id,
+              label: tag.name,
+              backgroundColor: tag.color,
+            }))}
+            deco={SearchInputDeco.TAG}
+            value={filters.excludedTags}
+            onChange={(value) =>
+              setFilters({ ...filters, excludedTags: value })
+            }
+            style={{ height: "100%" }}
+          />
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ ...itemStyle }}>
+          <input
+            placeholder="Mix title"
+            value={filters.name}
+            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+          />
+        </div>
+        <div style={{ ...itemStyle }}>
+          <ThemesDropdown
+            value={filters.theme}
+            onChange={(value) => setFilters({ ...filters, theme: value })}
+          />
+        </div>
       </div>
 
       {/* buttons, eg save, preview, etc */}

@@ -26,7 +26,7 @@ export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
 
   // get icon from file
   useEffect(() => {
-    if (icon == undefined) return;
+    if (!icon) return;
     (async () => {
       // https://stackoverflow.com/questions/61339259/how-to-dynamically-import-svg-and-render-it-inline
       const ReactComponent = (
@@ -42,7 +42,7 @@ export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
 
   const props = {
     ...args,
-    className: (args.className ?? "") + " " + type,
+    className: "icon " + (args.className ?? "") + " " + type,
     width: size,
     height: size,
   };

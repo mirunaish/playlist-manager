@@ -27,12 +27,10 @@ function App() {
     (async () => {
       // if one of the special tabs, switch to that page
       if (Object.values(Pages).includes(tabId)) {
-        console.log("switching to special page");
         _setSelectedTabIdAndPage({ selectedTabId: tabId, page: tabId });
         return;
       }
 
-      console.log("asking background for tab type");
       // else get type of normal tab and switch to that page
       const type = await background("getTabType", tabId);
       _setSelectedTabIdAndPage({ selectedTabId: tabId, page: type });
@@ -43,7 +41,6 @@ function App() {
   useEffect(() => {
     (async () => {
       const tabId = await background("getMostImportantTabId");
-      console.log("selected tab is", tabId);
       if (tabId) setSelectedTabId(tabId);
     })();
   }, [setSelectedTabId]);

@@ -9,6 +9,8 @@
     "@babel/preset-env": "^7.22.10",
     "@types/react": "^18.2.42",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "color": "^4.2.3",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",
     "react-dom": "^18.2.0",
