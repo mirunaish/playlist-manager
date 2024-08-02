@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
-import ZoneBanner from "../components/ZoneBanner";
+import Banner from "../components/Banner";
 import { SupportedSites } from "../../../consts";
 import Thumbnail from "../components/Thumbnail";
 import Button from "../components/Button";
@@ -15,7 +15,6 @@ function Tracked({ selectedTabId }) {
     artist: null,
     imageLink: null,
     url: "",
-    zoneId: null,
     length: 0,
     rating: 0,
   });
@@ -47,7 +46,7 @@ function Tracked({ selectedTabId }) {
 
   return (
     <div>
-      <ZoneBanner zoneId={trackInfo.zoneId} disabled={true}></ZoneBanner>
+      <Banner theme="DARK_PINK" disabled={true} />
 
       <Thumbnail src={trackInfo.imageLink} />
 

@@ -42,7 +42,7 @@ export async function add(data) {
 
   // check that url does not exist
   const existing = await Track.findOne({
-    where: { url: trackData.url, zoneId: trackData.zoneId },
+    where: { url: trackData.url },
   });
   if (existing != null) throw "track already exists";
 
@@ -51,7 +51,7 @@ export async function add(data) {
   await Track.create({ ...trackData, id });
 
   // create mapping to artists
-  const artistIds = await artistMatch(artist, data.zoneId);
+  const artistIds = await artistMatch(artist);
   await editTrackArtists(id, artistIds);
 
   // return the new track object
@@ -69,7 +69,7 @@ export async function edit(id, data) {
   await Track.update({ ...trackData }, { where: { id } });
 
   // update artist mapping
-  const artistIds = await artistMatch(artist, currentData.zoneId);
+  const artistIds = await artistMatch(artist);
   await editTrackArtists(id, artistIds);
 
   // return edited track

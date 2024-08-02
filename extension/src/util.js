@@ -1,4 +1,6 @@
+import Color from "color";
 import { SupportedSites } from "./consts";
+import { startCase } from "lodash";
 
 /** shortens a string to max 25 characters and adds ... at the end */
 export function shorten(string) {
@@ -7,6 +9,10 @@ export function shorten(string) {
     shortenedString = shortenedString.slice(0, 25).trim() + "...";
   }
   return shortenedString;
+}
+
+export function humanReadable(string) {
+  return startCase(string.toLowerCase().replace("_", " "));
 }
 
 /** returns true if the scroll was a mouse, false if it was a touchpad */
@@ -64,4 +70,22 @@ export function getNeighbors(array, index) {
   const right = array[mod(index + 1, array.length)]; // next element
 
   return { left, right };
+}
+
+/** calculate a contrasting text color for a given background color */
+export function contrastingColor(code) {
+  const color = Color(code);
+
+  if (color.isDark())
+    return Color({
+      h: color.hue(),
+      s: color.saturationl(),
+      l: 95,
+    }).hex();
+  if (color.isLight())
+    return Color({
+      h: color.hue(),
+      s: color.saturationl(),
+      l: 5,
+    }).hex();
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MessageTypes } from "../../../consts";
+import { MessageTypes, StatusTypes } from "../../../consts";
 
 function Status() {
   const [status, setStatus] = useState({ message: "", type: "" });
@@ -20,7 +20,7 @@ function Status() {
   return (
     <div
       className={"status " + status.type}
-      onClick={() => updateStatus("", "")}
+      onClick={() => updateStatus("", StatusTypes.INFO)}
     >
       <p>{status.message}</p>
     </div>

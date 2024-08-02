@@ -4,7 +4,7 @@ import Button from "../components/Button";
 import { useStatusUpdate } from "../hooks";
 import Thumbnail from "../components/Thumbnail";
 import { Icons } from "../icons";
-import ZoneBanner from "../components/ZoneBanner";
+import Banner from "../components/Banner";
 import { StatusTypes } from "../../../consts";
 
 function Settings() {
@@ -26,7 +26,7 @@ function Settings() {
 
   return (
     <div>
-      <ZoneBanner />
+      <Banner />
 
       <Button
         title="save"

@@ -87,16 +87,15 @@ async function getSupportedTabs() {
     // add playlist data, if playlist
     const playlistData = playlists[tab.id];
 
-    // get zone color
-    const zoneTheme = trackData
-      ? (await getAllZones())[trackData.zoneId].theme
-      : null;
+    // get color from quickplay (?) if applicable TODO
+    // const theme = trackData
+    //   ? (await getAllQuickplay())[trackData.quickplayId].theme
+    //   : null;
 
     tabs.push({
       tab: tabData,
       track: trackData,
       playlist: playlistData,
-      zoneTheme,
     });
   }
 
@@ -132,33 +131,16 @@ async function getMostImportantTabId() {
   return null;
 }
 
-// also cache zones
-const zoneCache = {
-  valid: false,
-  data: {},
-};
-async function getAllZones() {
-  if (zoneCache.valid) return zoneCache.data;
-
-  const zones = (await request("/zone")).body;
-  zoneCache.data = buildRecord(zones);
-  zoneCache.valid = true;
-  return zoneCache.data;
-}
-
 // cache array of artists
 const artistCache = {
   valid: false,
-  zoneId: null,
   data: {},
 };
-async function getAllArtists(zoneId) {
-  if (artistCache.valid && zoneId === artistCache.zoneId)
-    return artistCache.data;
+async function getAllArtists() {
+  if (artistCache.valid) return artistCache.data;
 
-  const artists = (await request("/artists", { body: { zoneId } })).body;
+  const artists = (await request("/artists")).body;
   artistCache.data = buildRecord(artists);
-  artistCache.zoneId = zoneId;
   artistCache.valid = true;
   return artistCache.data;
 }
@@ -312,11 +294,14 @@ export const FUNCTIONS = {
   getSupportedTabs,
   getMostImportantTabId,
   getTabType,
-  getAllZones,
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,
   searchOtherSite,
+  getAllArtists,
+  getAllTags: () => {
+    return [];
+  },
   // play,
   // edit,
 };
@@ -352,10 +337,18 @@ getBrowser().runtime.onMessage.addListener((message, sender) => {
 
   // popup is asking background script to run a function
   else if (message.type === MessageTypes.FUNCTION_CALL) {
-    // call function and return its result
-    return FUNCTIONS[message.functionName](
-      ...(message.args ? message.args : [])
-    );
+    try {
+      // call function and return its result
+      return FUNCTIONS[message.functionName](
+        ...(message.args ? message.args : [])
+      );
+    } catch (e) {
+      console.error(
+        "failed to run function %s: %s",
+        message.functionName,
+        e.message
+      );
+    }
   }
 
   // default case

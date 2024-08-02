@@ -20,7 +20,9 @@ export var SUPPORTED_QUERY = Object.values(SupportedSites).map(
 );
 
 export var Pages = {
-  NEW_TAB: "NEW_TAB",
+  QUICKPLAY: "QUICKPLAY",
+  NEW_MIX: "NEW_MIX",
+  SEARCH: "SEARCH",
   SETTINGS: "SETTINGS",
 
   UNTRACKED: "UNTRACKED",
@@ -38,6 +40,7 @@ export var MessageTypes = {
 };
 
 export var StatusTypes = {
+  INFO: "info",
   ERROR: "error",
   SUCCESS: "success",
 };

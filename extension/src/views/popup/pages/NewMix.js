@@ -5,13 +5,22 @@ import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import Thumbnail from "../components/Thumbnail";
 import { Icons } from "../icons";
-import ZoneBanner from "../components/ZoneBanner";
+import Banner from "../components/Banner";
 import { StatusTypes } from "../../../consts";
+import Filters from "../modules/Filters";
 
-function NewTab() {
+/** start new custom playlist page */
+function NewMix() {
   const updateStatus = useStatusUpdate();
 
-  const [zoneId, setZoneId] = useState(null);
+  const [filters, setFilters] = useState({
+    artists: [],
+    includedTags: [],
+    excludedTags: [],
+    rating: [3, 4, 5, 6],
+    name: "New Mix",
+    theme: "DARK_PINK",
+  });
 
   // ask background script for track info from page
   // useEffect(() => {
@@ -21,17 +30,6 @@ function NewTab() {
   //   })();
   // }, [background, selectedTabId]);
 
-  // populate track info
-  useEffect(() => {
-    (async () => {
-      // TODO ask background for default zone to auto select
-      const zones = await background("getAllZones");
-      const initialZoneId = Object.keys(zones)[0]; // first zone by default
-
-      setZoneId(initialZoneId);
-    })();
-  }, []);
-
   const play = useCallback(async () => {
     console.log("play button pressed");
     updateStatus({ message: "this is a test", type: StatusTypes.SUCCESS });
@@ -40,11 +38,13 @@ function NewTab() {
 
   return (
     <div>
-      <ZoneBanner zoneId={zoneId} setZoneId={setZoneId}></ZoneBanner>
+      <Banner title="New mix" />
 
-      <Button title="play" onClick={play} />
+      <Filters filters={filters} setFilters={setFilters}>
+        <Button title="Play" onClick={play} />
+      </Filters>
     </div>
   );
 }
 
-export default NewTab;
+export default NewMix;

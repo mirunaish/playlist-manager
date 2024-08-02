@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node src/index.js",
     "migrate": "npx sequelize-cli db:migrate",
-    "undo_migration": "npx sequelize-cli db:migrate:undo"
+    "undo_migration": "npx sequelize-cli db:migrate:undo",
+    "new_migration": "npx sequelize-cli migration:generate"
   },
   "dependencies": {
     "body-parser": "^1.20.0",

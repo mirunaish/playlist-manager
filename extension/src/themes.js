@@ -1,5 +1,5 @@
 export const Themes = {
-  DEFAULT: {
+  DARK_PINK: {
     background: "#201e1f",
     backgroundAccent: "#322c2f",
     ui: "#9d6790",

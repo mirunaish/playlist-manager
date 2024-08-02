@@ -1,56 +1,66 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./App.css";
-import Status from "./components/Status";
-import Tabs from "./components/Tabs";
-import Playlist from "./pages/Playlist";
-import Tracked from "./pages/Tracked";
-import Untracked from "./pages/Untracked";
-import NewTab from "./pages/NewTab";
+import Status from "./modules/Status";
+import Tabs from "./modules/Tabs";
 import { background } from "./util";
 import { Pages } from "../../consts";
-import Settings from "./pages/Settings";
+import {
+  NewMix,
+  Search,
+  Quickplay,
+  Settings,
+  Playlist,
+  Tracked,
+  Untracked,
+} from "./pages";
 
 function App() {
-  const [selectedTabId, setSelectedTabId] = useState("+");
-  const [page, setPage] = useState(null);
+  // made these into a single state to force both to update at the same time
+  // do not call this setter directly, use setSelectedTabId instead
+  const [{ selectedTabId, page }, _setSelectedTabIdAndPage] = useState({
+    selectedTabId: Pages.NEW_MIX,
+    page: Pages.NEW_MIX,
+  });
 
-  // ask background script for selected tab id
-  useEffect(() => {
+  /** set the tab id and determine page type */
+  const setSelectedTabId = useCallback((tabId) => {
     (async () => {
-      const tabId = await background("getMostImportantTabId");
-      console.log("selected tab is", tabId);
-      if (tabId) setSelectedTabId(tabId);
+      // if one of the special tabs, switch to that page
+      if (Object.values(Pages).includes(tabId)) {
+        _setSelectedTabIdAndPage({ selectedTabId: tabId, page: tabId });
+        return;
+      }
+
+      // else get type of normal tab and switch to that page
+      const type = await background("getTabType", tabId);
+      _setSelectedTabIdAndPage({ selectedTabId: tabId, page: type });
     })();
   }, []);
 
-  // set the page type
+  // ask background script for initial selected tab id
   useEffect(() => {
-    setPage(null);
-
     (async () => {
-      if (selectedTabId === "+") {
-        setPage(Pages.NEW_TAB);
-        return;
-      }
-      if (selectedTabId === "settings") {
-        setPage(Pages.SETTINGS);
-        return;
-      }
-      const type = await background("getTabType", selectedTabId);
-      setPage(type);
+      const tabId = await background("getMostImportantTabId");
+      if (tabId) setSelectedTabId(tabId);
     })();
-  }, [selectedTabId]);
+  }, [setSelectedTabId]);
 
   return (
     <>
-      {/* status is first so the status update listener is added before other components are rendered */}
+      {/*
+       * status is first so the status update listener is added
+       * before other components are rendered
+       */}
       <Status />
 
       <Tabs selectedTabId={selectedTabId} selectTab={setSelectedTabId} />
 
       {/* select page based on tab info */}
-      {page === Pages.NEW_TAB && <NewTab />}
-      {page === Pages.SETTINGS && <Settings />}
+      {page === Pages.NEW_MIX && <NewMix />}
+      {page === Pages.SEARCH && <Search />}
+      {page === Pages.QUICKPLAY && <Quickplay />}
+      {page === Pages.Settings && <Settings />}
+
       {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
       {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
       {page === Pages.UNTRACKED && <Untracked selectedTabId={selectedTabId} />}
