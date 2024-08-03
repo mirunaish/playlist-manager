@@ -20,7 +20,7 @@ function Settings() {
 
   // const save = useCallback(async () => {
   //   console.log("save button pressed");
-  //   updateStatus({ message: "this is a test", type: StatusTypes.SUCCESS });
+  //   updateStatus("this is a test", StatusTypes.SUCCESS);
   //   // await background.add(trackInfo);
   // }, [background, trackInfo, updateStatus]);
 

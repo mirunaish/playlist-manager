@@ -1,13 +1,13 @@
 // @ts-nocheck
 
 import { useCallback, useEffect } from "react";
-import { MessageTypes } from "../../consts";
+import { MessageTypes, StatusTypes } from "../../consts";
 
 /** ask background to update status bar */
 export function useStatusUpdate() {
   // send the message to the background script
   // the bg script will forward it to the status bar
-  return useCallback(async ({ message, type }) => {
+  return useCallback(async (message, type = StatusTypes.INFO) => {
     await browser.runtime.sendMessage({
       type: MessageTypes.STATUS_UPDATE,
       message,

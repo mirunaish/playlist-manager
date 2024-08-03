@@ -3,6 +3,7 @@ import { isMouse, shorten } from "../../../util";
 import { background } from "../util";
 import { Themes } from "../../../themes";
 import { Pages } from "../../../consts";
+import Scrollable from "../components/Scrollable";
 
 function Tab({ tab, selected, onClick, color }) {
   return (
@@ -26,34 +27,6 @@ function Tabs({ selectedTabId, selectTab }) {
       setAllTabs(tabs);
     })();
   }, []);
-
-  /** enable horizontal scrolling with mouse */
-  function scroll(e) {
-    // https://stackoverflow.com/questions/68658249/how-to-do-react-horizontal-scroll-using-mouse-wheel
-    if (isMouse(e)) {
-      const el = e.currentTarget;
-      el.scrollTo({
-        left: el.scrollLeft + e.deltaY * 3,
-        behavior: "smooth",
-      });
-    }
-    // if touchpad, do nothing (default behavior)
-  }
-
-  // when tabs are updated, scroll to end if selected tab is + or settings
-  useEffect(() => {
-    const elem = document.querySelector(".tab.selected");
-    const div = document.querySelector(".tabs > .scrollable-container");
-    if (!elem || elem.parentElement !== div)
-      div.lastChild?.scrollIntoView(false);
-  }, [allTabs]);
-
-  // scroll selected tab into view
-  useEffect(() => {
-    const elem = document.querySelector(".tab.selected");
-    const div = document.querySelector(".tabs > .scrollable-container");
-    if (elem?.parentElement === div) elem.scrollIntoView(false);
-  }, [selectedTabId, allTabs]);
 
   // TODO change this to callback?
   /**
@@ -89,7 +62,7 @@ function Tabs({ selectedTabId, selectTab }) {
         </div>
       ))}
 
-      <div className="scrollable-container" onWheel={scroll}>
+      <Scrollable horizontal={true} className="tabs" itemClassName="tab">
         {allTabs.map((data) => {
           return (
             <Tab
@@ -101,7 +74,7 @@ function Tabs({ selectedTabId, selectTab }) {
             />
           );
         })}
-      </div>
+      </Scrollable>
     </div>
   );
 }

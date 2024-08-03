@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MessageTypes, StatusTypes } from "../../../consts";
 
 function Status() {
-  const [status, setStatus] = useState({ message: "", type: "" });
+  const [status, setStatus] = useState({ message: "", type: StatusTypes.INFO });
 
   function updateStatus(message, type) {
     setStatus({ message, type });
@@ -10,6 +10,7 @@ function Status() {
 
   // listen for status messages from background
   useEffect(() => {
+    // @ts-ignore
     browser.runtime.onMessage.addListener((message) => {
       if (message.type === MessageTypes.STATUS_UPDATE) {
         updateStatus(message.message, message.statusType);

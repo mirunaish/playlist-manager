@@ -56,7 +56,7 @@ async function getTrackedInfo(tabId) {
   // get tab url
   const url = (await getTab(tabId)).url;
 
-  const { ok, body } = await request("/track/url", { body: { url } });
+  const { ok, body } = await request("/tracks/url", { body: { url } });
   if (!ok) return null;
   return body;
 }
@@ -152,17 +152,33 @@ async function getAllArtists() {
  * tabid: {
  *   list: array of tracks,
  *   index: index of track playing,
- *   currTrack: track object,
  *   filters: applied filters
  * }
  */
 const playlists = {};
 
+/** get all info about playlist */
 function getPlaylistInfo(tabId) {
   return playlists[tabId];
 }
 
-/*
+/** ask backend for a playlist */
+async function previewPlaylist(filters) {
+  // get playlist from backend
+  const response = await request("/playlist", {
+    method: "POST",
+    body: filters,
+  });
+
+  // if no tracks found, show error message
+  if (!response.ok) {
+    throw Error("No tracks matching filter found");
+  }
+
+  return response.body; // { playlist, stats }
+}
+
+/* 
 
 // start playlist button was pressed
 async function startPlaying(filters) {
@@ -253,7 +269,7 @@ async function edit(trackData) {
 // add new track
 async function add(trackData) {
   // make request to backend
-  const response = await request("/track", {
+  const response = await request("/tracks", {
     method: "POST",
     body: trackData,
   });
@@ -294,13 +310,28 @@ export const FUNCTIONS = {
   getSupportedTabs,
   getMostImportantTabId,
   getTabType,
+  switchToTab,
+  previewPlaylist,
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,
   searchOtherSite,
   getAllArtists,
-  getAllTags: () => {
-    return [];
+  getAllTags: async () => {
+    return {
+      123: { id: 123, name: "my tag", color: "darkred" },
+      234: { id: 234, name: "another tag", color: "darkblue" },
+      4343: { id: 4343, name: "some tag", color: "brown" },
+      1: { id: 1, name: "just a tag", color: "darkgreen" },
+
+      3: { id: 3, name: "a tag", color: "yellow" },
+      4: { id: 4, name: "some other tag", color: "cyan" },
+      43: { id: 43, name: "random tag", color: "pink" },
+      11: { id: 11, name: "this is a tag", color: "red" },
+
+      6657: { id: 6657, name: "aaaaaa", color: "black" },
+      78787: { id: 78787, name: "bbbbbb", color: "white" },
+    };
   },
   // play,
   // edit,

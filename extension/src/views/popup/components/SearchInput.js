@@ -101,7 +101,7 @@ function SearchInput({
     () => ({
       placeholder: label,
       options,
-      onChange,
+      onChange: (options) => onChange(options.map((option) => option.value)),
       isMulti: true,
 
       unstyled: true,

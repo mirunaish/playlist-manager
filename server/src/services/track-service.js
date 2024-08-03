@@ -23,15 +23,15 @@ export async function getTrackByTitleArtist() {
   return;
 }
 
-/** get a comma-separated string of names of this track's artists */
+/** get an array of ids of artists */
 export async function getTrackArtists(trackId) {
   // get all artists on this track
   const result = await Artist.findAll({
     include: [{ model: TrackArtist, required: true, where: { trackId } }],
   });
 
-  // list the names separated by commas
-  return result.map((a) => a.name).join(", ");
+  // select the id of each
+  return result.map((a) => a.id);
 }
 
 /** add a new track */
