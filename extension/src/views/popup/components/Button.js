@@ -9,7 +9,7 @@ function Button({
 }) {
   return (
     <button
-      className={(primary ? " primary" : "") + (title.length > 0 ? "wide" : "")}
+      className={(primary ? "primary " : "") + (title.length > 0 ? "wide" : "")}
       onClick={onClick}
     >
       {icon && <Icon {...icon} />}
