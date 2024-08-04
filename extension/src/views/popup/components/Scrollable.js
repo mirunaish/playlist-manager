@@ -1,20 +1,15 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { isMouse } from "../../../util";
 
 /** query selectors need the container and items to have a className */
 function Scrollable({
   defaultLast = false,
   horizontal = false,
-  className,
-  itemClassName,
+  selectedItemRef = null,
+  selectedItemId = null,
   children,
 }) {
-  const selectedElement = useMemo(() => {
-    return document.querySelector("." + itemClassName + ".selected");
-  }, [itemClassName, children]);
-  const scrollableDiv = useMemo(() => {
-    return document.querySelector("." + className + " > .scrollable-container");
-  }, [className, children]);
+  const scrollableDivRef = useRef(null);
 
   /** enable horizontal scrolling with mouse */
   const scroll = horizontal
@@ -38,22 +33,29 @@ function Scrollable({
   // when children are updated, if nothing is selected, scroll to beginning / end
   useEffect(() => {
     // find selected element
-    const elem = selectedElement;
-    const div = scrollableDiv;
+    const elem = selectedItemRef.current;
+    const div = scrollableDivRef.current;
+    // no selected element, scroll to start/end
     if (!elem || elem.parentElement !== div) {
       scrollTo(defaultLast ? div?.lastChild : div?.firstChild);
     }
-  }, [children, scrollableDiv, selectedElement, defaultLast, scrollTo]);
+  }, [children, defaultLast, scrollTo, selectedItemId]);
 
   // scroll selected item into view
   useEffect(() => {
-    const elem = selectedElement;
-    const div = scrollableDiv;
-    if (elem && elem?.parentElement === div) scrollTo(elem);
-  }, [selectedElement, scrollableDiv, scrollTo]);
+    const elem = selectedItemRef.current;
+    const div = scrollableDivRef.current;
+    if (elem && elem?.parentElement === div) {
+      scrollTo(elem);
+    }
+  }, [scrollableDivRef, scrollTo, selectedItemId]);
 
   return (
-    <div className="scrollable-container" onWheel={scroll}>
+    <div
+      className="scrollable-container"
+      ref={scrollableDivRef}
+      onWheel={scroll}
+    >
       {children}
     </div>
   );
