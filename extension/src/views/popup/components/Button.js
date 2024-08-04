@@ -8,7 +8,10 @@ function Button({
   onClick = () => {},
 }) {
   return (
-    <button className={primary ? " primary" : ""} onClick={onClick}>
+    <button
+      className={(primary ? " primary" : "") + (title.length > 0 ? "wide" : "")}
+      onClick={onClick}
+    >
       {icon && <Icon {...icon} />}
       {title}
     </button>

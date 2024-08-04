@@ -187,10 +187,12 @@ button {
   border-radius: 4px;
   font-size: 14px;
   padding: 5px;
-  width: 120px;
   text-align: center;
   display: inline-block;
   transition-duration: 0.1s;
+}
+button.wide {
+  width: 120px;
 }
 button > svg > path {
   fill: var(--secondaryText);
