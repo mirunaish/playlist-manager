@@ -36,6 +36,9 @@ export let MessageTypes = {
   FUNCTION_CALL: "function-call",
 
   STATUS_UPDATE: "status-update",
+  PLAYLIST_UPDATE: "playlist-update", // currently playing track changed
+  TABS_UPDATE: "tabs-update", // a tab was added / removed or its title changed
+
   TRACK_INFO: "track-info",
   TRACK_INFO_FORWARD: "track-info-forward",
   MEDIA_CONTROL: "media-control",

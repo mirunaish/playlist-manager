@@ -8,11 +8,10 @@ export async function getTab(tabId) {
   return await getBrowser().tabs.get(tabId);
 }
 
-/** send a message to popup asking it to execute a function */
-export async function popup(functionName, ...args) {
+/** send a message to popup */
+export async function popup(messageType, ...args) {
   await getBrowser().runtime.sendMessage({
-    type: MessageTypes.FUNCTION_CALL,
-    functionName,
+    type: messageType,
     args,
   });
 }

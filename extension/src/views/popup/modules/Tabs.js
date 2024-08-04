@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { isMouse, shorten } from "../../../util";
 import { background } from "../util";
 import { Themes } from "../../../themes";
-import { Pages } from "../../../consts";
+import { MessageTypes, Pages } from "../../../consts";
 import Scrollable from "../components/Scrollable";
+import { useListener } from "../hooks";
 
 function Tab({ tab, selected, onClick, color }) {
   return (
@@ -20,13 +21,21 @@ function Tab({ tab, selected, onClick, color }) {
 function Tabs({ selectedTabId, selectTab }) {
   const [allTabs, setAllTabs] = useState([]); // [{ tab, track, playlist }]
 
-  // ask background script for all supported site tabs in browser
-  useEffect(() => {
-    (async () => {
-      const tabs = await background("getSupportedTabs");
-      setAllTabs(tabs);
-    })();
+  /** ask background script for all supported site tabs in browser */
+  const askBackgroundForTabs = useCallback(async () => {
+    const tabs = await background("getSupportedTabs");
+    setAllTabs(tabs);
   }, []);
+
+  // ask once at first render
+  useEffect(() => {
+    askBackgroundForTabs();
+  }, []);
+
+  // listen for background telling me that tabs have updated
+  useListener(MessageTypes.TABS_UPDATE, (message) => {
+    askBackgroundForTabs();
+  });
 
   // TODO change this to callback?
   /**

@@ -23,13 +23,10 @@ function Untracked({ selectedTabId }) {
   // TODO add length from content script
 
   // add listener that adds track info from content script
-  const handler = useCallback((message) => {
-    if (message && message.type === MessageTypes.TRACK_INFO_FORWARD) {
-      // populate track info with received data
-      setUntrackedInfo(message.payload);
-    }
-  }, []);
-  const listener = useListener(handler);
+  useListener(MessageTypes.TRACK_INFO_FORWARD, (message) => {
+    // populate track info with received data
+    setUntrackedInfo(message.payload);
+  });
   // listener removes itself on cleanup if not manually removed
 
   // get untracked info from content script
@@ -75,6 +72,7 @@ function Untracked({ selectedTabId }) {
           <Button
             icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
             onClick={() => search(site)}
+            primary={false}
           />
         )
       )}

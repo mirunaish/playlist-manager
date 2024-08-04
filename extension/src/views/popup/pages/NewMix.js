@@ -25,14 +25,6 @@ function NewMix() {
   const [playlist, setPlaylist] = useState(null);
   const [stats, setStats] = useState(null);
 
-  // ask background script for track info from page
-  // useEffect(() => {
-  //   (async () => {
-  //     const info = await background.getUntrackedInfo(selectedTabId);
-  //     setTrackInfo(info);
-  //   })();
-  // }, [background, selectedTabId]);
-
   const preview = useCallback(async () => {
     updateStatus("fetching playlist...");
     try {

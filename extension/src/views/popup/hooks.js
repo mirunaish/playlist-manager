@@ -17,16 +17,24 @@ export function useStatusUpdate() {
 }
 
 /** add and remove background script listeners */
-export function useListener(handler) {
+export function useListener(messageType, handler) {
+  const messageHandler = useCallback(
+    (message) => {
+      if (message && message.type === messageType) {
+        handler(message);
+      }
+    },
+    [messageType, handler]
+  );
   useEffect(() => {
     // add listener
-    browser.runtime.onMessage.addListener(handler);
+    browser.runtime.onMessage.addListener(messageHandler);
 
     // return cleanup function that removes listener
     return () => {
-      browser.runtime.onMessage.removeListener(handler);
+      browser.runtime.onMessage.removeListener(messageHandler);
     };
-  }, []);
+  }, [messageHandler]);
 
   // can also manually remove listener using this function
   const remove = useCallback(() => {

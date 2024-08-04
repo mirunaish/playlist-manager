@@ -217,7 +217,7 @@ async function playTrack(tabId, index) {
   // update currently playing
   playlists[tabId].playingIndex = index;
 
-  popup("updatePlayingTrack", tabId, index);
+  popup(MessageTypes.PLAYLIST_UPDATE, tabId, index);
 }
 
 /**
@@ -253,7 +253,7 @@ async function stopPlaying(tabId) {
   }
 
   delete playlists[tabId];
-  popup("updateTabs");
+  popup(MessageTypes.TABS_UPDATE);
 }
 
 // edit track info
@@ -337,6 +337,7 @@ export const FUNCTIONS = {
   playTrack,
   next,
   previous,
+  stopPlaying,
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,
@@ -442,6 +443,6 @@ getBrowser().tabs.onRemoved.addListener(async (tabId) => {
 
   // if tab was a supported tab, let popup know to update its tabs
   if ((await getSupportedTabs()).map((t) => t.tab.id).includes(tabId)) {
-    popup("updateTabs");
+    popup(MessageTypes.TABS_UPDATE);
   }
 });
