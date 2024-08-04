@@ -25,4 +25,27 @@ tagRouter.post("/", async (req, res) => {
   }
 });
 
+// edit a tag
+tagRouter.patch("/", async (req, res) => {
+  try {
+    const { id, ...tagData } = req.body;
+    const tag = await db.editTag(id, tagData);
+    res.status(200).json(tag);
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Could not edit tag");
+  }
+});
+
+tagRouter.delete("/", async (req, res) => {
+  try {
+    const { id } = req.body;
+    await db.deleteTag(id);
+    res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("Could not delete tag");
+  }
+});
+
 export { tagRouter };
