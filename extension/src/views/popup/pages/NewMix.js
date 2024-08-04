@@ -36,7 +36,7 @@ function NewMix() {
   const preview = useCallback(async () => {
     updateStatus("fetching playlist...");
     try {
-      const { playlist, stats } = await background("previewPlaylist", filters);
+      const { playlist, stats } = await background("getPlaylist", filters);
       setPlaylist(playlist);
       setStats(stats);
       updateStatus("");

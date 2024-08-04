@@ -1,4 +1,4 @@
-import { SERVER_URL } from "../consts";
+import { MessageTypes, SERVER_URL } from "../consts";
 
 // this is to prevent error messages everywhere
 // @ts-ignore
@@ -6,6 +6,15 @@ export const getBrowser = () => browser;
 
 export async function getTab(tabId) {
   return await getBrowser().tabs.get(tabId);
+}
+
+/** send a message to popup asking it to execute a function */
+export async function popup(functionName, ...args) {
+  await getBrowser().runtime.sendMessage({
+    type: MessageTypes.FUNCTION_CALL,
+    functionName,
+    args,
+  });
 }
 
 /**
