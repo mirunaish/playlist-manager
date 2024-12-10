@@ -12,12 +12,12 @@ function Quickplay() {
       const quickplay = await background("getQuickplay");
       setQuickplay(
         quickplay ?? [
-          { title: "test", theme: "ORANGE", id: 1 },
+          { title: "test", theme: "BEACH", id: 1 },
           { title: "test", theme: "DARK_PINK", id: 2 },
-          { title: "test", theme: "BLUE", id: 3 },
-          { title: "test", theme: "BLUE", id: 4 },
-          { title: "test", theme: "ORANGE", id: 5 },
-          { title: "test", theme: "BLUE", id: 6 },
+          { title: "test", theme: "BLUEJAY", id: 3 },
+          { title: "test", theme: "BLUEJAY", id: 4 },
+          { title: "test", theme: "WATERMELON", id: 5 },
+          { title: "test", theme: "BEACH", id: 6 },
           { title: "test", theme: "DARK_PINK", id: 7 },
         ] // TODO remove
       );
