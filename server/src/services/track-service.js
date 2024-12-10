@@ -10,8 +10,8 @@ import {
 import { artistMatch } from "./artist-service.js";
 
 export async function getTrackById(id) {
-  let track = await Track.findOne({ where: { id } });
-  if (track == null) throw "could not find track";
+  let track = await Track.findByPk(id);
+  if (track === null) throw Error("could not find track");
   track.artist = await getTrackArtists(track.id);
 
   return track;
@@ -19,7 +19,7 @@ export async function getTrackById(id) {
 
 export async function getTrackByUrl(url) {
   let track = await Track.findOne({ where: { url } });
-  if (track == null) throw "could not find track";
+  if (track === null) throw Error("could not find track");
   track.artist = await getTrackArtists(track.id);
 
   return track;
@@ -27,6 +27,11 @@ export async function getTrackByUrl(url) {
 
 // TODO
 export async function getTrackByTitleArtist() {
+  return;
+}
+
+// TODO
+export async function getTracksByTitle() {
   return;
 }
 

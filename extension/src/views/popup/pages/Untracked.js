@@ -67,19 +67,7 @@ function Untracked({ selectedTabId }) {
 
       <Thumbnail src={untrackedInfo.imageLink} />
 
-      <p>{untrackedInfo.url}</p>
-
-      <p>Search for this track on:</p>
-      {/* render buttons for sites except ones this track is on */}
-      {Object.entries(SupportedSites).map(([site, { regex }]) =>
-        untrackedInfo.url.match(regex) ? null : (
-          <Button
-            icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
-            onClick={() => search(site)}
-            primary={false}
-          />
-        )
-      )}
+      {/* <p>{untrackedInfo.url}</p> */}
 
       <input
         value={untrackedInfo.title ?? ""}
@@ -106,6 +94,18 @@ function Untracked({ selectedTabId }) {
           setTrackInfo({ ...trackInfo, rating: value });
         }}
       />
+
+      <p>Search for this track on:</p>
+      {/* render buttons for sites except ones this track is on */}
+      {Object.entries(SupportedSites).map(([site, { regex }]) =>
+        untrackedInfo.url.match(regex) ? null : (
+          <Button
+            icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
+            onClick={() => search(site)}
+            primary={false}
+          />
+        )
+      )}
 
       <Button title="save" onClick={save} />
 
