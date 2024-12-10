@@ -59,6 +59,7 @@ function Rating({
             icon={icon}
             size={20}
             className={disabled ? " disabled" : ""}
+            style={{ cursor: disabled ? "not-allowed" : "pointer" }}
             type={indexSelected(index) ? Icons.FILL : Icons.STROKE}
             onClick={() => updateRating(index)}
           />
