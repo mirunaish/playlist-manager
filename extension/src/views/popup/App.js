@@ -54,8 +54,8 @@ function App() {
   }, [setSelectedTabId]);
 
   // listen for background script telling me to select a tab
-  useListener(MessageTypes.SELECT_TAB, (tabId) => {
-    setSelectedTabId(tabId);
+  useListener(MessageTypes.SELECT_TAB, ({ id }) => {
+    setSelectedTabId(id);
   });
 
   return (

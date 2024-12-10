@@ -9,10 +9,10 @@ export async function getTab(tabId) {
 }
 
 /** send a message to popup */
-export async function popup(messageType, ...args) {
+export async function popup(messageType, payload) {
   await getBrowser().runtime.sendMessage({
     type: messageType,
-    args,
+    payload,
   });
 }
 

@@ -10,8 +10,7 @@ export function useStatusUpdate() {
   return useCallback(async (message, type = StatusTypes.INFO) => {
     await browser.runtime.sendMessage({
       type: MessageTypes.STATUS_UPDATE,
-      message,
-      statusType: type,
+      payload: { message, statusType: type },
     });
   }, []);
 }

@@ -13,11 +13,7 @@ import { pick, buildRecord } from "../util";
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
   try {
-    await getBrowser().runtime.sendMessage({
-      type: MessageTypes.STATUS_UPDATE,
-      message,
-      statusType,
-    });
+    await popup(MessageTypes.STATUS_UPDATE, { message, statusType });
   } catch (e) {
     console.error('failed to update status "' + message + '";', e);
   }
@@ -211,14 +207,9 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
   playlists[tab.id] = playlistData;
 
   // send message to popup with updated tabs
-  getBrowser().runtime.sendMessage({
-    type: MessageTypes.TABS_UPDATE,
-  });
+  popup(MessageTypes.TABS_UPDATE);
   // tell popup to switch to new tab
-  getBrowser().runtime.sendMessage({
-    type: MessageTypes.SELECT_TAB,
-    payload: tab.id,
-  });
+  popup(MessageTypes.SELECT_TAB, { id: tab.id });
 
   // start playing first track
   playTrack(tab.id, 0);
@@ -235,7 +226,7 @@ async function playTrack(tabId, index) {
   playlists[tabId].playingIndex = index;
 
   // tell popup that playing index changed
-  popup(MessageTypes.PLAYLIST_UPDATE, tabId, index);
+  popup(MessageTypes.PLAYLIST_UPDATE, { tabId, index });
 }
 
 /**
@@ -314,10 +305,7 @@ async function searchOtherSite(query, site) {
 /** send message with untracked info to the popup */
 async function insertGuessedInfo(info) {
   try {
-    await getBrowser().runtime.sendMessage({
-      type: MessageTypes.TRACK_INFO_FORWARD,
-      payload: info,
-    });
+    await popup(MessageTypes.TRACK_INFO_FORWARD, info);
   } catch (e) {
     console.error('failed to insert info "' + JSON.stringify(info) + '";', e);
   }
@@ -404,9 +392,7 @@ getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
   else if (message.type === MessageTypes.FUNCTION_CALL) {
     try {
       // call function and return its result
-      sendResponse(
-        FUNCTIONS[message.functionName](...(message.args ? message.args : []))
-      );
+      sendResponse(FUNCTIONS[message.functionName](...(message.args ?? [])));
     } catch (e) {
       console.error(
         "failed to run function %s: %s",

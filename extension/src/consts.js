@@ -39,7 +39,7 @@ export let MessageTypes = {
   PLAYLIST_UPDATE: "playlist-update", // currently playing track changed
   TABS_UPDATE: "tabs-update", // a tab was added / removed or its title changed
 
-  SELECT_TAB: "", // you should select this tab
+  SELECT_TAB: "select-tab", // you should select this tab
 
   TRACK_INFO: "track-info",
   TRACK_INFO_FORWARD: "track-info-forward",
