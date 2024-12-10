@@ -99,7 +99,7 @@ function Tabs({ selectedTabId, selectTab }) {
                   selectedTabRef.current = element;
               }}
               onClick={() => selectOrSwitch(data.tab.id)}
-              color={Themes[data.theme]?.primary}
+              color={Themes[data.playlist?.theme]?.primary}
             />
           );
         })}

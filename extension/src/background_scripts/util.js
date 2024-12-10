@@ -1,4 +1,4 @@
-import { MessageTypes, SERVER_URL } from "../consts";
+import { SERVER_URL } from "../consts";
 
 // this is to prevent error messages everywhere
 // @ts-ignore

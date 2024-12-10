@@ -68,7 +68,9 @@ async function getSupportedTabs() {
   // put in id:object map to only keep one copy of each tab
   const allTabs = Object.values({
     ...buildRecord(
-      await Promise.all(Object.keys(playlists).map((id) => getTab(id)))
+      await Promise.all(
+        Object.keys(playlists).map((id) => getTab(parseInt(id)))
+      )
     ), // playlist tabs, even if not supported or audible
     ...buildRecord(await getBrowser().tabs.query({ url: SUPPORTED_QUERY })), // supported site tabs
     ...buildRecord(await getBrowser().tabs.query({ audible: true })), // audible tabs
@@ -89,11 +91,8 @@ async function getSupportedTabs() {
 
     // add playlist data, if playlist
     const playlistData = playlists[tab.id];
-
-    // get color from quickplay (?) if applicable TODO
-    // const theme = trackData
-    //   ? (await getAllQuickplay())[trackData.quickplayId].theme
-    //   : null;
+    if (playlistData?.title)
+      tabData.title = `${playlistData.title} - ${playlistData.tracks[playlistData.playingIndex].title}`;
 
     tabs.push({
       tab: tabData,
