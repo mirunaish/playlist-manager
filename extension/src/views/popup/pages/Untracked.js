@@ -9,16 +9,18 @@ import { MessageTypes, SupportedSites } from "../../../consts";
 import PlayBar from "../components/PlayBar";
 import { Icons } from "../icons";
 
+const emptyTrack = {
+  title: null,
+  artist: null,
+  imageLink: null,
+  url: "",
+  length: 0,
+};
+
 function Untracked({ selectedTabId }) {
   // need to separate track data into two to prevent threads from overwriting data from each other
   // TODO find a better way to do this?
-  const [untrackedInfo, setUntrackedInfo] = useState({
-    title: null,
-    artist: null,
-    imageLink: null,
-    url: "",
-    length: 0,
-  }); // info from the content script
+  const [untrackedInfo, setUntrackedInfo] = useState(emptyTrack); // info from the content script
   const [trackInfo, setTrackInfo] = useState({ rating: 0 }); // info from background + defaults
   // TODO add length from content script
 
@@ -31,6 +33,8 @@ function Untracked({ selectedTabId }) {
 
   // get untracked info from content script
   useEffect(() => {
+    // reset untracked info
+    setUntrackedInfo(emptyTrack);
     // ask background script to get track info from page
     background("getUntrackedInfo", selectedTabId);
     // background will later send a message with the info which the listener will catch
@@ -59,7 +63,7 @@ function Untracked({ selectedTabId }) {
 
   return (
     <div>
-      <Banner title="Untracked" disabled={true} />
+      <Banner title="Untracked" />
 
       <Thumbnail src={untrackedInfo.imageLink} />
 
