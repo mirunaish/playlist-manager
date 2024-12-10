@@ -56,21 +56,25 @@ function App() {
     <>
       {/*
        * status is first so the status update listener is added
-       * before other components are rendered
+       * before other components are rendered.
+       * root has flexDirection: column-reverse so this is at the bottom
        */}
       <Status />
 
+      <div style={{ flexGrow: 1 }}>
+        {/* select page based on tab info */}
+        {page === Pages.NEW_MIX && <NewMix />}
+        {page === Pages.SEARCH && <Search />}
+        {page === Pages.QUICKPLAY && <Quickplay />}
+        {page === Pages.Settings && <Settings />}
+        {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
+        {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
+        {page === Pages.UNTRACKED && (
+          <Untracked selectedTabId={selectedTabId} />
+        )}
+      </div>
+
       <Tabs selectedTabId={selectedTabId} selectTab={setSelectedTabId} />
-
-      {/* select page based on tab info */}
-      {page === Pages.NEW_MIX && <NewMix />}
-      {page === Pages.SEARCH && <Search />}
-      {page === Pages.QUICKPLAY && <Quickplay />}
-      {page === Pages.Settings && <Settings />}
-
-      {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
-      {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
-      {page === Pages.UNTRACKED && <Untracked selectedTabId={selectedTabId} />}
     </>
   );
 }

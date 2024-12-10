@@ -12,13 +12,15 @@ function ListItem({ index, track, onClick = () => {} }) {
       onClick={onClick}
       className="playlistItem"
       style={{
-        borderBottom: BORDER_STYLE,
         display: "flex",
         flexDirection: "row",
+        gap: 15,
+
+        borderBottom: BORDER_STYLE,
       }}
     >
-      <Thumbnail src={track.imageLink} square={true} />
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <Thumbnail src={track.imageLink} square={true} maxWidth={50} />
+      <div style={{ display: "flex", flexDirection: "column", padding: 5 }}>
         <p>
           <span>{index + ". "}</span>
           <span style={{ fontWeight: "bold" }}>
@@ -35,7 +37,7 @@ function List({
   playlist, // array of tracks
   selectedTrackIndex = null,
   onTrackClick = (trackIndex) => {},
-  children = [],
+  children = [], // buttons at bottom
 }) {
   const playlistDuration = useCallback(
     (startIndex = -1) => {
@@ -57,32 +59,43 @@ function List({
   return (
     <div
       className="playlist"
-      style={{ width: "max-content", borderRight: BORDER_STYLE }}
+      style={{
+        borderRight: BORDER_STYLE,
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
       {/* minimal stats at the top */}
-      <div style={{ display: "flex", borderBottom: BORDER_STYLE }}>
-        <div style={{ float: "left" }}>
+      <div
+        style={{
+          borderBottom: BORDER_STYLE,
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        <div>
           {selectedTrackIndex ? selectedTrackIndex + "/" : ""}
           {Object.keys(playlist).length}
         </div>
-        <div style={{ float: "right" }}>
-          {selectedTrackIndex ? remainingDuration : totalDuration}
-        </div>
+        <div style={{ flexGrow: 1 }} />
+        <div>{selectedTrackIndex ? remainingDuration : totalDuration}</div>
       </div>
 
       {/* playlist */}
-      <Scrollable className="playlist" itemClassName="playlistItem">
-        {playlist.map((track, index) => {
-          return (
-            <ListItem
-              key={track.id}
-              index={index}
-              track={track}
-              onClick={() => onTrackClick(index)}
-            />
-          );
-        })}
-      </Scrollable>
+      <div style={{ flexGrow: 1 }}>
+        <Scrollable>
+          {playlist.map((track, index) => {
+            return (
+              <ListItem
+                key={track.id}
+                index={index}
+                track={track}
+                onClick={() => onTrackClick(index)}
+              />
+            );
+          })}
+        </Scrollable>
+      </div>
 
       {/* some buttons at the bottom */}
       <div

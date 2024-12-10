@@ -33,22 +33,22 @@ function Scrollable({
   // when children are updated, if nothing is selected, scroll to beginning / end
   useEffect(() => {
     // find selected element
-    const elem = selectedItemRef.current;
-    const div = scrollableDivRef.current;
+    const elem = selectedItemRef?.current;
+    const div = scrollableDivRef?.current;
     // no selected element, scroll to start/end
     if (!elem || elem.parentElement !== div) {
       scrollTo(defaultLast ? div?.lastChild : div?.firstChild);
     }
-  }, [children, defaultLast, scrollTo, selectedItemId]);
+  }, [children, defaultLast, scrollTo, selectedItemId, selectedItemRef]);
 
   // scroll selected item into view
   useEffect(() => {
-    const elem = selectedItemRef.current;
-    const div = scrollableDivRef.current;
+    const elem = selectedItemRef?.current;
+    const div = scrollableDivRef?.current;
     if (elem && elem?.parentElement === div) {
       scrollTo(elem);
     }
-  }, [scrollableDivRef, scrollTo, selectedItemId]);
+  }, [scrollableDivRef, scrollTo, selectedItemId, selectedItemRef]);
 
   return (
     <div

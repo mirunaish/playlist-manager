@@ -54,7 +54,10 @@ function NewMix() {
   }, []);
 
   return (
-    <div>
+    <div
+      className="expand"
+      style={{ display: "flex", flexDirection: "column" }}
+    >
       <Banner title="New mix" />
 
       <Filters filters={filters} setFilters={setFilters}>
@@ -72,15 +75,23 @@ function NewMix() {
         <Button title="Save to Quickplay" onClick={saveMix} />
       </Filters>
 
+      {/* preview playlist */}
       {playlist && stats ? (
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <div style={{ width: "max-content" }}>
+        <div
+          style={{
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "stretch",
+          }}
+        >
+          <div style={{ width: "50%" }}>
             <List playlist={playlist}>
-              <Button icon="🔀" onClick={reshuffle} />
-              <Button icon="📌" onClick={saveMix} />
+              <Button title="🔀" onClick={reshuffle} />
+              <Button title="📌" onClick={saveMix} />
             </List>
           </div>
-          <div style={{ flexGrow: 1 }}>
+          <div style={{ width: "50%" }}>
             <Stats stats={stats} />
           </div>
         </div>
