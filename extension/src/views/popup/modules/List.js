@@ -25,7 +25,7 @@ function ListItem({ index, track, onClick = () => {} }) {
             {track.artistString + " - " + track.title}
           </span>
         </p>
-        <Rating value={track.rating} />
+        <Rating value={track.rating} extended disabled />
       </div>
     </div>
   );
