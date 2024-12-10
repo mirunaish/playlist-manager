@@ -1,5 +1,12 @@
 import { v4 as uuid } from "uuid";
-import { sequelize, Track, Artist, TrackArtist } from "../../src/index.js";
+import {
+  sequelize,
+  Track,
+  Artist,
+  TrackArtist,
+  Tag,
+  TrackTag,
+} from "../../src/index.js";
 import { artistMatch } from "./artist-service.js";
 
 export async function getTrackById(id) {
@@ -32,6 +39,16 @@ export async function getTrackArtists(trackId) {
 
   // select the id of each
   return result.map((a) => a.id);
+}
+
+/** get an array of { id, name, color } */
+export async function getTrackTags(trackId) {
+  // get all tags on this track
+  const result = await Tag.findAll({
+    include: [{ model: TrackTag, required: true, where: { trackId } }],
+  });
+
+  return result;
 }
 
 /** add a new track */

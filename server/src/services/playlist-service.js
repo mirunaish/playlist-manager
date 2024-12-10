@@ -1,6 +1,13 @@
 import { Op } from "sequelize";
-import { sequelize, Track, Artist, TrackArtist } from "../../src/index.js";
-import { getTrackArtists } from "./track-service.js";
+import {
+  sequelize,
+  Track,
+  Artist,
+  TrackArtist,
+  TrackTag,
+  Tag,
+} from "../../src/index.js";
+import { getTrackArtists, getTrackTags } from "./track-service.js";
 import { removeFromArray } from "../util.js";
 
 function getPlaylistStats(playlist) {
@@ -46,25 +53,39 @@ export async function getPlaylist(filters) {
         model: Artist,
         required: true,
         attributes: [],
-        where: { [Op.or]: artistWhere },
+        where: { [Op.and]: artistWhere },
       },
     });
   }
 
   // add tag filters TODO
+  // include.push({
+  //   model: TrackTag,
+  //   required: true,
+  //   attributes: [],
+  //   include: {
+  //     model: Tag,
+  //     required: true,
+  //     attributes: ["id", "color", "name"],
+  //     // where: { [Op.and]: tagWhere },
+  //   },
+  // });
 
   // get playlist with filters
-  let playlist = await Track.findAll({ where, include });
+  let playlist = await Track.findAll({ raw: true, where, include });
 
   if (playlist.length == 0) {
     throw "Found no tracks matching these filters";
   }
 
   // TODO simplify this?
-  // get artists for each track, as an array of { id, name }
+  // for each track, get artists as an array of { id, name }
+  // and tags as an array of { id, name, color }
   for (let track of playlist) {
     track.artists = await getTrackArtists(track.id);
     track.artistString = track.artists.map((a) => a.name).join(", ");
+
+    track.tags = await getTrackTags(track.id);
   }
 
   // sort TODO add more sorts
@@ -80,35 +101,6 @@ export async function getPlaylist(filters) {
 
   // get playlist stats
   const stats = getPlaylistStats(playlist);
-
-  // TODO remove this
-  playlist = [
-    ...playlist,
-    {
-      id: "ababa",
-      title: "test title",
-      rating: 5,
-      imageLink: "https://i.ytimg.com/vi/8S6YkfSDZdw/hqdefault.jpg",
-      artists: ["8e3089e0-00b0-4eb8-9b1f-a4f340926c88"],
-      artistString: "itemLabel",
-    },
-    {
-      id: "rhuhgir",
-      title: "test title 2",
-      rating: 3,
-      imageLink: "https://i.ytimg.com/vi/8S6YkfSDZdw/hqdefault.jpg",
-      artists: ["8e3089e0-00b0-4eb8-9b1f-a4f340926c88"],
-      artistString: "itemLabel",
-    },
-    {
-      id: "huifhufs",
-      title: "test title 3",
-      rating: 1,
-      imageLink: "https://i.ytimg.com/vi/8S6YkfSDZdw/hqdefault.jpg",
-      artists: ["8e3089e0-00b0-4eb8-9b1f-a4f340926c88"],
-      artistString: "itemLabel",
-    },
-  ];
 
   return { playlist, stats };
 }
