@@ -22,6 +22,8 @@ export let SUPPORTED_QUERY = Object.values(SupportedSites).map(
 );
 
 export let Pages = {
+  DEFAULT: "NEW_MIX",
+
   QUICKPLAY: "QUICKPLAY",
   NEW_MIX: "NEW_MIX",
   SEARCH: "SEARCH",
@@ -37,7 +39,8 @@ export let MessageTypes = {
 
   STATUS_UPDATE: "status-update",
   PLAYLIST_UPDATE: "playlist-update", // currently playing track changed
-  TABS_UPDATE: "tabs-update", // a tab was added / removed or its title changed
+  TABS_UPDATE: "tabs-update", // a tab was added or its title changed
+  REMOVE_TAB: "remove-tab", // a tab was closed
 
   SELECT_TAB: "select-tab", // you should select this tab
 

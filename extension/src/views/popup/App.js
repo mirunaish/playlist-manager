@@ -13,15 +13,14 @@ import {
   Tracked,
   Untracked,
 } from "./pages";
-import { changeTheme } from "../../themes";
 import { useListener } from "./hooks";
 
 function App() {
   // made these into a single state to force both to update at the same time
   // do not call this setter directly, use setSelectedTabId instead
   const [{ selectedTabId, page }, _setSelectedTabIdAndPage] = useState({
-    selectedTabId: Pages.NEW_MIX,
-    page: Pages.NEW_MIX,
+    selectedTabId: Pages.DEFAULT,
+    page: Pages.DEFAULT,
   });
 
   /** set the tab id and determine page type */
@@ -37,12 +36,6 @@ function App() {
       const type = await background("getTabType", tabId);
       _setSelectedTabIdAndPage({ selectedTabId: tabId, page: type });
     })();
-  }, []);
-
-  useEffect(() => {
-    // on first render, set the theme
-    console.log("changing theme...");
-    changeTheme("DARK_PINK");
   }, []);
 
   // ask background script for initial selected tab id

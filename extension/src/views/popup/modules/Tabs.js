@@ -38,11 +38,18 @@ function Tabs({ selectedTabId, selectTab }) {
   // ask once at first render
   useEffect(() => {
     askBackgroundForTabs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // listen for background telling me that tabs have updated
   useListener(MessageTypes.TABS_UPDATE, () => {
     askBackgroundForTabs();
+  });
+  // listen for background telling me to remove a tab
+  useListener(MessageTypes.REMOVE_TAB, ({ id }) => {
+    setAllTabs(allTabs.filter(({ tab }) => tab.id !== id));
+    // if the tab closed was selected, switch to default tab
+    if (selectedTabId === id) selectTab(Pages.DEFAULT);
   });
 
   // TODO change this to callback?

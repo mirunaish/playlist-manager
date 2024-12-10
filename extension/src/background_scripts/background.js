@@ -258,11 +258,12 @@ async function stopPlaying(tabId) {
     await getBrowser().tabs.remove(tabId);
   } catch (e) {
     // tab was already closed
-    return;
+    // do nothing
   }
 
   delete playlists[tabId];
-  popup(MessageTypes.TABS_UPDATE);
+
+  popup(MessageTypes.REMOVE_TAB, { id: tabId });
 }
 
 // edit track info
@@ -441,12 +442,11 @@ getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
 // add event listener that stops playing if tab is closed
 getBrowser().tabs.onRemoved.addListener(async (tabId) => {
   if (playlists[tabId]) {
-    await stopPlaying();
-    return;
+    await stopPlaying(tabId);
+    return; // stopPlaying tells popup to remove tab
   }
 
-  // if tab was a supported tab, let popup know to update its tabs
-  if ((await getSupportedTabs()).map((t) => t.tab.id).includes(tabId)) {
-    popup(MessageTypes.TABS_UPDATE);
-  }
+  // let popup know to remove this tabs
+  // even though popup is likely closed if tab wasn't playlist
+  popup(MessageTypes.REMOVE_TAB, { id: tabId });
 });
