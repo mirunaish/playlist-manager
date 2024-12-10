@@ -19,7 +19,7 @@ function NewMix() {
     excludedTags: [],
     rating: [3, 4, 5, 6],
   });
-  const [mixName, setMixName] = useState("New Mix");
+  const [mixName, setMixName] = useState("Custom Mix");
   const [theme, setTheme] = useState("DARK_PINK");
 
   const [playlist, setPlaylist] = useState(null);
@@ -38,20 +38,21 @@ function NewMix() {
   }, [filters, updateStatus]);
 
   const play = useCallback(async () => {
-    console.log("play button pressed");
-    updateStatus("this is a test", StatusTypes.SUCCESS);
-    await background("play", filters);
-  }, [filters, updateStatus]);
+    await background("startPlaying", mixName, theme, filters, playlist);
+  }, [filters, mixName, playlist, theme]);
 
   const saveMix = useCallback(async () => {
-    console.log("play button pressed");
-    updateStatus("this is a test", StatusTypes.SUCCESS);
     await background("saveMix", filters);
-  }, [filters, updateStatus]);
+  }, [filters]);
 
   const reshuffle = useCallback(() => {
     return;
   }, []);
+
+  // reset preview playlist when filters are changed
+  useEffect(() => {
+    setPlaylist(null);
+  }, [filters]);
 
   return (
     <div

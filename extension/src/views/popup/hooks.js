@@ -21,7 +21,7 @@ export function useListener(messageType, handler) {
   const messageHandler = useCallback(
     (message) => {
       if (message && message.type === messageType) {
-        handler(message);
+        handler(message.payload);
       }
     },
     [messageType, handler]

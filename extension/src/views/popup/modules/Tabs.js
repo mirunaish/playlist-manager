@@ -41,7 +41,7 @@ function Tabs({ selectedTabId, selectTab }) {
   }, []);
 
   // listen for background telling me that tabs have updated
-  useListener(MessageTypes.TABS_UPDATE, (message) => {
+  useListener(MessageTypes.TABS_UPDATE, () => {
     askBackgroundForTabs();
   });
 

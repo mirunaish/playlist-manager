@@ -25,9 +25,9 @@ function Untracked({ selectedTabId }) {
   // TODO add length from content script
 
   // add listener that adds track info from content script
-  useListener(MessageTypes.TRACK_INFO_FORWARD, (message) => {
+  useListener(MessageTypes.TRACK_INFO_FORWARD, (payload) => {
     // populate track info with received data
-    setUntrackedInfo(message.payload);
+    setUntrackedInfo(payload);
   });
   // listener removes itself on cleanup if not manually removed
 

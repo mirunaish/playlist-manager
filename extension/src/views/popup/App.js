@@ -3,7 +3,7 @@ import "./App.css";
 import Status from "./modules/Status";
 import Tabs from "./modules/Tabs";
 import { background } from "./util";
-import { Pages } from "../../consts";
+import { MessageTypes, Pages } from "../../consts";
 import {
   NewMix,
   Search,
@@ -14,6 +14,7 @@ import {
   Untracked,
 } from "./pages";
 import { changeTheme } from "../../themes";
+import { useListener } from "./hooks";
 
 function App() {
   // made these into a single state to force both to update at the same time
@@ -51,6 +52,11 @@ function App() {
       if (tabId) setSelectedTabId(tabId);
     })();
   }, [setSelectedTabId]);
+
+  // listen for background script telling me to select a tab
+  useListener(MessageTypes.SELECT_TAB, (tabId) => {
+    setSelectedTabId(tabId);
+  });
 
   return (
     <>

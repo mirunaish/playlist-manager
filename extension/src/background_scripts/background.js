@@ -170,6 +170,8 @@ async function getPlaylist(filters) {
 /**
  * all playlists playing.
  * tabid: {
+ *   title: mix title,
+ *   theme: id of color theme,
  *   tracks: array of tracks,
  *   playingIndex: index of track playing (numbered from 0),
  *   filters: applied filters
@@ -183,9 +185,15 @@ function getPlaylistInfo(tabId) {
 }
 
 // start playlist button was pressed
-async function startPlaying(filters = null, playlist = null) {
+async function startPlaying(title, theme, filters = null, playlist = null) {
   // TODO this was structuredClone(filters) for some reason
-  const playlistData = { filters, tracks: playlist, playingIndex: null };
+  const playlistData = {
+    title,
+    theme,
+    filters,
+    tracks: playlist,
+    playingIndex: null,
+  };
 
   // if playlist not provided, get it from backend
   if (playlistData.tracks === null) {
@@ -201,7 +209,17 @@ async function startPlaying(filters = null, playlist = null) {
   });
 
   // save to playlists object
-  playlists = { ...playlists, [tab.id]: playlistData };
+  playlists[tab.id] = playlistData;
+
+  // send message to popup with updated tabs
+  getBrowser().runtime.sendMessage({
+    type: MessageTypes.TABS_UPDATE,
+  });
+  // tell popup to switch to new tab
+  getBrowser().runtime.sendMessage({
+    type: MessageTypes.SELECT_TAB,
+    payload: tab.id,
+  });
 
   // start playing first track
   playTrack(tab.id, 0);
@@ -209,7 +227,7 @@ async function startPlaying(filters = null, playlist = null) {
 
 /** ready to play, load and play track at current index */
 async function playTrack(tabId, index) {
-  const track = playlists[tabId][index];
+  const track = playlists[tabId].tracks[index];
 
   // navigate the playing tab to new url
   await getBrowser().tabs.update(tabId, { url: track.url });
@@ -217,6 +235,7 @@ async function playTrack(tabId, index) {
   // update currently playing
   playlists[tabId].playingIndex = index;
 
+  // tell popup that playing index changed
   popup(MessageTypes.PLAYLIST_UPDATE, tabId, index);
 }
 
@@ -347,7 +366,7 @@ export const FUNCTIONS = {
 };
 
 // receive messages from content script and popup
-getBrowser().runtime.onMessage.addListener((message, sender) => {
+getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
   // if popup components want to update the status they send a message to the
   // background script which then forwards it to the status component
   if (message.type === MessageTypes.STATUS_UPDATE) {
@@ -386,8 +405,8 @@ getBrowser().runtime.onMessage.addListener((message, sender) => {
   else if (message.type === MessageTypes.FUNCTION_CALL) {
     try {
       // call function and return its result
-      return FUNCTIONS[message.functionName](
-        ...(message.args ? message.args : [])
+      sendResponse(
+        FUNCTIONS[message.functionName](...(message.args ? message.args : []))
       );
     } catch (e) {
       console.error(
