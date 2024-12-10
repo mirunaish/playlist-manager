@@ -30,6 +30,13 @@ body {
   overflow: hidden;
 }
 
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
 .tabs {
   background-color: var(--backgroundAccent);
 
@@ -61,6 +68,8 @@ body {
   padding: 8px 12px;
   margin-left: 2px;
   margin-right: 2px;
+
+  cursor: pointer;
 }
 .tab:hover {
   background-color: var(--secondaryDark);
@@ -96,14 +105,16 @@ body {
 }
 
 .status {
-  color: var(--text);
+  color: var(--textFineprint);
   border-top: 1px solid var(--ui);
 
-  display: block;
   width: 100%;
   height: 30px;
-  position: absolute;
-  bottom: 0;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 5px;
 }
 .status.info {
   color: var(--textFineprint);
@@ -115,16 +126,41 @@ body {
   color: var(--success);
 }
 
+.playlist {
+  height: 100%;
+}
+
+.tag {
+  border-radius: 3px 8px 8px 3px;
+}
+
+.quickplay-card {
+  height: 75px;
+
+  background-color: var(--primary);
+  color: var(--text);
+
+  border-radius: 8px;
+  margin: 5px;
+  padding: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+}
+
 p {
   line-height: 1;
   margin: 0;
   padding: 0;
 }
 .title {
-  font-size: 24px;
+  font-size: 18px;
 }
 .artist {
-  font-size: 18px;
+  font-size: 16px;
 }
 .fineprint {
   font-size: 12px;
@@ -133,7 +169,6 @@ p {
 
 img {
   object-fit: contain;
-  width: 100%;
 }
 .hue {
   filter: hue-rotate(var(--hue));
@@ -176,6 +211,16 @@ select,
   padding: 5px;
 }
 
+input,
+.searchinput__control {
+  cursor: text !important;
+}
+
+button,
+select {
+  cursor: pointer;
+}
+
 button {
   background-color: var(--secondary);
   color: var(--secondaryText);
@@ -183,10 +228,12 @@ button {
   border-radius: 4px;
   font-size: 14px;
   padding: 5px;
-  width: 120px;
   text-align: center;
   display: inline-block;
   transition-duration: 0.1s;
+}
+button.wide {
+  width: 120px;
 }
 button > svg > path {
   fill: var(--secondaryText);
@@ -287,6 +334,7 @@ select > option:checked {
 .noclick {
   pointer-events: none;
   background-color: #662866;
+  cursor: not-allowed;
 }
 
 .expand {

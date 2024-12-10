@@ -39,10 +39,10 @@ app.use(cors()); // cross origin resource sharing
 app.use(stripUrls);
 
 // add routes
-app.use("/artist", routers.artistRouter);
+app.use("/artists", routers.artistRouter);
 app.use("/playlist", routers.playlistRouter);
-app.use("/tag", routers.tagRouter);
-app.use("/track", routers.trackRouter);
+app.use("/tags", routers.tagRouter);
+app.use("/tracks", routers.trackRouter);
 
 // start app
 app.listen(5000, () => {

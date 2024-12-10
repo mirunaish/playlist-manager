@@ -1,21 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { MessageTypes, StatusTypes } from "../../../consts";
+import { useListener } from "../hooks";
 
 function Status() {
-  const [status, setStatus] = useState({ message: "", type: "" });
+  const [status, setStatus] = useState({ message: "", type: StatusTypes.INFO });
 
   function updateStatus(message, type) {
     setStatus({ message, type });
   }
 
   // listen for status messages from background
-  useEffect(() => {
-    browser.runtime.onMessage.addListener((message) => {
-      if (message.type === MessageTypes.STATUS_UPDATE) {
-        updateStatus(message.message, message.statusType);
-      }
-    });
-  }, []);
+  useListener(MessageTypes.STATUS_UPDATE, ({ message, type }) => {
+    updateStatus(message, type);
+  });
 
   return (
     <div

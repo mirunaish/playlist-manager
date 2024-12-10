@@ -1,6 +1,8 @@
-export var SERVER_URL = "http://localhost:5000";
+/** cannot make these consts because i get weird errors */
 
-export var SupportedSites = {
+export let SERVER_URL = "http://localhost:5000";
+
+export let SupportedSites = {
   youtube: {
     query: "*://www.youtube.com/*",
     regex: /.*:\/\/www\.youtube\.com\/watch.*/,
@@ -15,11 +17,13 @@ export var SupportedSites = {
   },
 };
 
-export var SUPPORTED_QUERY = Object.values(SupportedSites).map(
+export let SUPPORTED_QUERY = Object.values(SupportedSites).map(
   (obj) => obj.query
 );
 
-export var Pages = {
+export let Pages = {
+  DEFAULT: "NEW_MIX",
+
   QUICKPLAY: "QUICKPLAY",
   NEW_MIX: "NEW_MIX",
   SEARCH: "SEARCH",
@@ -30,17 +34,25 @@ export var Pages = {
   PLAYLIST: "PLAYLIST",
 };
 
-export var MessageTypes = {
+export let MessageTypes = {
   FUNCTION_CALL: "function-call",
 
   STATUS_UPDATE: "status-update",
+  PLAYLIST_UPDATE: "playlist-update", // currently playing track changed
+  TABS_UPDATE: "tabs-update", // a tab was added or its title changed
+  REMOVE_TAB: "remove-tab", // a tab was closed
+
+  SELECT_TAB: "select-tab", // you should select this tab
+
   TRACK_INFO: "track-info",
   TRACK_INFO_FORWARD: "track-info-forward",
   MEDIA_CONTROL: "media-control",
 };
 
-export var StatusTypes = {
+export let StatusTypes = {
   INFO: "info",
   ERROR: "error",
   SUCCESS: "success",
 };
+
+export let BORDER_STYLE = "1px solid var(--ui)";

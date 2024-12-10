@@ -11,8 +11,24 @@ export function shorten(string) {
   return shortenedString;
 }
 
+/** convert a string to space separated start case */
 export function humanReadable(string) {
   return startCase(string.toLowerCase().replace("_", " "));
+}
+
+/** return a string in format hh:mm:ss */
+export function formatTime(totalSeconds) {
+  const padNumber = (number) => (number > 9 ? number : "0" + number);
+
+  const hours = Math.floor(totalSeconds / (60 * 60));
+  const minutes = Math.floor((totalSeconds - hours * 60 * 60) / 60);
+  const seconds = totalSeconds - hours * 60 * 60 - minutes * 60;
+
+  var string = hours > 0 ? padNumber(hours) + ":" : ""; //exclude hours if 0
+  string += padNumber(minutes) + ":";
+  string += padNumber(seconds);
+
+  return string;
 }
 
 /** returns true if the scroll was a mouse, false if it was a touchpad */

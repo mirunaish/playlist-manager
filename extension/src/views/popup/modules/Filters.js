@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Rating from "../components/Rating";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
-import ThemesDropdown from "./ThemesDropdown";
 import { background } from "../util";
+import { BORDER_STYLE } from "../../../consts";
 
-function Filters({ setFilters, filters = null, children }) {
+function Filters({ setFilters, filters = null, children = [] }) {
   const [artists, setArtists] = useState({});
 
   useEffect(() => {
@@ -35,6 +35,7 @@ function Filters({ setFilters, filters = null, children }) {
         flexDirection: "column",
         width: "100%",
         alignItems: "center",
+        borderBottom: BORDER_STYLE,
       }}
     >
       <div
@@ -48,15 +49,31 @@ function Filters({ setFilters, filters = null, children }) {
         <div style={{ ...itemStyle, flexGrow: 1 }}>
           <SearchInput
             label="Artists"
-            options={Object.values(artists).map((artist) => ({
-              value: artist.id,
-              label: artist.name,
-              star: artist.isStarred,
-              backgroundColor: artist.isStarred
-                ? "var(--primary)"
-                : "var(--backgroundAccent)",
-              color: artist.isStarred ? "var(--primary-text)" : "var(--text)",
-            }))}
+            options={[
+              {
+                value: "starred",
+                label: "Starred",
+                star: true,
+                backgroundColor: "var(--primary)",
+                color: "var(--primary-text)",
+              },
+              {
+                value: "not starred",
+                label: "Not starred",
+                star: false,
+                backgroundColor: "var(--backgroundAccent)",
+                color: "var(--text)",
+              },
+              ...Object.values(artists).map((artist) => ({
+                value: artist.id,
+                label: artist.name,
+                star: artist.isStarred,
+                backgroundColor: artist.isStarred
+                  ? "var(--primary)"
+                  : "var(--backgroundAccent)",
+                color: artist.isStarred ? "var(--primary-text)" : "var(--text)",
+              })),
+            ]}
             deco={SearchInputDeco.STAR}
             value={filters.artists}
             onChange={(value) => setFilters({ ...filters, artists: value })}
@@ -110,29 +127,6 @@ function Filters({ setFilters, filters = null, children }) {
               setFilters({ ...filters, excludedTags: value })
             }
             style={{ height: "100%" }}
-          />
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ ...itemStyle }}>
-          <input
-            placeholder="Mix title"
-            value={filters.name}
-            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-          />
-        </div>
-        <div style={{ ...itemStyle }}>
-          <ThemesDropdown
-            value={filters.theme}
-            onChange={(value) => setFilters({ ...filters, theme: value })}
           />
         </div>
       </div>

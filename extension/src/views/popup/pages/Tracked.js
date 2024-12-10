@@ -85,8 +85,8 @@ function Tracked({ selectedTabId }) {
       <Rating
         value={trackInfo.rating}
         extended={true}
-        onChange={(e) => {
-          setTrackInfo({ ...trackInfo, rating: e.target.value });
+        onChange={(value) => {
+          setTrackInfo({ ...trackInfo, rating: value });
         }}
       />
 

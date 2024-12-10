@@ -7,17 +7,13 @@ import {
   SUPPORTED_QUERY,
   SupportedSites,
 } from "../consts";
-import { getBrowser, getTab, insertScript, request } from "./util";
+import { getBrowser, getTab, popup, insertScript, request } from "./util";
 import { pick, buildRecord } from "../util";
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
   try {
-    await getBrowser().runtime.sendMessage({
-      type: MessageTypes.STATUS_UPDATE,
-      message,
-      statusType,
-    });
+    await popup(MessageTypes.STATUS_UPDATE, { message, statusType });
   } catch (e) {
     console.error('failed to update status "' + message + '";', e);
   }
@@ -56,7 +52,7 @@ async function getTrackedInfo(tabId) {
   // get tab url
   const url = (await getTab(tabId)).url;
 
-  const { ok, body } = await request("/track/url", { body: { url } });
+  const { ok, body } = await request("/tracks/url", { body: { url } });
   if (!ok) return null;
   return body;
 }
@@ -67,7 +63,11 @@ async function getSupportedTabs() {
 
   // put in id:object map to only keep one copy of each tab
   const allTabs = Object.values({
-    // TODO add playlist tabs, even if not supported or audible
+    ...buildRecord(
+      await Promise.all(
+        Object.keys(playlists).map((id) => getTab(parseInt(id)))
+      )
+    ), // playlist tabs, even if not supported or audible
     ...buildRecord(await getBrowser().tabs.query({ url: SUPPORTED_QUERY })), // supported site tabs
     ...buildRecord(await getBrowser().tabs.query({ audible: true })), // audible tabs
   });
@@ -76,6 +76,7 @@ async function getSupportedTabs() {
   const keys = ["id", "title", "audible", "discarded", "muted", "index"];
 
   // get tab data for each tab and push to array
+  // this is a for and not a map because of awaits
   for (let tab of allTabs) {
     // select keys from tab data
     const tabData = pick(tab, keys);
@@ -86,11 +87,8 @@ async function getSupportedTabs() {
 
     // add playlist data, if playlist
     const playlistData = playlists[tab.id];
-
-    // get color from quickplay (?) if applicable TODO
-    // const theme = trackData
-    //   ? (await getAllQuickplay())[trackData.quickplayId].theme
-    //   : null;
+    if (playlistData?.title)
+      tabData.title = `${playlistData.title} - ${playlistData.tracks[playlistData.playingIndex].title}`;
 
     tabs.push({
       tab: tabData,
@@ -103,6 +101,12 @@ async function getSupportedTabs() {
   tabs.sort((a, b) => a.tab.index - b.tab.index);
 
   return tabs;
+}
+
+async function getAudibleTabs() {
+  return await getBrowser().tabs.query({
+    audible: true,
+  });
 }
 
 /**
@@ -121,11 +125,7 @@ async function getMostImportantTabId() {
   if (activeTab) return activeTab.id;
   // TODO return active tab if playlist but not supported
 
-  const audibleTab = (
-    await getBrowser().tabs.query({
-      audible: true,
-    })
-  )[0];
+  const audibleTab = (await getAudibleTabs())[0];
   if (audibleTab) return audibleTab.id;
 
   return null;
@@ -145,115 +145,145 @@ async function getAllArtists() {
   return artistCache.data;
 }
 
-// TODO move to firefox local storage
+/** ask backend for a playlist */
+async function getPlaylist(filters) {
+  // get playlist from backend
+  const response = await request("/playlist", {
+    method: "POST",
+    body: filters,
+  });
 
+  // if no tracks found, throw error message
+  if (!response.ok) {
+    throw Error("No tracks matching filter found");
+  }
+
+  return response.body; // { playlist, stats }
+}
+
+// TODO move to firefox local storage?
 /**
  * all playlists playing.
  * tabid: {
- *   list: array of tracks,
- *   index: index of track playing,
- *   currTrack: track object,
+ *   title: mix title,
+ *   theme: id of color theme,
+ *   tracks: array of tracks,
+ *   playingIndex: index of track playing (numbered from 0),
  *   filters: applied filters
  * }
  */
-const playlists = {};
+let playlists = {};
 
+/** get all info about playlist */
 function getPlaylistInfo(tabId) {
   return playlists[tabId];
 }
 
-/*
-
 // start playlist button was pressed
-async function startPlaying(filters) {
-  activeFilters = structuredClone(filters);
-  console.log(activeFilters);
+async function startPlaying(title, theme, filters = null, playlist = null) {
+  // TODO this was structuredClone(filters) for some reason
+  const playlistData = {
+    title,
+    theme,
+    filters,
+    tracks: playlist,
+    playingIndex: null,
+  };
 
-  // get playlist from backend
-  const response = await request("/playlist", { body: filters });
-  if (!response.ok) {
-    throw Error("no tracks matching filter found");
+  // if playlist not provided, get it from backend
+  if (playlistData.tracks === null) {
+    // @ts-ignore
+    playlistData.tracks = (await getPlaylist()).playlist;
   }
-  playlist = response.body;
 
   // create new tab to play in
-  const tab = await browser.tabs.create({
+  const tab = await getBrowser().tabs.create({
     index: 999, // at end (only works if fewer than 999 open pinned tabs) TODO test this?
     pinned: true,
     active: false,
   });
-  playingTabId = tab.id;
+
+  // save to playlists object
+  playlists[tab.id] = playlistData;
+
+  // send message to popup with updated tabs
+  popup(MessageTypes.TABS_UPDATE);
+  // tell popup to switch to new tab
+  popup(MessageTypes.SELECT_TAB, { id: tab.id });
 
   // start playing first track
-  isPlaying = true;
-  playingIndex = 0;
-  loadTrack();
+  playTrack(tab.id, 0);
 }
 
-// ready to play, load and play track at current index
-async function loadTrack() {
-  // get info about playing track from backend
-  const id = playlist[playingIndex].id;
-  playingTrack = (await request("/id", { body: { id } })).body;
-  updatePopup(); // popup gets data from playingTrack, not actual tab. async function
+/** ready to play, load and play track at current index */
+async function playTrack(tabId, index) {
+  const track = playlists[tabId].tracks[index];
 
   // navigate the playing tab to new url
-  await browser.tabs.update(playingTabId, { url: playingTrack.url });
+  await getBrowser().tabs.update(tabId, { url: track.url });
+
+  // update currently playing
+  playlists[tabId].playingIndex = index;
+
+  // tell popup that playing index changed
+  popup(MessageTypes.PLAYLIST_UPDATE, { tabId, index });
 }
 
-// a list row was clicked. play that track
-async function changeTrack(index) {
-  playingIndex = index;
-  loadTrack();
+/**
+ * increase index and load next song.
+ * if last song, stop playing
+ */
+function next(tabId) {
+  const p = playlists[tabId];
+  if (p.playingIndex < p.length - 1) {
+    playTrack(tabId, p.playingIndex + 1);
+  } else stopPlaying(tabId);
 }
 
-// increase index and load next song
-function next() {
-  if (playingIndex < playlist.length - 1) {
-    playingIndex++;
-    loadTrack();
-  } else stopPlaying();
-}
-
-// decrease index and load previous song
-function previous() {
-  if (playingIndex > 0) playingIndex--;
-  loadTrack();
+/**
+ * decrease index and load previous song.
+ * if first song, restart it instead
+ */
+function previous(tabId) {
+  const p = playlists[tabId];
+  const index = p.playingIndex > 0 ? p.playingIndex - 1 : p.playingIndex;
+  playTrack(tabId, index);
 }
 
 // stop button was pressed / last song ended / tab was closed
-async function stopPlaying() {
-  isPlaying = false;
-
-  // close the tab
+/** close tab and delete playlist */
+async function stopPlaying(tabId) {
   try {
-    await browser.tabs.remove(playingTabId);
-    updatePopup();
+    // close the tab
+    await getBrowser().tabs.remove(tabId);
   } catch (e) {
     // tab was already closed
-    return;
+    // do nothing
   }
+
+  delete playlists[tabId];
+
+  popup(MessageTypes.REMOVE_TAB, { id: tabId });
 }
 
 // edit track info
 async function edit(trackData) {
   // edit info about the song currently playing
   const response = await request("/edit", { method: "POST", body: trackData });
-  if (response.ok) {
-    // may have created a new artist
-    artistCacheValid = false;
-    // change track data in playlist and playingTrack
-    playlist[playingIndex] = response.body;
-    playingTrack = response.body;
-  }
+  // if (response.ok) {
+  //   // may have created a new artist
+  //   artistCacheValid = false;
+  //   // change track data in playlist and playingTrack
+  //   playlist[playingIndex] = response.body;
+  //   playingTrack = response.body;
+  // }
   return response.ok;
 }
-*/
 
 // add new track
 async function add(trackData) {
   // make request to backend
-  const response = await request("/track", {
+  const response = await request("/tracks", {
     method: "POST",
     body: trackData,
   });
@@ -276,10 +306,7 @@ async function searchOtherSite(query, site) {
 /** send message with untracked info to the popup */
 async function insertGuessedInfo(info) {
   try {
-    await getBrowser().runtime.sendMessage({
-      type: MessageTypes.TRACK_INFO_FORWARD,
-      payload: info,
-    });
+    await popup(MessageTypes.TRACK_INFO_FORWARD, info);
   } catch (e) {
     console.error('failed to insert info "' + JSON.stringify(info) + '";', e);
   }
@@ -294,20 +321,40 @@ export const FUNCTIONS = {
   getSupportedTabs,
   getMostImportantTabId,
   getTabType,
+  switchToTab,
+  getAllArtists,
+  getAllTags: async () => {
+    return {
+      123: { id: 123, name: "my tag", color: "darkred" },
+      234: { id: 234, name: "another tag", color: "darkblue" },
+      4343: { id: 4343, name: "some tag", color: "brown" },
+      1: { id: 1, name: "just a tag", color: "darkgreen" },
+
+      3: { id: 3, name: "a tag", color: "yellow" },
+      4: { id: 4, name: "some other tag", color: "cyan" },
+      43: { id: 43, name: "random tag", color: "pink" },
+      11: { id: 11, name: "this is a tag", color: "red" },
+
+      6657: { id: 6657, name: "aaaaaa", color: "black" },
+      78787: { id: 78787, name: "bbbbbb", color: "white" },
+    };
+  },
+  getPlaylist,
+  startPlaying,
+  playTrack,
+  next,
+  previous,
+  stopPlaying,
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,
+  add,
+  edit,
   searchOtherSite,
-  getAllArtists,
-  getAllTags: () => {
-    return [];
-  },
-  // play,
-  // edit,
 };
 
 // receive messages from content script and popup
-getBrowser().runtime.onMessage.addListener((message, sender) => {
+getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
   // if popup components want to update the status they send a message to the
   // background script which then forwards it to the status component
   if (message.type === MessageTypes.STATUS_UPDATE) {
@@ -316,21 +363,28 @@ getBrowser().runtime.onMessage.addListener((message, sender) => {
 
   // content script catches next and previous hardware key presses
   else if (message.type === MessageTypes.MEDIA_CONTROL) {
-    if (message.action === "next") {
-      //next();
-    } else if (message.action === "previous") {
-      //previous();
-    }
+    // will call next() or previous() on first audible tab that's a playlist
+    // (if any)
+    getAudibleTabs().then((result) => {
+      const affectedTab = result.filter((tab) => playlists[tab.id] !== null)[0];
+      if (!affectedTab) {
+        // if popup is visible, let user know
+        updateStatus("No playing playlist found.", StatusTypes.ERROR);
+        return;
+      }
+
+      if (message.action === "next") {
+        next(affectedTab.id);
+      } else if (message.action === "previous") {
+        // if player is in first 10 seconds,
+        // tab will restart track instead of sending "previous" message
+        previous(affectedTab.id);
+      }
+    });
   }
 
   // content script sent track info
   else if (message.type === MessageTypes.TRACK_INFO) {
-    // console.log(
-    //   "forwarding track info from",
-    //   sender.contextId,
-    //   sender.frameId,
-    //   sender.tab.id
-    // );
     // forward to popup
     insertGuessedInfo(message.payload);
   }
@@ -339,9 +393,7 @@ getBrowser().runtime.onMessage.addListener((message, sender) => {
   else if (message.type === MessageTypes.FUNCTION_CALL) {
     try {
       // call function and return its result
-      return FUNCTIONS[message.functionName](
-        ...(message.args ? message.args : [])
-      );
+      sendResponse(FUNCTIONS[message.functionName](...(message.args ?? [])));
     } catch (e) {
       console.error(
         "failed to run function %s: %s",
@@ -388,8 +440,13 @@ getBrowser().runtime.onMessage.addListener((message, sender) => {
 // TODO
 
 // add event listener that stops playing if tab is closed
-// browser.tabs.onRemoved.addListener(async (tabId) => {
-//   if (isPlaying && tabId === playingTabId) {
-//     await stopPlaying();
-//   }
-// });
+getBrowser().tabs.onRemoved.addListener(async (tabId) => {
+  if (playlists[tabId]) {
+    await stopPlaying(tabId);
+    return; // stopPlaying tells popup to remove tab
+  }
+
+  // let popup know to remove this tabs
+  // even though popup is likely closed if tab wasn't playlist
+  popup(MessageTypes.REMOVE_TAB, { id: tabId });
+});

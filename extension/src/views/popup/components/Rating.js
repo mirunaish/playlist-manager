@@ -6,19 +6,19 @@ function Rating({
   // multiselect: value is array of selected ratings
   value,
   // onChange function argument mimics event type
-  onChange = ({ target: { value } }) => {},
+  onChange = (value) => {},
   extended = false,
   multiselect = false,
   disabled = false,
 }) {
-  const [rating, setRating] = useState(value);
+  const [rating, setRating] = useState(value ?? (multiselect ? [] : -1));
 
   // build array of icons to render
   const icons = useMemo(() => {
     const a = [];
-    extended && a.push(Icons.STAR4);
+    if (extended) a.push(Icons.STAR4);
     for (let i = 1; i <= 5; i++) a.push(Icons.STAR5);
-    extended && a.push(Icons.STAR6);
+    if (extended) a.push(Icons.STAR6);
     return a;
   }, [extended]);
 
@@ -37,7 +37,7 @@ function Rating({
     if (disabled) return;
 
     if (!multiselect) {
-      onChange({ target: { value: index } });
+      onChange(index);
       setRating(index);
       return;
     }
@@ -47,7 +47,7 @@ function Rating({
       ? rating.filter((val) => val !== index)
       : [...rating, index];
 
-    onChange({ target: { value: newRating } });
+    onChange(newRating);
     setRating(newRating);
   }
 
@@ -59,6 +59,7 @@ function Rating({
             icon={icon}
             size={20}
             className={disabled ? " disabled" : ""}
+            style={{ cursor: disabled ? "default" : "pointer" }}
             type={indexSelected(index) ? Icons.FILL : Icons.STROKE}
             onClick={() => updateRating(index)}
           />

@@ -1,12 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { isMouse, shorten } from "../../../util";
 import { background } from "../util";
 import { Themes } from "../../../themes";
-import { Pages } from "../../../consts";
+import { MessageTypes, Pages } from "../../../consts";
+import Scrollable from "../components/Scrollable";
+import { useListener } from "../hooks";
 
-function Tab({ tab, selected, onClick, color }) {
+const Tab = forwardRef(({ tab, selected, onClick, color }, ref) => {
   return (
     <div
+      ref={ref}
       onClick={onClick}
       className={"tab" + (selected ? " selected" : "")}
       style={{ backgroundColor: color }}
@@ -14,46 +23,34 @@ function Tab({ tab, selected, onClick, color }) {
       <p>{shorten(tab.title ?? "Untitled")}</p>
     </div>
   );
-}
+});
 
 function Tabs({ selectedTabId, selectTab }) {
   const [allTabs, setAllTabs] = useState([]); // [{ tab, track, playlist }]
+  const selectedTabRef = useRef(null);
 
-  // ask background script for all supported site tabs in browser
-  useEffect(() => {
-    (async () => {
-      const tabs = await background("getSupportedTabs");
-      setAllTabs(tabs);
-    })();
+  /** ask background script for all supported site tabs in browser */
+  const askBackgroundForTabs = useCallback(async () => {
+    const tabs = await background("getSupportedTabs");
+    setAllTabs(tabs);
   }, []);
 
-  /** enable horizontal scrolling with mouse */
-  function scroll(e) {
-    // https://stackoverflow.com/questions/68658249/how-to-do-react-horizontal-scroll-using-mouse-wheel
-    if (isMouse(e)) {
-      const el = e.currentTarget;
-      el.scrollTo({
-        left: el.scrollLeft + e.deltaY * 3,
-        behavior: "smooth",
-      });
-    }
-    // if touchpad, do nothing (default behavior)
-  }
-
-  // when tabs are updated, scroll to end if selected tab is + or settings
+  // ask once at first render
   useEffect(() => {
-    const elem = document.querySelector(".tab.selected");
-    const div = document.querySelector(".tabs > .scrollable-container");
-    if (!elem || elem.parentElement !== div)
-      div.lastChild?.scrollIntoView(false);
-  }, [allTabs]);
+    askBackgroundForTabs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // scroll selected tab into view
-  useEffect(() => {
-    const elem = document.querySelector(".tab.selected");
-    const div = document.querySelector(".tabs > .scrollable-container");
-    if (elem?.parentElement === div) elem.scrollIntoView(false);
-  }, [selectedTabId, allTabs]);
+  // listen for background telling me that tabs have updated
+  useListener(MessageTypes.TABS_UPDATE, () => {
+    askBackgroundForTabs();
+  });
+  // listen for background telling me to remove a tab
+  useListener(MessageTypes.REMOVE_TAB, ({ id }) => {
+    setAllTabs(allTabs.filter(({ tab }) => tab.id !== id));
+    // if the tab closed was selected, switch to default tab
+    if (selectedTabId === id) selectTab(Pages.DEFAULT);
+  });
 
   // TODO change this to callback?
   /**
@@ -80,6 +77,9 @@ function Tabs({ selectedTabId, selectTab }) {
     <div className="tabs">
       {otherTabs.map(({ id, icon, right }) => (
         <div
+          ref={(element) => {
+            if (selectedTabId === id) selectedTabRef.current = element;
+          }}
           key={id}
           onClick={() => selectTab(id)}
           className={"tab" + (selectedTabId === id ? " selected" : "")}
@@ -89,19 +89,28 @@ function Tabs({ selectedTabId, selectTab }) {
         </div>
       ))}
 
-      <div className="scrollable-container" onWheel={scroll}>
+      <Scrollable
+        horizontal={true}
+        selectedItemRef={selectedTabRef}
+        selectedItemId={selectedTabId}
+        defaultLast={true}
+      >
         {allTabs.map((data) => {
           return (
             <Tab
               key={data.tab.id}
               tab={data.tab}
               selected={selectedTabId === data.tab.id}
+              ref={(element) => {
+                if (selectedTabId === data.tab.id)
+                  selectedTabRef.current = element;
+              }}
               onClick={() => selectOrSwitch(data.tab.id)}
-              color={Themes[data.theme]?.primary}
+              color={Themes[data.playlist?.theme]?.primary}
             />
           );
         })}
-      </div>
+      </Scrollable>
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
-import Rating from "../components/Rating";
 import Button from "../components/Button";
 import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
-import Thumbnail from "../components/Thumbnail";
-import { Icons } from "../icons";
 import Banner from "../components/Banner";
 import { StatusTypes } from "../../../consts";
 import Filters from "../modules/Filters";
+import List from "../modules/List";
+import Stats from "../modules/Stats";
+import ThemesDropdown from "../modules/ThemesDropdown";
 
 /** start new custom playlist page */
 function NewMix() {
@@ -18,31 +18,85 @@ function NewMix() {
     includedTags: [],
     excludedTags: [],
     rating: [3, 4, 5, 6],
-    name: "New Mix",
-    theme: "DARK_PINK",
   });
+  const [mixName, setMixName] = useState("Custom Mix");
+  const [theme, setTheme] = useState("DARK_PINK");
 
-  // ask background script for track info from page
-  // useEffect(() => {
-  //   (async () => {
-  //     const info = await background.getUntrackedInfo(selectedTabId);
-  //     setTrackInfo(info);
-  //   })();
-  // }, [background, selectedTabId]);
+  const [playlist, setPlaylist] = useState(null);
+  const [stats, setStats] = useState(null);
+
+  const preview = useCallback(async () => {
+    updateStatus("fetching playlist...");
+    try {
+      const { playlist, stats } = await background("getPlaylist", filters);
+      setPlaylist(playlist);
+      setStats(stats);
+      updateStatus("");
+    } catch (e) {
+      updateStatus(e.message, StatusTypes.ERROR);
+    }
+  }, [filters, updateStatus]);
 
   const play = useCallback(async () => {
-    console.log("play button pressed");
-    updateStatus({ message: "this is a test", type: StatusTypes.SUCCESS });
-    // await background("play", filters);
-  }, [updateStatus]);
+    await background("startPlaying", mixName, theme, filters, playlist);
+  }, [filters, mixName, playlist, theme]);
+
+  const saveMix = useCallback(async () => {
+    await background("saveMix", filters);
+  }, [filters]);
+
+  const reshuffle = useCallback(() => {
+    return;
+  }, []);
+
+  // reset preview playlist when filters are changed
+  useEffect(() => {
+    setPlaylist(null);
+  }, [filters]);
 
   return (
-    <div>
+    <div
+      className="expand"
+      style={{ display: "flex", flexDirection: "column" }}
+    >
       <Banner title="New mix" />
 
       <Filters filters={filters} setFilters={setFilters}>
+        {/** title and theme inputs */}
+        <input
+          placeholder="Mix title"
+          value={mixName}
+          // @ts-ignore
+          onChange={(e) => setMixName(e.target.value)}
+        />
+        <ThemesDropdown value={theme} onChange={(value) => setTheme(value)} />
+
+        <Button title="Preview" onClick={preview} />
         <Button title="Play" onClick={play} />
+        <Button title="Save to Quickplay" onClick={saveMix} />
       </Filters>
+
+      {/* preview playlist */}
+      {playlist && stats ? (
+        <div
+          style={{
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "stretch",
+          }}
+        >
+          <div style={{ width: "50%" }}>
+            <List playlist={playlist}>
+              <Button title="🔀" onClick={reshuffle} />
+              <Button title="📌" onClick={saveMix} />
+            </List>
+          </div>
+          <div style={{ width: "50%" }}>
+            <Stats stats={stats} />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

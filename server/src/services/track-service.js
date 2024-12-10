@@ -1,10 +1,17 @@
 import { v4 as uuid } from "uuid";
-import { sequelize, Track, Artist, TrackArtist } from "../../src/index.js";
+import {
+  sequelize,
+  Track,
+  Artist,
+  TrackArtist,
+  Tag,
+  TrackTag,
+} from "../../src/index.js";
 import { artistMatch } from "./artist-service.js";
 
 export async function getTrackById(id) {
-  let track = await Track.findOne({ where: { id } });
-  if (track == null) throw "could not find track";
+  let track = await Track.findByPk(id);
+  if (track === null) throw Error("could not find track");
   track.artist = await getTrackArtists(track.id);
 
   return track;
@@ -12,7 +19,7 @@ export async function getTrackById(id) {
 
 export async function getTrackByUrl(url) {
   let track = await Track.findOne({ where: { url } });
-  if (track == null) throw "could not find track";
+  if (track === null) throw Error("could not find track");
   track.artist = await getTrackArtists(track.id);
 
   return track;
@@ -23,15 +30,30 @@ export async function getTrackByTitleArtist() {
   return;
 }
 
-/** get a comma-separated string of names of this track's artists */
+// TODO
+export async function getTracksByTitle() {
+  return;
+}
+
+/** get an array of ids of artists */
 export async function getTrackArtists(trackId) {
   // get all artists on this track
   const result = await Artist.findAll({
     include: [{ model: TrackArtist, required: true, where: { trackId } }],
   });
 
-  // list the names separated by commas
-  return result.map((a) => a.name).join(", ");
+  // select the id of each
+  return result.map((a) => a.id);
+}
+
+/** get an array of { id, name, color } */
+export async function getTrackTags(trackId) {
+  // get all tags on this track
+  const result = await Tag.findAll({
+    include: [{ model: TrackTag, required: true, where: { trackId } }],
+  });
+
+  return result;
 }
 
 /** add a new track */
