@@ -1,12 +1,13 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BORDER_STYLE } from "../../../consts";
 import { sum } from "lodash";
 import { formatTime } from "../../../util";
 import Thumbnail from "../components/Thumbnail";
 import Scrollable from "../components/Scrollable";
 import Rating from "../components/Rating";
+import { background } from "../util";
 
-function ListItem({ index, track, onClick = () => {} }) {
+function ListItem({ index, track, artistString, onClick = () => {} }) {
   return (
     <div
       onClick={onClick}
@@ -24,7 +25,7 @@ function ListItem({ index, track, onClick = () => {} }) {
         <p>
           <span>{index + ". "}</span>
           <span style={{ fontWeight: "bold" }}>
-            {track.artistString + " - " + track.title}
+            {artistString + " - " + track.title}
           </span>
         </p>
         <Rating value={track.rating} extended disabled />
@@ -39,6 +40,23 @@ function List({
   onTrackClick = (trackIndex) => {},
   children = [], // buttons at bottom
 }) {
+  // get all artists for track artist names
+  const [artists, setArtists] = useState({});
+  useEffect(() => {
+    (async () => {
+      const result = await background("getAllArtists");
+      if (!result || result.length === 0) return;
+      setArtists(result);
+    })();
+  }, []);
+
+  const artistString = useCallback(
+    (track) => {
+      return track.artists.map((id) => artists[id].name).join(", ");
+    },
+    [artists]
+  );
+
   const playlistDuration = useCallback(
     (startIndex = -1) => {
       return sum(playlist.slice(startIndex + 1).map((track) => track.duration));
@@ -90,6 +108,7 @@ function List({
                 key={track.id}
                 index={index}
                 track={track}
+                artistString={artistString(track)}
                 onClick={() => onTrackClick(index)}
               />
             );

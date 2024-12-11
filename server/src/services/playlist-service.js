@@ -83,8 +83,6 @@ export async function getPlaylist(filters) {
   // and tags as an array of { id, name, color }
   for (let track of playlist) {
     track.artists = await getTrackArtists(track.id);
-    track.artistString = track.artists.map((a) => a.name).join(", ");
-
     track.tags = await getTrackTags(track.id);
   }
 

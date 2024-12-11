@@ -1,22 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { SupportedSites } from "../../../consts";
-import Thumbnail from "../components/Thumbnail";
-import Button from "../components/Button";
-import Rating from "../components/Rating";
 import PlayBar from "../components/PlayBar";
-import { Icons } from "../icons";
+import TrackInfo from "../modules/TrackInfo";
 
 function Tracked({ selectedTabId }) {
+  const [editing, setEditing] = useState(false);
+
   const [trackInfo, setTrackInfo] = useState({
-    title: null,
-    artist: null,
-    imageLink: null,
+    title: "",
+    artists: [],
+    imageLink: "",
     url: "",
     length: 0,
     rating: 0,
+    tags: [],
   });
 
   // ask background script for track info from database
@@ -27,70 +25,29 @@ function Tracked({ selectedTabId }) {
     })();
   }, [selectedTabId]);
 
-  const search = useCallback(async (site) => {
-    // background will open a new tab with the search
-    await background(
-      "searchOtherSite",
-      trackInfo.artist + " - " + trackInfo.title,
-      site
-    );
-    // close the popup
-    // @ts-ignore
-    window.close();
-  }, []);
-
   const edit = useCallback(async () => {
     console.log("edit button pressed");
-    // await background("edit", trackInfo);
+    await background("edit", trackInfo);
   }, [trackInfo]);
 
   return (
-    <div>
-      <Banner theme="DARK_PINK" disabled={true} />
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Banner theme="DARK_PINK" />
 
-      <Thumbnail src={trackInfo.imageLink} />
-
-      <p>{trackInfo.url}</p>
-
-      <p>Search for this track on:</p>
-      {/* render buttons for sites except ones this track is on */}
-      {Object.entries(SupportedSites).map(([site, { regex }]) => {
-        return trackInfo.url.match(regex) ? null : (
-          <Button
-            key={site}
-            icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
-            onClick={() => search(site)}
-          />
-        );
-      })}
-
-      <input
-        value={trackInfo.title ?? ""}
-        onChange={(e) => {
-          setTrackInfo({ ...trackInfo, title: e.target.value });
-        }}
+      <TrackInfo
+        track={trackInfo}
+        updateTrack={(newTrack) => setTrackInfo({ ...trackInfo, ...newTrack })}
+        editing={editing}
+        actions={
+          editing
+            ? [
+                { title: "save", func: edit },
+                { title: "cancel", func: () => setEditing(false) },
+              ]
+            : [{ title: "edit", func: () => setEditing(true) }]
+        }
+        showSearch={!editing}
       />
-      <input
-        value={trackInfo.artist ?? ""}
-        onChange={(e) => {
-          setTrackInfo({ ...trackInfo, artist: e.target.value });
-        }}
-      />
-      <input
-        value={trackInfo.imageLink ?? ""}
-        onChange={(e) => {
-          setTrackInfo({ ...trackInfo, imageLink: e.target.value });
-        }}
-      ></input>
-      <Rating
-        value={trackInfo.rating}
-        extended={true}
-        onChange={(value) => {
-          setTrackInfo({ ...trackInfo, rating: value });
-        }}
-      />
-
-      <Button title="edit" onClick={edit} />
 
       <PlayBar totalTime={60 * 3} currentTime={44} />
     </div>

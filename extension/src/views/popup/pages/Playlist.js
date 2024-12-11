@@ -4,6 +4,8 @@ import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import List from "../modules/List";
 import TrackInfo from "../modules/TrackInfo";
+import PlayBar from "../components/PlayBar";
+import Button from "../components/Button";
 
 const emptyPlaylist = {
   title: "Playlist",
@@ -14,7 +16,6 @@ const emptyPlaylist = {
 };
 const emptyTrack = {
   title: "",
-  artistString: "",
   artists: [],
   imageLink: "",
   url: "",
@@ -27,6 +28,9 @@ function Playlist({ selectedTabId }) {
 
   const [playlistInfo, setPlaylistInfo] = useState(emptyPlaylist);
   const [playingIndex, setPlayingIndex] = useState(0);
+
+  // editing currently playing track?
+  const [editing, setEditing] = useState(false);
 
   // ask background script for playlist info
   // includes playlist name and theme, list, and playing track info
@@ -46,6 +50,11 @@ function Playlist({ selectedTabId }) {
     background("playTrack", index);
   }, []);
 
+  const edit = useCallback(async () => {
+    console.log("edit button pressed");
+    await background("edit", trackInfo);
+  }, [trackInfo]);
+
   return (
     <>
       <Banner title={playlistInfo.title} theme={playlistInfo.theme} />
@@ -58,7 +67,16 @@ function Playlist({ selectedTabId }) {
         />
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <TrackInfo track={trackInfo} />
+          <TrackInfo track={trackInfo} showSearch={!editing} />
+          {editing && (
+            <>
+              <Button title="save" onClick={edit} />
+              <Button title="cancel" onClick={() => setEditing(false)} />
+            </>
+          )}
+          {!editing && <Button title="edit" onClick={() => setEditing(true)} />}
+
+          <PlayBar totalTime={trackInfo["length"]} currentTime={0} />
         </div>
       </div>
     </>

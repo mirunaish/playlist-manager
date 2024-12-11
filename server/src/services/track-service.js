@@ -18,9 +18,10 @@ export async function getTrackById(id) {
 }
 
 export async function getTrackByUrl(url) {
-  let track = await Track.findOne({ where: { url } });
+  let track = await Track.findOne({ raw: true, where: { url } });
   if (track === null) throw Error("could not find track");
-  track.artist = await getTrackArtists(track.id);
+  track.artists = await getTrackArtists(track.id);
+  track.tags = await getTrackTags(track.id);
 
   return track;
 }
@@ -39,21 +40,33 @@ export async function getTracksByTitle() {
 export async function getTrackArtists(trackId) {
   // get all artists on this track
   const result = await Artist.findAll({
-    include: [{ model: TrackArtist, required: true, where: { trackId } }],
+    raw: true,
+    attributes: ["id"], // select the id of each
+    include: [
+      {
+        model: TrackArtist,
+        required: true,
+        where: { trackId },
+        attributes: [], // don't select anything from trackartists
+      },
+    ],
   });
 
-  // select the id of each
   return result.map((a) => a.id);
 }
 
-/** get an array of { id, name, color } */
+/** get an array of ids */
 export async function getTrackTags(trackId) {
   // get all tags on this track
   const result = await Tag.findAll({
-    include: [{ model: TrackTag, required: true, where: { trackId } }],
+    attributes: ["id"],
+    raw: true,
+    include: [
+      { model: TrackTag, required: true, where: { trackId }, attributes: [] },
+    ],
   });
 
-  return result;
+  return result.map((t) => t.id);
 }
 
 /** add a new track */

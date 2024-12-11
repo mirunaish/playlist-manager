@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Icon, Icons } from "../icons/index";
+import { BORDER_STYLE } from "../../../consts";
 
 function PlayBar({ totalTime, currentTime, disabled = false }) {
   const [playing, setPlaying] = useState(false);
@@ -14,21 +15,46 @@ function PlayBar({ totalTime, currentTime, disabled = false }) {
   }, [playing]);
 
   return (
-    <>
-      <div style={{ display: "flex", flexDirection: "row" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        borderTop: BORDER_STYLE,
+        marginTop: 5,
+        padding: 10,
+        paddingBottom: 20,
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          width: "90%",
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 15,
+        }}
+      >
         <p>{currentTime}</p>
+
         {/* progress bar */}
         <div
           style={{
-            width: "300px",
+            flexGrow: 1,
             height: "5px",
             borderRadius: "10px",
             background: "var(--text)",
+            overflow: "visible",
+
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
           {/* colored in part of progress bar */}
           <div
             style={{
+              borderRadius: "10px 0px 0px 10px",
               width: percentage + "%",
               transition: "width 1s",
               height: "100%",
@@ -42,50 +68,56 @@ function PlayBar({ totalTime, currentTime, disabled = false }) {
               width: "10px",
               height: "10px",
               borderRadius: "5px",
+
+              position: "relative",
+              left: "-5px",
             }}
           />
         </div>
+
         <p>{totalTime}</p>
       </div>
 
-      {/* buttons */}
-      <Icon
-        icon={Icons.PREVIOUS}
-        className="primary"
-        onClick={() => {
-          //
-        }}
-        size={20}
-        type={Icons.FILL}
-      />
-      <Icon
-        icon={Icons.RESTART}
-        className="primary"
-        onClick={() => {
-          //
-        }}
-        size={20}
-        type={Icons.FILL}
-      />
-      <Icon
-        icon={playing ? Icons.PLAY : Icons.PAUSE}
-        className="primary"
-        onClick={() => {
-          togglePlay();
-        }}
-        size={20}
-        type={Icons.FILL}
-      />
-      <Icon
-        icon={Icons.NEXT}
-        className="primary"
-        onClick={() => {
-          //
-        }}
-        size={20}
-        type={Icons.FILL}
-      />
-    </>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        {/* buttons */}
+        <Icon
+          icon={Icons.PREVIOUS}
+          className="primary"
+          onClick={() => {
+            //
+          }}
+          size={20}
+          type={Icons.FILL}
+        />
+        <Icon
+          icon={Icons.RESTART}
+          className="primary"
+          onClick={() => {
+            //
+          }}
+          size={20}
+          type={Icons.FILL}
+        />
+        <Icon
+          icon={playing ? Icons.PLAY : Icons.PAUSE}
+          className="primary"
+          onClick={() => {
+            togglePlay();
+          }}
+          size={20}
+          type={Icons.FILL}
+        />
+        <Icon
+          icon={Icons.NEXT}
+          className="primary"
+          onClick={() => {
+            //
+          }}
+          size={20}
+          type={Icons.FILL}
+        />
+      </div>
+    </div>
   );
 }
 

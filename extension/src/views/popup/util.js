@@ -8,3 +8,7 @@ export async function background(functionName, ...args) {
     args,
   });
 }
+
+export function closePopup() {
+  window.close();
+}
