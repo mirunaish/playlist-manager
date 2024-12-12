@@ -55,4 +55,23 @@ export let StatusTypes = {
   SUCCESS: "success",
 };
 
+export let EMPTY_TRACK = {
+  id: "",
+  title: "",
+  artists: [],
+  imageLink: "",
+  url: "",
+  length: 0,
+
+  tags: [],
+  rating: 0,
+};
+export let EMPTY_PLAYLIST = {
+  title: "Playlist",
+  theme: "DARK_PINK",
+
+  tracks: [],
+  filters: {},
+};
+
 export let BORDER_STYLE = "1px solid var(--ui)";

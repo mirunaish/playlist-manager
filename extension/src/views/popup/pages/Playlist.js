@@ -5,29 +5,14 @@ import { background } from "../util";
 import List from "../modules/List";
 import TrackInfo from "../modules/TrackInfo";
 import PlayBar from "../components/PlayBar";
-import Button from "../components/Button";
-
-const emptyPlaylist = {
-  title: "Playlist",
-  theme: "DARK_PINK",
-
-  tracks: [],
-  filters: {},
-};
-const emptyTrack = {
-  title: "",
-  artists: [],
-  imageLink: "",
-  url: "",
-  length: 0,
-  tags: [],
-};
+import { EMPTY_PLAYLIST, EMPTY_TRACK, StatusTypes } from "../../../consts";
 
 function Playlist({ selectedTabId }) {
   const updateStatus = useStatusUpdate();
 
-  const [playlistInfo, setPlaylistInfo] = useState(emptyPlaylist);
+  const [playlistInfo, setPlaylistInfo] = useState(EMPTY_PLAYLIST);
   const [playingIndex, setPlayingIndex] = useState(0);
+  const [editingTrackInfo, setEditingTrackInfo] = useState(EMPTY_TRACK);
 
   // editing currently playing track?
   const [editing, setEditing] = useState(false);
@@ -43,17 +28,45 @@ function Playlist({ selectedTabId }) {
   }, [selectedTabId]);
 
   const trackInfo = useMemo(() => {
-    return playlistInfo.tracks[playingIndex] ?? emptyTrack;
+    return playlistInfo.tracks[playingIndex] ?? EMPTY_TRACK;
   }, [playingIndex, playlistInfo]);
 
-  const selectTrack = useCallback((index) => {
-    background("playTrack", index);
-  }, []);
+  // if trackInfo changes or i start/stop editing, reset editingTrackInfo
+  useEffect(() => {
+    setEditingTrackInfo(trackInfo);
+  }, [editing, trackInfo]);
+
+  const selectTrack = useCallback(
+    (index) => {
+      background("playTrack", selectedTabId, index);
+    },
+    [selectedTabId]
+  );
 
   const edit = useCallback(async () => {
-    console.log("edit button pressed");
-    await background("edit", trackInfo);
-  }, [trackInfo]);
+    updateStatus("editing track...");
+    const ok = await background(
+      "edit",
+      trackInfo.url,
+      editingTrackInfo,
+      selectedTabId
+    );
+    if (ok) {
+      updateStatus("track edited", StatusTypes.SUCCESS);
+      // set edited track info in playlist
+      const newPlaylistInfo = { ...playlistInfo };
+      newPlaylistInfo.tracks[playingIndex] = editingTrackInfo;
+      setPlaylistInfo(newPlaylistInfo);
+      // background will navigate to new url if it was changed
+    } else updateStatus("track could not be edited", StatusTypes.ERROR);
+  }, [
+    editingTrackInfo,
+    playingIndex,
+    playlistInfo,
+    selectedTabId,
+    trackInfo,
+    updateStatus,
+  ]);
 
   return (
     <>
@@ -67,14 +80,21 @@ function Playlist({ selectedTabId }) {
         />
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <TrackInfo track={trackInfo} showSearch={!editing} />
-          {editing && (
-            <>
-              <Button title="save" onClick={edit} />
-              <Button title="cancel" onClick={() => setEditing(false)} />
-            </>
-          )}
-          {!editing && <Button title="edit" onClick={() => setEditing(true)} />}
+          <TrackInfo
+            track={editing ? editingTrackInfo : trackInfo}
+            updateTrack={(newTrack) =>
+              setEditingTrackInfo({ ...editingTrackInfo, ...newTrack })
+            }
+            showSearch={!editing}
+            actions={
+              editing
+                ? [
+                    { title: "save", func: edit },
+                    { title: "cancel", func: () => setEditing(false) },
+                  ]
+                : [{ title: "edit", func: () => setEditing(true) }]
+            }
+          />
 
           <PlayBar totalTime={trackInfo["length"]} currentTime={0} />
         </div>

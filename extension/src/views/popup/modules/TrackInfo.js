@@ -12,6 +12,7 @@ function TrackInfo({
   track,
   big = true,
   editing = false,
+  allowEditingUrl = true,
   updateTrack = (updated) => {},
   actions = [],
   showSearch = false,
@@ -157,6 +158,7 @@ function TrackInfo({
           </div>
           <div style={{ display: "flex", flexDirection: "row" }}>
             <input
+              disabled={!allowEditingUrl}
               placeholder="url"
               style={{ flexGrow: 1 }}
               value={track.url ?? ""}

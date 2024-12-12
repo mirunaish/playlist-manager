@@ -72,18 +72,15 @@ export async function getPlaylist(filters) {
   // });
 
   // get playlist with filters
-  let playlist = await Track.findAll({ raw: true, where, include });
+  let playlist = await Track.findAll({
+    raw: true,
+    attributes: ["id", "url"],
+    where,
+    include,
+  });
 
   if (playlist.length == 0) {
     throw "Found no tracks matching these filters";
-  }
-
-  // TODO simplify this?
-  // for each track, get artists as an array of { id, name }
-  // and tags as an array of { id, name, color }
-  for (let track of playlist) {
-    track.artists = await getTrackArtists(track.id);
-    track.tags = await getTrackTags(track.id);
   }
 
   // sort TODO add more sorts

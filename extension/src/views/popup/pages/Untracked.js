@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useListener } from "../hooks";
+import { useListener, useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { MessageTypes } from "../../../consts";
+import { MessageTypes, StatusTypes } from "../../../consts";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
 
@@ -17,7 +17,9 @@ const emptyTrack = {
   rating: 0,
 };
 
-function Untracked({ selectedTabId }) {
+function Untracked({ selectedTabId, navigate }) {
+  const updateStatus = useStatusUpdate();
+
   const [untrackedInfo, setUntrackedInfo] = useState(emptyTrack); // info from the content script
 
   // add listener that adds track info from content script
@@ -38,9 +40,16 @@ function Untracked({ selectedTabId }) {
 
   // save untracked track to backend
   const save = useCallback(async () => {
-    console.log("saving track", untrackedInfo);
-    await background("add", untrackedInfo);
-  }, [untrackedInfo]);
+    console.log("saving track", untrackedInfo.title);
+    updateStatus("saving track...");
+    const ok = await background("add", untrackedInfo);
+
+    if (ok) {
+      updateStatus("track saved", StatusTypes.SUCCESS);
+      // tell popup to switch to tracked view (but same tab id)
+      navigate(selectedTabId); // will get tab type etc again
+    } else updateStatus("track could not be saved", StatusTypes.ERROR);
+  }, [navigate, selectedTabId, untrackedInfo, updateStatus]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -49,6 +58,7 @@ function Untracked({ selectedTabId }) {
       <TrackInfo
         track={untrackedInfo}
         editing={true}
+        allowEditingUrl={false}
         updateTrack={(newTrack) =>
           setUntrackedInfo({ ...untrackedInfo, ...newTrack })
         }
