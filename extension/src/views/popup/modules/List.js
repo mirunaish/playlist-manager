@@ -68,15 +68,18 @@ function List({
   );
 
   const playlistDuration = useCallback(
-    (startIndex = -1) => {
-      return sum(playlist.slice(startIndex + 1).map((track) => track.duration));
+    (startIndex) => {
+      return playlist
+        .slice(startIndex)
+        .map((track) => track.duration)
+        .reduce((acc, val) => acc + val, 0); // sum all durations
     },
     [playlist]
   );
 
   // calculate total duration of playlist
   const totalDuration = useMemo(
-    () => formatTime(playlistDuration()),
+    () => formatTime(playlistDuration(0)),
     [playlistDuration]
   );
   const remainingDuration = useMemo(

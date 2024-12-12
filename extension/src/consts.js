@@ -61,7 +61,7 @@ export let EMPTY_TRACK = {
   artists: [],
   imageLink: "",
   url: "",
-  length: 0,
+  duration: 0,
 
   tags: [],
   rating: 0,

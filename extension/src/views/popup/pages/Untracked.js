@@ -2,25 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useListener, useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { MessageTypes, StatusTypes } from "../../../consts";
+import { EMPTY_TRACK, MessageTypes, StatusTypes } from "../../../consts";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
-
-const emptyTrack = {
-  title: "",
-  artists: [],
-  imageLink: "",
-  url: "",
-  length: 0,
-
-  tags: [],
-  rating: 0,
-};
 
 function Untracked({ selectedTabId, navigate }) {
   const updateStatus = useStatusUpdate();
 
-  const [untrackedInfo, setUntrackedInfo] = useState(emptyTrack); // info from the content script
+  const [untrackedInfo, setUntrackedInfo] = useState(EMPTY_TRACK); // info from the content script
 
   // add listener that adds track info from content script
   useListener(MessageTypes.TRACK_INFO_FORWARD, (payload) => {
@@ -32,7 +21,7 @@ function Untracked({ selectedTabId, navigate }) {
   // get untracked info from content script
   useEffect(() => {
     // reset untracked info
-    setUntrackedInfo(emptyTrack);
+    setUntrackedInfo(EMPTY_TRACK);
     // ask background script to get track info from page
     background("getUntrackedInfo", selectedTabId);
     // background will later send a message with the info which the listener will catch

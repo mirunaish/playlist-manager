@@ -116,7 +116,7 @@ function Playlist({ selectedTabId }) {
             }
           />
 
-          <PlayBar totalTime={trackInfo["length"]} currentTime={0} />
+          <PlayBar totalTime={trackInfo.duration} currentTime={0} />
         </div>
       </div>
     </div>
