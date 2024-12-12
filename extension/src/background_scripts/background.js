@@ -66,23 +66,26 @@ async function getTrackedInfo({ tabId = null, url = null }) {
   return trackedCache[url].trackedInfo;
 }
 
+async function tabIsSupported(tab) {
+  // supported?
+  if (Object.values(SupportedSites).some((site) => tab.url.match(site.regex)))
+    return true;
+  // playlist?
+  if (playlists[tab.id]) return true;
+  // audible?
+  if (tab.audible) return true;
+  // tracked?
+  if (await getTrackedInfo({ tabId: tab.id })) return true;
+
+  return false;
+}
+
 /** get limited info about all tabs, for rendering tab bar */
 async function getSupportedTabs() {
-  // get all tabs
-  const allTabs = await getBrowser().tabs.query({});
-
   // filter tabs (can't use allTabs.filter because of await)
   const supportedTabs = [];
-  for (let tab of allTabs) {
-    // keep supported
-    if (Object.values(SupportedSites).some((site) => tab.url.match(site.regex)))
-      supportedTabs.push(tab);
-    // keep playlist
-    else if (playlists[tab.id]) supportedTabs.push(tab);
-    // keep audible
-    else if (tab.audible) supportedTabs.push(tab);
-    // keep tracked
-    else if (await getTrackedInfo({ tabId: tab.id })) supportedTabs.push(tab);
+  for (let tab of await getBrowser().tabs.query({})) {
+    if (await tabIsSupported(tab)) supportedTabs.push(tab);
   }
 
   // keys to get for each tab
@@ -377,6 +380,7 @@ async function insertGuessedInfo(info) {
  * using other methods such as window[functionName] as far as i can tell
  */
 export const FUNCTIONS = {
+  tabIsSupported,
   getSupportedTabs,
   getMostImportantTabId,
   getTabType,
