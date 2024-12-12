@@ -191,6 +191,11 @@ async function getPlaylist(filters) {
   return response.body; // { playlist, stats }
 }
 
+// given an array of {id, url}, add all other track info
+async function addPlaylistTrackData(tracks) {
+  return await Promise.all(tracks.map(({ url }) => getTrackedInfo({ url })));
+}
+
 // TODO move to firefox local storage?
 /**
  * all playlists playing.
@@ -208,12 +213,8 @@ let playlists = {};
 async function getPlaylistInfo(tabId) {
   const playlistInfo = playlists[tabId];
   if (!playlistInfo) return null;
-  return {
-    ...playlistInfo,
-    tracks: await Promise.all(
-      playlistInfo.tracks.map(({ url }) => getTrackedInfo({ url }))
-    ),
-  };
+  playlistInfo.tracks = await addPlaylistTrackData(playlistInfo.tracks);
+  return playlistInfo;
 }
 
 // start playlist button was pressed
@@ -231,6 +232,12 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
   if (playlistData.tracks === null) {
     // @ts-ignore
     playlistData.tracks = (await getPlaylist()).playlist;
+  } else {
+    // if playlist was provided, remove all info except id and url
+    playlistData.tracks = playlistData.tracks.map(({ id, url }) => ({
+      id,
+      url,
+    }));
   }
 
   // create new tab to play in
@@ -388,6 +395,7 @@ export const FUNCTIONS = {
   getAllArtists,
   getAllTags,
   getPlaylist,
+  addPlaylistTrackData,
   startPlaying,
   playTrack,
   next,

@@ -22,14 +22,15 @@ function NewMix() {
   const [mixName, setMixName] = useState("Custom Mix");
   const [theme, setTheme] = useState("DARK_PINK");
 
-  const [playlist, setPlaylist] = useState(null);
+  const [playlistPreview, setPlaylistPreview] = useState(null);
   const [stats, setStats] = useState(null);
 
   const preview = useCallback(async () => {
     updateStatus("fetching playlist...");
     try {
-      const { playlist, stats } = await background("getPlaylist", filters);
-      setPlaylist(playlist);
+      let { playlist, stats } = await background("getPlaylist", filters);
+      playlist = await background("addPlaylistTrackData", playlist);
+      setPlaylistPreview(playlist);
       setStats(stats);
       updateStatus("");
     } catch (e) {
@@ -38,8 +39,8 @@ function NewMix() {
   }, [filters, updateStatus]);
 
   const play = useCallback(async () => {
-    await background("startPlaying", mixName, theme, filters, playlist);
-  }, [filters, mixName, playlist, theme]);
+    await background("startPlaying", mixName, theme, filters, playlistPreview);
+  }, [filters, mixName, playlistPreview, theme]);
 
   const saveMix = useCallback(async () => {
     await background("saveMix", filters);
@@ -51,7 +52,7 @@ function NewMix() {
 
   // reset preview playlist when filters are changed
   useEffect(() => {
-    setPlaylist(null);
+    setPlaylistPreview(null);
   }, [filters]);
 
   return (
@@ -77,7 +78,7 @@ function NewMix() {
       </Filters>
 
       {/* preview playlist */}
-      {playlist && stats ? (
+      {playlistPreview && stats ? (
         <div
           style={{
             flexGrow: 1,
@@ -87,7 +88,7 @@ function NewMix() {
           }}
         >
           <div style={{ width: "50%" }}>
-            <List playlist={playlist}>
+            <List playlist={playlistPreview}>
               <Button title="🔀" onClick={reshuffle} />
               <Button title="📌" onClick={saveMix} />
             </List>
