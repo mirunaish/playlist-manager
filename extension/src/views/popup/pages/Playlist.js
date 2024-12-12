@@ -16,7 +16,7 @@ function Playlist({ selectedTabId }) {
   const updateStatus = useStatusUpdate();
 
   const [playlistInfo, setPlaylistInfo] = useState(EMPTY_PLAYLIST);
-  const [playingIndex, setPlayingIndex] = useState(0);
+  const [playingIndex, setPlayingIndex] = useState(null);
   const [editingTrackInfo, setEditingTrackInfo] = useState(EMPTY_TRACK);
 
   // editing currently playing track?

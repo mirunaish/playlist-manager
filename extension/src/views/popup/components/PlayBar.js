@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Icon, Icons } from "../icons/index";
 import { BORDER_STYLE } from "../../../consts";
+import { formatTime } from "../../../util";
 
 function PlayBar({ totalTime, currentTime, disabled = false }) {
   const [playing, setPlaying] = useState(false);
@@ -35,7 +36,7 @@ function PlayBar({ totalTime, currentTime, disabled = false }) {
           gap: 15,
         }}
       >
-        <p>{currentTime}</p>
+        <p>{formatTime(currentTime)}</p>
 
         {/* progress bar */}
         <div
@@ -75,7 +76,7 @@ function PlayBar({ totalTime, currentTime, disabled = false }) {
           />
         </div>
 
-        <p>{totalTime}</p>
+        <p>{formatTime(totalTime)}</p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "row" }}>

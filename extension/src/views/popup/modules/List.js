@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BORDER_STYLE } from "../../../consts";
-import { sum } from "lodash";
 import { formatTime } from "../../../util";
 import Thumbnail from "../components/Thumbnail";
 import Scrollable from "../components/Scrollable";
@@ -22,6 +21,7 @@ function ListItem({
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "stretch",
         gap: 10,
 
         borderBottom: BORDER_STYLE,
@@ -29,15 +29,32 @@ function ListItem({
     >
       <Thumbnail src={track.imageLink} square={true} maxWidth={50} />
       <div
-        style={{ display: "flex", flexDirection: "column", padding: 5, gap: 5 }}
+        style={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: 5,
+          gap: 3,
+        }}
       >
         <p>
-          <span>{index + 1 + ". "}</span>
+          <span style={{ color: "var(--textFineprint)" }}>
+            {index + 1 + ". "}
+          </span>
           <span style={{ fontWeight: "bold" }}>{track.title}</span>
         </p>
         <p>{artistString}</p>
-        <p className="fineprint">{" (" + formatTime(track.duration) + ")"}</p>
-        {/* <Rating value={track.rating} extended disabled /> */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Rating value={track.rating} extended disabled size={15} />
+          <p className="fineprint">{formatTime(track.duration)}</p>
+        </div>
       </div>
     </div>
   );
@@ -102,14 +119,18 @@ function List({
           borderBottom: BORDER_STYLE,
           display: "flex",
           flexDirection: "row",
+          padding: "5px 5px 0px 5px",
+          justifyContent: "space-between",
         }}
       >
         <div>
-          {selectedTrackIndex ? selectedTrackIndex + "/" : ""}
+          {selectedTrackIndex !== null ? selectedTrackIndex + 1 + " / " : ""}
           {Object.keys(playlist).length}
+          {selectedTrackIndex !== null ? "" : " tracks"}
         </div>
-        <div style={{ flexGrow: 1 }} />
-        <div>{selectedTrackIndex ? remainingDuration : totalDuration}</div>
+        <div>
+          {selectedTrackIndex !== null ? remainingDuration : totalDuration}
+        </div>
       </div>
 
       {/* playlist */}
@@ -131,7 +152,7 @@ function List({
       </div>
 
       {/* some buttons at the bottom */}
-      {children && (
+      {children && children.length > 0 && (
         <div
           style={{
             display: "flex",

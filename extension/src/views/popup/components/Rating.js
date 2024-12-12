@@ -10,6 +10,7 @@ function Rating({
   extended = false,
   multiselect = false,
   disabled = false,
+  size = 20,
 }) {
   const [rating, setRating] = useState(value ?? (multiselect ? [] : -1));
 
@@ -57,7 +58,7 @@ function Rating({
         return (
           <Icon
             icon={icon}
-            size={20}
+            size={size}
             className={disabled ? " disabled" : ""}
             style={{ cursor: disabled ? "default" : "pointer" }}
             type={indexSelected(index) ? Icons.FILL : Icons.STROKE}
