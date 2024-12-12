@@ -261,6 +261,8 @@ async function playTrack(tabId, index) {
 
   // tell popup that playing index changed
   popup(MessageTypes.PLAYLIST_UPDATE, { tabId, index });
+  // tell popup that tabs changed too
+  popup(MessageTypes.TABS_UPDATE);
 }
 
 /**

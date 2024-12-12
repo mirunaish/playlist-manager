@@ -69,18 +69,28 @@ function Playlist({ selectedTabId }) {
   ]);
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        justifyContent: "stretch",
+      }}
+    >
       <Banner title={playlistInfo.title} theme={playlistInfo.theme} />
 
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <List
-          playlist={playlistInfo.tracks}
-          selectedTrackIndex={playingIndex}
-          onTrackClick={selectTrack}
-        />
+      <div style={{ display: "flex", flexDirection: "row", flexGrow: 1 }}>
+        <div style={{ width: "50%" }}>
+          <List
+            playlist={playlistInfo.tracks}
+            selectedTrackIndex={playingIndex}
+            onTrackClick={selectTrack}
+          />
+        </div>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", flexDirection: "column", width: "50%" }}>
           <TrackInfo
+            big={false}
             track={editing ? editingTrackInfo : trackInfo}
             updateTrack={(newTrack) =>
               setEditingTrackInfo({ ...editingTrackInfo, ...newTrack })
@@ -99,7 +109,7 @@ function Playlist({ selectedTabId }) {
           <PlayBar totalTime={trackInfo["length"]} currentTime={0} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
