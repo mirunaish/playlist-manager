@@ -7,28 +7,37 @@ import Scrollable from "../components/Scrollable";
 import Rating from "../components/Rating";
 import { background } from "../util";
 
-function ListItem({ index, track, artistString, onClick = () => {} }) {
+function ListItem({
+  index,
+  selected,
+  track,
+  artistString,
+  onClick = () => {},
+}) {
   return (
     <div
       onClick={onClick}
-      className="playlistItem"
+      className={"playlistItem " + (selected ? "selected" : "")}
       style={{
         display: "flex",
         flexDirection: "row",
-        gap: 15,
+        alignItems: "center",
+        gap: 10,
 
         borderBottom: BORDER_STYLE,
       }}
     >
       <Thumbnail src={track.imageLink} square={true} maxWidth={50} />
-      <div style={{ display: "flex", flexDirection: "column", padding: 5 }}>
+      <div
+        style={{ display: "flex", flexDirection: "column", padding: 5, gap: 5 }}
+      >
         <p>
-          <span>{index + ". "}</span>
-          <span style={{ fontWeight: "bold" }}>
-            {artistString + " - " + track.title}
-          </span>
+          <span>{index + 1 + ". "}</span>
+          <span style={{ fontWeight: "bold" }}>{track.title}</span>
         </p>
-        <Rating value={track.rating} extended disabled />
+        <p>{artistString}</p>
+        <p className="fineprint">{" (" + formatTime(track.duration) + ")"}</p>
+        {/* <Rating value={track.rating} extended disabled /> */}
       </div>
     </div>
   );
@@ -108,6 +117,7 @@ function List({
               <ListItem
                 key={track.id}
                 index={index}
+                selected={index === selectedTrackIndex}
                 track={track}
                 artistString={artistString(track)}
                 onClick={() => onTrackClick(index)}
@@ -118,16 +128,18 @@ function List({
       </div>
 
       {/* some buttons at the bottom */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          borderTop: BORDER_STYLE,
-        }}
-      >
-        {children}
-      </div>
+      {children && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderTop: BORDER_STYLE,
+          }}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,11 +1,16 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Banner from "../components/Banner";
-import { useStatusUpdate } from "../hooks";
+import { useListener, useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import List from "../modules/List";
 import TrackInfo from "../modules/TrackInfo";
 import PlayBar from "../components/PlayBar";
-import { EMPTY_PLAYLIST, EMPTY_TRACK, StatusTypes } from "../../../consts";
+import {
+  EMPTY_PLAYLIST,
+  EMPTY_TRACK,
+  MessageTypes,
+  StatusTypes,
+} from "../../../consts";
 
 function Playlist({ selectedTabId }) {
   const updateStatus = useStatusUpdate();
@@ -42,6 +47,11 @@ function Playlist({ selectedTabId }) {
     },
     [selectedTabId]
   );
+
+  // if track changes, set new playing index
+  useListener(MessageTypes.PLAYLIST_UPDATE, ({ tabId, index }) => {
+    if (selectedTabId === tabId) setPlayingIndex(index);
+  });
 
   const edit = useCallback(async () => {
     updateStatus("editing track...");
