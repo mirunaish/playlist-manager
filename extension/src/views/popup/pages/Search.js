@@ -11,6 +11,7 @@ function Search() {
       <Banner />
 
       <Button
+        primary
         title="search"
         // onClick={save}
       />

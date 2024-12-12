@@ -4,7 +4,7 @@ import { Icon } from "../icons";
 function Button({
   title = "",
   icon = null, // should be an object with icon props
-  primary = true,
+  primary = false,
   onClick = () => {},
 }) {
   return (

@@ -55,7 +55,7 @@ function Tracked({ selectedTabId }) {
         actions={
           editing
             ? [
-                { title: "save", func: edit },
+                { title: "save", primary: true, func: edit },
                 { title: "cancel", func: () => setEditing(false) },
               ]
             : [{ title: "edit", func: () => setEditing(true) }]

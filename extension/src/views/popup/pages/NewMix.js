@@ -73,7 +73,7 @@ function NewMix() {
         <ThemesDropdown value={theme} onChange={(value) => setTheme(value)} />
 
         <Button title="Preview" onClick={preview} />
-        <Button title="Play" onClick={play} />
+        <Button primary title="Play" onClick={play} />
         <Button title="Save to Quickplay" onClick={saveMix} />
       </Filters>
 

@@ -189,8 +189,14 @@ function TrackInfo({
       )}
 
       <div style={{ display: "flex", flexDirection: "row" }}>
-        {actions.map(({ title, icon, func }) => (
-          <Button key={title} icon={icon} title={title} onClick={func} />
+        {actions.map(({ title = null, icon = null, func, primary = false }) => (
+          <Button
+            primary={primary}
+            key={title}
+            icon={icon}
+            title={title}
+            onClick={func}
+          />
         ))}
       </div>
 

@@ -29,6 +29,7 @@ function Settings() {
       <Banner />
 
       <Button
+        primary
         title="save"
         // onClick={save}
       />

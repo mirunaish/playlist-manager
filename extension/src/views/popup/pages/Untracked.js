@@ -51,7 +51,7 @@ function Untracked({ selectedTabId, navigate }) {
         updateTrack={(newTrack) =>
           setUntrackedInfo({ ...untrackedInfo, ...newTrack })
         }
-        actions={[{ title: "save", func: save }]}
+        actions={[{ title: "save", primary: true, func: save }]}
         showSearch
       />
 
