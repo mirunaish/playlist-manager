@@ -71,13 +71,16 @@ function TrackInfo({
           width: "100%",
         }}
       >
-        <Thumbnail src={track.imageLink} />
+        <Thumbnail
+          src={track.imageLink}
+          style={big ? {} : { alignSelf: "center" }}
+        />
 
         <div
           style={{
-            display: "flex",
-            flexDirection: big ? "column" : "row",
-            gap: 5,
+            display: big ? "flex" : "inline",
+            flexDirection: big ? "column" : undefined,
+            gap: big ? 5 : undefined,
             flexGrow: 1,
           }}
         >
@@ -112,10 +115,10 @@ function TrackInfo({
             </>
           ) : (
             <>
-              <span className="title" style={{ fontWeight: "bold" }}>
+              <span style={{ fontWeight: "bold", fontSize: big ? 18 : 16 }}>
                 {track.title}
               </span>
-              <span className="artist">
+              <span style={{ fontSize: big ? 18 : 16 }}>
                 {(big ? "" : " - ") + artistString}
               </span>
             </>
@@ -182,7 +185,7 @@ function TrackInfo({
             <div key={id}>
               <Tag
                 name={tags[id]?.name ?? "unknown tag"}
-                color={tags[id]?.color ?? "#f7f7f7"}
+                color={tags[id]?.color ?? "#9f8f9f"}
               />
             </div>
           ))}

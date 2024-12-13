@@ -14,7 +14,11 @@ function Button({
     >
       {icon && (
         // if given both a title and an icon, put padding between them
-        <Icon {...icon} style={title ? { marginRight: 5 } : {}} />
+        <Icon
+          {...icon}
+          className={icon.className + " disabled"}
+          style={{ ...icon.style, ...(title ? { marginRight: 5 } : {}) }}
+        />
       )}
       {title}
     </button>
