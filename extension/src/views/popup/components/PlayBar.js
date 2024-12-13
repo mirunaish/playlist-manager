@@ -83,39 +83,35 @@ function PlayBar({ totalTime, currentTime, disabled = false }) {
         {/* buttons */}
         <Icon
           icon={Icons.PREVIOUS}
-          className="primary"
+          color="primary"
           onClick={() => {
             //
           }}
           size={20}
-          type={Icons.FILL}
         />
         <Icon
           icon={Icons.RESTART}
-          className="primary"
+          color="primary"
           onClick={() => {
             //
           }}
           size={20}
-          type={Icons.FILL}
         />
         <Icon
           icon={playing ? Icons.PLAY : Icons.PAUSE}
-          className="primary"
+          color="primary"
           onClick={() => {
             togglePlay();
           }}
           size={20}
-          type={Icons.FILL}
         />
         <Icon
           icon={Icons.NEXT}
-          className="primary"
+          color="primary"
           onClick={() => {
             //
           }}
           size={20}
-          type={Icons.FILL}
         />
       </div>
     </div>

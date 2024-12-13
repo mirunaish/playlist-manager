@@ -61,6 +61,7 @@ body {
 .tab {
   display: inline-block;
   background-color: var(--secondary);
+  color: var(--secondaryText);
   border-radius: 4px;
   transition-duration: 0.1s;
   user-select: none;
@@ -74,12 +75,20 @@ body {
 .tab:hover {
   background-color: var(--secondaryDark);
 }
+.tab > svg.icon > path {
+  fill: var(--secondaryText);
+  stroke: var(--secondaryText);
+}
 .tab.selected {
   background-color: var(--primary);
   padding-bottom: 18px;
 }
 .tab.selected:hover {
   background-color: var(--primaryDark);
+}
+.tab.selected > svg.icon > path {
+  fill: var(--primaryText);
+  stroke: var(--primaryText);
 }
 
 .banner {
@@ -185,20 +194,34 @@ img {
 }
 
 .icon {
-  padding: 5px;
-  vertical-align: middle;
+  display: block;
 }
 .icon > path {
   fill: var(--text);
   stroke: var(--text);
-  stroke-width: 16px;
 }
-.icon.fill > path {
-  stroke: none !important;
-  stroke-width: 0 !important;
+.icon:not(.disabled):hover > path {
+  fill: var(--textFineprint);
+  stroke: var(--textFineprint);
 }
-.icon.stroke > path {
-  fill: none !important;
+.icon.primary > path {
+  fill: var(--primary);
+  stroke: var(--primary);
+}
+.icon.primary:not(.disabled):hover > path {
+  fill: var(--primaryDark);
+  stroke: var(--primaryDark);
+}
+.icon.secondary > path {
+  fill: var(--secondary);
+  stroke: var(--secondary);
+}
+.icon.secondary:not(.disabled):hover > path {
+  fill: var(--secondaryDark);
+  stroke: var(--secondaryDark);
+}
+.icon.rainbow:not(.disabled):hover {
+  filter: brightness(0.6);
 }
 
 button,
@@ -225,59 +248,19 @@ input,
 .searchinput__control {
   cursor: text !important;
 }
-
 input:disabled {
   background-color: var(--backgroundAccent);
   color: var(--textFineprint);
   cursor: not-allowed;
 }
-
-button,
-select {
-  cursor: pointer;
-}
-
-button {
-  background-color: var(--secondary);
-  color: var(--secondaryText);
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  padding: 5px;
-  text-align: center;
-  display: inline-block;
-  transition-duration: 0.1s;
-}
-button.wide {
-  width: 120px;
-}
-button > svg > path {
-  fill: var(--secondaryText);
-  stroke: var(--secondaryText);
-}
-button:hover {
-  background-color: var(--secondaryDark);
-}
-button.primary {
-  background-color: var(--primary);
-  color: var(--primaryText);
-}
-button.primary > svg > path {
-  fill: var(--primaryText);
-  stroke: var(--primaryText);
-}
-button.primary:hover {
-  background-color: var(--primaryDark);
-}
-button > svg {
-  padding: 0px 5px 0px 0px;
-}
-
 input::placeholder {
   color: var(--textFineprint);
   opacity: 1;
 }
 
+select {
+  cursor: pointer;
+}
 select:hover {
   background-color: var(--secondaryDark);
 }
@@ -327,6 +310,40 @@ select > option:checked {
   gap: 3px;
 }
 
+button {
+  background-color: var(--secondary);
+  color: var(--secondaryText);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 5px;
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+  transition-duration: 0.1s;
+}
+button.wide {
+  padding: 5px 20px 5px 20px;
+}
+button > svg.icon > path {
+  fill: var(--secondaryText);
+  stroke: var(--secondaryText);
+}
+button:hover {
+  background-color: var(--secondaryDark);
+}
+button.primary {
+  background-color: var(--primary);
+  color: var(--primaryText);
+}
+button.primary > svg.icon > path {
+  fill: var(--primaryText);
+  stroke: var(--primaryText);
+}
+button.primary:hover {
+  background-color: var(--primaryDark);
+}
+
 .rating {
   display: flex;
   flex-direction: row;
@@ -336,17 +353,13 @@ select > option:checked {
 .rating > svg {
   padding: 3px 1.5px;
 }
-.rating > svg > path {
-  fill: var(--primary);
-  stroke: var(--primary);
+.rating > .icon.star.fill > path {
+  stroke: none !important;
+  stroke-width: 0 !important;
 }
-.rating > svg:hover > path {
-  fill: var(--primaryDark);
-  stroke: var(--primaryDark);
-}
-.rating > svg.disabled:hover > path {
-  fill: var(--primary);
-  stroke: var(--primary);
+.rating > .icon.star.stroke > path {
+  stroke-width: 16px;
+  fill: none !important;
 }
 
 .hidden {

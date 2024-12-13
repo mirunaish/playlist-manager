@@ -75,3 +75,9 @@ export let EMPTY_PLAYLIST = {
 };
 
 export let BORDER_STYLE = "1px solid var(--ui)";
+
+export let GRADIENT = {
+  gradientQuality: 5, // quality of gradient on star (will need higher quality for bigger angle)
+  animationQuality: 10, // quality of color transitions in gradient (should always be high-ish)
+  rainbowDegrees: 180, // how many degrees of rainbow to show in a star, out of 360
+};

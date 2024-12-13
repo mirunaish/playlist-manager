@@ -5,12 +5,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { isMouse, shorten } from "../../../util";
+import { shorten } from "../../../util";
 import { background } from "../util";
 import { Themes } from "../../../themes";
 import { MessageTypes, Pages } from "../../../consts";
 import Scrollable from "../components/Scrollable";
 import { useListener } from "../hooks";
+import { Icon, Icons } from "../icons";
 
 const Tab = forwardRef(({ tab, selected, onClick, color }, ref) => {
   return (
@@ -66,10 +67,10 @@ function Tabs({ selectedTabId, selectTab }) {
   }
 
   const otherTabs = [
-    { id: Pages.QUICKPLAY, icon: "⚡", right: false },
-    { id: Pages.NEW_MIX, icon: "+", right: false },
-    { id: Pages.SEARCH, icon: "🔍", right: false },
-    { id: Pages.SETTINGS, icon: "⚙", right: true },
+    { id: Pages.QUICKPLAY, icon: { icon: Icons.LIGHTNING }, right: false },
+    { id: Pages.NEW_MIX, icon: { icon: Icons.PLUS }, right: false },
+    { id: Pages.SEARCH, icon: { icon: Icons.SEARCH }, right: false },
+    { id: Pages.SETTINGS, icon: { icon: Icons.SETTINGS }, right: true },
   ];
 
   // https://stackoverflow.com/questions/21782502/how-to-make-a-divs-width-stretch-between-two-divs
@@ -85,7 +86,7 @@ function Tabs({ selectedTabId, selectTab }) {
           className={"tab" + (selectedTabId === id ? " selected" : "")}
           style={{ float: right ? "right" : "left" }}
         >
-          <p>{icon}</p>
+          <Icon {...icon} size={14} />
         </div>
       ))}
 

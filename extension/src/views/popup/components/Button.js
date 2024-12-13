@@ -12,7 +12,10 @@ function Button({
       className={(primary ? "primary " : "") + (title.length > 0 ? "wide" : "")}
       onClick={onClick}
     >
-      {icon && <Icon {...icon} />}
+      {icon && (
+        // if given both a title and an icon, put padding between them
+        <Icon {...icon} style={title ? { marginRight: 5 } : {}} />
+      )}
       {title}
     </button>
   );

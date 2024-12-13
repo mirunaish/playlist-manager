@@ -8,6 +8,7 @@ import Filters from "../modules/Filters";
 import List from "../modules/List";
 import Stats from "../modules/Stats";
 import ThemesDropdown from "../modules/ThemesDropdown";
+import { Icons } from "../icons";
 
 /** start new custom playlist page */
 function NewMix() {
@@ -89,8 +90,8 @@ function NewMix() {
         >
           <div style={{ width: "50%" }}>
             <List playlist={playlistPreview}>
-              <Button title="🔀" onClick={reshuffle} />
-              <Button title="📌" onClick={saveMix} />
+              <Button icon={{ icon: Icons.SHUFFLE }} onClick={reshuffle} />
+              <Button icon={{ icon: Icons.PIN }} onClick={saveMix} />
             </List>
           </div>
           <div style={{ width: "50%" }}>

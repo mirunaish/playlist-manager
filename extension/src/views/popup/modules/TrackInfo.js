@@ -215,7 +215,7 @@ function TrackInfo({
             return track.url.match(regex) ? null : (
               <Button
                 key={site}
-                icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
+                icon={{ icon: Icons[site.toUpperCase()], size: 20 }}
                 onClick={() => search(site)}
               />
             );

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { Icon, Icons } from "../icons";
+import { Star, Stars } from "../icons/Star";
+import { GRADIENT } from "../../../consts";
 
 function Rating({
   // !multiselect: value is a number
@@ -17,9 +18,9 @@ function Rating({
   // build array of icons to render
   const icons = useMemo(() => {
     const a = [];
-    if (extended) a.push(Icons.STAR4);
-    for (let i = 1; i <= 5; i++) a.push(Icons.STAR5);
-    if (extended) a.push(Icons.STAR6);
+    if (extended) a.push(4);
+    for (let i = 1; i <= 5; i++) a.push(5);
+    if (extended) a.push(6);
     return a;
   }, [extended]);
 
@@ -31,6 +32,12 @@ function Rating({
       );
     },
     [multiselect, rating]
+  );
+  const isRainbow = useCallback(
+    (i) =>
+      (multiselect && i === 6 && indexSelected(i)) ||
+      (!multiselect && indexSelected(6)),
+    [indexSelected, multiselect]
   );
 
   /** on clicking index'th icon, call onChange with new value */
@@ -54,14 +61,17 @@ function Rating({
 
   return (
     <div className="rating">
-      {icons.map((icon, index) => {
+      {icons.map((points, index) => {
         return (
-          <Icon
-            icon={icon}
+          <Star
+            key={index}
+            points={points}
+            type={indexSelected(index) ? Stars.FILL : Stars.STROKE}
+            color={isRainbow(index) ? "rainbow" : "primary"}
             size={size}
+            gradientOffset={(index * GRADIENT.rainbowDegrees * 0.6) % 360}
             className={disabled ? " disabled" : ""}
             style={{ cursor: disabled ? "default" : "pointer" }}
-            type={indexSelected(index) ? Icons.FILL : Icons.STROKE}
             onClick={() => updateRating(index)}
           />
         );

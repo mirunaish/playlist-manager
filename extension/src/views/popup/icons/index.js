@@ -1,34 +1,60 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  FaPlay,
+  FaPause,
+  FaMagnifyingGlass,
+  FaForwardStep,
+  FaBackwardStep,
+  FaYoutube,
+  FaSoundcloud,
+  FaSpotify,
+  FaThumbtack,
+  FaShuffle,
+  FaGear,
+  FaPlus,
+  FaBolt,
+} from "react-icons/fa6";
+import { FaUndo } from "react-icons/fa";
 
 export const Icons = {
-  FILL: "fill",
-  STROKE: "stroke",
-
   LEFT: "left",
   RIGHT: "right",
-  PLAY: "play",
-  PAUSE: "pause",
-  NEXT: "next",
-  PREVIOUS: "previous",
-  RESTART: "restart",
 
-  STAR4: "star4",
-  STAR5: "star5",
-  STAR6: "star6",
+  PLAY: FaPlay,
+  PAUSE: FaPause,
+  NEXT: FaForwardStep,
+  PREVIOUS: FaBackwardStep,
+  RESTART: FaUndo,
 
-  YOUTUBE: "youtube",
-  SOUNDCLOUD: "soundcloud",
-  SPOTIFY: "youtube", // TODO add icon
+  SEARCH: FaMagnifyingGlass,
+  SETTINGS: FaGear,
+  PLUS: FaPlus,
+  LIGHTNING: FaBolt,
+  PIN: FaThumbtack,
+  SHUFFLE: FaShuffle,
+
+  YOUTUBE: FaYoutube,
+  SOUNDCLOUD: FaSoundcloud,
+  SPOTIFY: FaSpotify,
 };
 
-export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
-  const SvgRef = useRef(null);
-  const [refresh, setRefresh] = useState(0);
+export function Icon({
+  icon, // name or function...
+  size = 15,
+  color = "", // primary or secondary
+  ...args // style, className, onClick etc
+}) {
+  const isFaIcon = useMemo(() => typeof icon !== "string", [icon]);
 
-  // get icon from file
+  // ref for custom svg icon
+  const SvgRef = useRef(null);
+  const [refresh, setRefresh] = useState(0); // need this to force rerender
+
+  // if custom icon, get icon from file
   useEffect(() => {
     if (!icon) return;
-    if (SvgRef.current != null) return;
+    if (isFaIcon) return;
+    if (SvgRef.current != null) return; // already loaded
 
     (async () => {
       // https://stackoverflow.com/questions/61339259/how-to-dynamically-import-svg-and-render-it-inline
@@ -38,17 +64,35 @@ export function Icon({ icon, size = 15, color = null, type = "", ...args }) {
       SvgRef.current = ReactComponent;
       setRefresh(refresh + 1); // force a rerender
     })();
-  }, [icon, refresh]);
+  }, [icon, isFaIcon, refresh]);
 
-  if (SvgRef?.current == null) return null;
+  if (!icon) {
+    console.error("icon not found:", icon);
+    return null;
+  }
 
-  const Svg = SvgRef.current;
+  // if icon function (probably fontawesome), render that
+  if (isFaIcon) {
+    const FaIcon = icon;
+    return (
+      <FaIcon
+        {...args}
+        className={"icon " + (args.className ?? "") + " " + color}
+        size={size}
+      />
+    );
+  }
 
-  const props = {
-    ...args,
-    className: "icon " + (args.className ?? "") + " " + type,
-    width: size,
-    height: size,
-  };
-  return <Svg {...props} />;
+  // otherwise, render custom svg if loaded
+  if (SvgRef?.current) {
+    const Svg = SvgRef.current;
+    return (
+      <Svg
+        {...args}
+        className={"icon " + (args.className ?? "") + " " + color}
+        width={size}
+        height={size}
+      />
+    );
+  }
 }
