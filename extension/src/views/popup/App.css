@@ -72,9 +72,6 @@ body {
 
   cursor: pointer;
 }
-.tab:hover {
-  background-color: var(--secondaryDark);
-}
 .tab > svg.icon > path {
   fill: var(--secondaryText);
   stroke: var(--secondaryText);
@@ -82,9 +79,6 @@ body {
 .tab.selected {
   background-color: var(--primary);
   padding-bottom: 18px;
-}
-.tab.selected:hover {
-  background-color: var(--primaryDark);
 }
 .tab.selected > svg.icon > path {
   fill: var(--primaryText);
@@ -140,9 +134,7 @@ body {
 }
 .playlistItem {
   text-wrap: wrap;
-}
-.playlistItem:hover {
-  background-color: var(--backgroundAccent);
+  background-color: var(--background);
 }
 .playlistItem.selected {
   background-color: var(--secondary);
@@ -200,28 +192,13 @@ img {
   fill: var(--text);
   stroke: var(--text);
 }
-.icon:not(.disabled):hover > path {
-  fill: var(--textFineprint);
-  stroke: var(--textFineprint);
-}
 .icon.primary > path {
   fill: var(--primary);
   stroke: var(--primary);
 }
-.icon.primary:not(.disabled):hover > path {
-  fill: var(--primaryDark);
-  stroke: var(--primaryDark);
-}
 .icon.secondary > path {
   fill: var(--secondary);
   stroke: var(--secondary);
-}
-.icon.secondary:not(.disabled):hover > path {
-  fill: var(--secondaryDark);
-  stroke: var(--secondaryDark);
-}
-.icon.rainbow:not(.disabled):hover {
-  filter: brightness(0.6);
 }
 
 button,
@@ -261,10 +238,6 @@ input::placeholder {
 select {
   cursor: pointer;
 }
-select:hover {
-  background-color: var(--secondaryDark);
-}
-select > option:hover,
 select > option:checked {
   background-color: var(--secondaryDark);
 }
@@ -329,9 +302,6 @@ button > svg.icon > path {
   fill: var(--secondaryText);
   stroke: var(--secondaryText);
 }
-button:hover {
-  background-color: var(--secondaryDark);
-}
 button.primary {
   background-color: var(--primary);
   color: var(--primaryText);
@@ -339,9 +309,6 @@ button.primary {
 button.primary > svg.icon > path {
   fill: var(--primaryText);
   stroke: var(--primaryText);
-}
-button.primary:hover {
-  background-color: var(--primaryDark);
 }
 
 .rating {
@@ -360,6 +327,16 @@ button.primary:hover {
 .rating > .icon.star.stroke > path {
   stroke-width: 16px;
   fill: none !important;
+}
+
+button:hover,
+select:hover,
+select > option:hover,
+.icon:not(.disabled):hover,
+.tab:not(.selected):hover,
+.playlistItem:not(.selected):hover,
+.quickplay-card:hover {
+  filter: brightness(0.7) contrast(1.2);
 }
 
 .hidden {

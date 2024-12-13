@@ -107,7 +107,11 @@ function Tabs({ selectedTabId, selectTab }) {
                   selectedTabRef.current = element;
               }}
               onClick={() => selectOrSwitch(data.tab.id)}
-              color={Themes[data.playlist?.theme]?.primary}
+              color={
+                selectedTabId === data.tab.id
+                  ? Themes[data.playlist?.theme]?.primary
+                  : Themes[data.playlist?.theme]?.primaryDark
+              }
             />
           );
         })}
