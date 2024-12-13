@@ -11,7 +11,7 @@ export const Themes = {
     secondary: "#4b0082",
     secondaryDark: "#2c004b",
     secondaryText: "#ffffff",
-    hue: 180,
+    hue: "300deg",
   },
   BLUEJAY: {
     background: "#1e1f20",
