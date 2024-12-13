@@ -35,7 +35,7 @@ trackRouter.post("/", async (req, res) => {
     res.status(200).json(createdTrack);
   } catch (e) {
     console.log(e);
-    res.status(500).json("could not add");
+    res.status(500).json({ error: "could not add" + e.message });
   }
 });
 
@@ -48,7 +48,7 @@ trackRouter.patch("/", async (req, res) => {
     res.status(200).json(createdTrack);
   } catch (e) {
     console.log(e);
-    res.status(500).json("could not edit");
+    res.status(500).json({ error: "could not edit" + e.message });
   }
 });
 

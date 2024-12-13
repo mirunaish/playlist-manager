@@ -8,7 +8,7 @@ import {
   SupportedSites,
 } from "../consts";
 import { getBrowser, getTab, popup, insertScript, request } from "./util";
-import { pick, buildRecord } from "../util";
+import { pick, buildRecord, stripSupportedUrl } from "../util";
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
@@ -53,6 +53,9 @@ const trackedCache = {}; // { url: { trackedInfo: Track | null, valid: bool } }
 async function getTrackedInfo({ tabId = null, url = null }) {
   // get tab url if not given
   if (tabId && !url) url = (await getTab(tabId)).url;
+
+  // strip url if supported
+  url = stripSupportedUrl(url);
 
   if (trackedCache[url]?.valid) return trackedCache[url].trackedInfo;
 
@@ -230,8 +233,7 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
 
   // if playlist not provided, get it from backend
   if (playlistData.tracks === null) {
-    // @ts-ignore
-    playlistData.tracks = (await getPlaylist()).playlist;
+    playlistData.tracks = (await getPlaylist(filters)).playlist;
   } else {
     // if playlist was provided, remove all info except id and url
     playlistData.tracks = playlistData.tracks.map(({ id, url }) => ({
@@ -312,18 +314,36 @@ async function stopPlaying(tabId) {
   popup(MessageTypes.REMOVE_TAB, { id: tabId });
 }
 
-// edit track info
+/** add new track */
+async function add(trackData) {
+  // make request to backend
+  const response = await request("/tracks", {
+    method: "POST",
+    body: { track: trackData, newArtists: [], newTags: [] },
+  });
+  if (response.ok) {
+    artistCache.valid = false;
+    tagCache.valid = false;
+    if (trackedCache[trackData.url]) trackedCache[trackData.url].valid = false; // will replace null with new data
+  }
+  return { ok: response.ok, error: response.body.error };
+}
+
+/** edit track info */
 async function edit(oldUrl, trackData, tabId = null) {
   // edit info about the song currently playing
-  const response = await request("/edit", { method: "POST", body: trackData });
+  const response = await request("/edit", {
+    method: "POST",
+    body: { track: trackData, newArtists: [], newTags: [] },
+  });
   if (response.ok) {
     // may have created a new artist
     artistCache.valid = false;
     // may have created new tags
     tagCache.valid = false;
     // need to update trackinfo cache too, both old and new urls
-    trackedCache[trackData.url].valid = false;
-    trackedCache[oldUrl].valid = false;
+    if (trackedCache[trackData.url]) trackedCache[trackData.url].valid = false;
+    if (trackedCache[oldUrl]) trackedCache[oldUrl].valid = false;
 
     // if url changed, change it in playlists
     if (trackData.url !== oldUrl) {
@@ -334,32 +354,18 @@ async function edit(oldUrl, trackData, tabId = null) {
           }
         }
       }
-    }
 
-    // if tabId was given, switch to new url
-    if (tabId) {
-      await getBrowser().tabs.update(tabId, { url: trackData.url });
+      // if tabId was given (and url changed), switch to new url
+      if (tabId) {
+        await getBrowser().tabs.update(tabId, { url: trackData.url });
+      }
     }
 
     // tell popup to update tabs (title and/or artist may have changed)
     popup(MessageTypes.TABS_UPDATE);
   }
-  return response.ok;
-}
 
-// add new track
-async function add(trackData) {
-  // make request to backend
-  const response = await request("/tracks", {
-    method: "POST",
-    body: trackData,
-  });
-  if (response.ok) {
-    artistCache.valid = false;
-    tagCache.valid = false;
-    trackedCache[trackData.url].valid = false; // will replace null with new data
-    updateStatus("track added successfully", StatusTypes.SUCCESS);
-  } else updateStatus("failed to add track", StatusTypes.ERROR);
+  return response.ok;
 }
 
 /** search for a track on one of the supported sites in a new tab */

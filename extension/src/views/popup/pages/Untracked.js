@@ -31,13 +31,15 @@ function Untracked({ selectedTabId, navigate }) {
   const save = useCallback(async () => {
     console.log("saving track", untrackedInfo.title);
     updateStatus("saving track...");
-    const ok = await background("add", untrackedInfo);
+    const { ok, error } = await background("add", untrackedInfo);
 
     if (ok) {
       updateStatus("track saved", StatusTypes.SUCCESS);
       // tell popup to switch to tracked view (but same tab id)
       navigate(selectedTabId); // will get tab type etc again
-    } else updateStatus("track could not be saved", StatusTypes.ERROR);
+    } else {
+      updateStatus(`track could not be saved: ${error}`, StatusTypes.ERROR);
+    }
   }, [navigate, selectedTabId, untrackedInfo, updateStatus]);
 
   return (

@@ -22,14 +22,13 @@ function TrackInfo({
   useEffect(() => {
     (async () => {
       const result = await background("getAllArtists");
-      if (!result || result.length === 0) return;
       setArtists(result);
     })();
   }, []);
 
   const artistString = useMemo(() => {
     if (!artists) return "";
-    return track.artists.map((id) => artists[id].name).join(", ");
+    return track.artists.map((id) => artists[id]?.name).join(", ");
   }, [track, artists]);
 
   // and all tags
@@ -37,7 +36,6 @@ function TrackInfo({
   useEffect(() => {
     (async () => {
       const result = await background("getAllTags");
-      if (!result || result.length === 0) return;
       setTags(result);
     })();
   }, []);
@@ -182,7 +180,10 @@ function TrackInfo({
 
           {track.tags.map((id) => (
             <div key={id}>
-              <Tag name={tags[id].name} color={tags[id].color} />
+              <Tag
+                name={tags[id]?.name ?? "unknown tag"}
+                color={tags[id]?.color ?? "#f7f7f7"}
+              />
             </div>
           ))}
         </div>

@@ -48,6 +48,15 @@ export function siteSupported(url) {
   return false;
 }
 
+/** should be identical to one in backend */
+export function stripSupportedUrl(url) {
+  if (url.includes("youtube")) {
+    // remove everything after the first argument
+    url = url.replace(/&.*$/, "");
+  }
+  return url;
+}
+
 /**
  * return an object with only the specified keys from the original
  *  @param keys an array of key names as strings
