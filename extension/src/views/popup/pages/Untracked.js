@@ -43,7 +43,7 @@ function Untracked({ selectedTabId, navigate }) {
   }, [navigate, selectedTabId, untrackedInfo, updateStatus]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
       <Banner title="Untracked" />
 
       <TrackInfo

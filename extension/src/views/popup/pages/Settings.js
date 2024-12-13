@@ -25,7 +25,7 @@ function Settings() {
   // }, [background, trackInfo, updateStatus]);
 
   return (
-    <div>
+    <div className="page">
       <Banner />
 
       <Button

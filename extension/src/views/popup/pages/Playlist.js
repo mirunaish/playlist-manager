@@ -80,28 +80,35 @@ function Playlist({ selectedTabId }) {
 
   return (
     <div
+      className="page"
       style={{
         display: "flex",
         flexDirection: "column",
-        height: "100%",
         justifyContent: "stretch",
       }}
     >
       <Banner title={playlistInfo.title} theme={playlistInfo.theme} />
 
-      <div style={{ display: "flex", flexDirection: "row", flexGrow: 1 }}>
-        <div style={{ width: "50%" }}>
-          <List
-            playlist={playlistInfo.tracks}
-            selectedTrackIndex={playingIndex}
-            onTrackClick={selectTrack}
-          />
-        </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          flexGrow: 1,
+          overflow: "hidden",
+        }}
+      >
+        <List
+          style={{ width: "50%" }}
+          playlist={playlistInfo.tracks}
+          selectedTrackIndex={playingIndex}
+          onTrackClick={selectTrack}
+        ></List>
 
         <div style={{ display: "flex", flexDirection: "column", width: "50%" }}>
           <TrackInfo
             big={false}
             track={editing ? editingTrackInfo : trackInfo}
+            editing={editing}
             updateTrack={(newTrack) =>
               setEditingTrackInfo({ ...editingTrackInfo, ...newTrack })
             }

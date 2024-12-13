@@ -7,7 +7,7 @@ function Search() {
   const updateStatus = useStatusUpdate();
 
   return (
-    <div>
+    <div className="page">
       <Banner />
 
       <Button

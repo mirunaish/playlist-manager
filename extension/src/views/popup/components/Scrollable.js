@@ -8,6 +8,7 @@ function Scrollable({
   selectedItemRef = null,
   selectedItemId = null,
   children,
+  style,
 }) {
   const scrollableDivRef = useRef(null);
 
@@ -55,6 +56,7 @@ function Scrollable({
       className="scrollable-container"
       ref={scrollableDivRef}
       onWheel={scroll}
+      style={style}
     >
       {children}
     </div>

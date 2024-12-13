@@ -57,10 +57,7 @@ function NewMix() {
   }, [filters]);
 
   return (
-    <div
-      className="expand"
-      style={{ display: "flex", flexDirection: "column" }}
-    >
+    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
       <Banner title="New mix" />
 
       <Filters filters={filters} setFilters={setFilters}>
@@ -86,14 +83,14 @@ function NewMix() {
             display: "flex",
             flexDirection: "row",
             justifyContent: "stretch",
+            overflow: "hidden",
           }}
         >
-          <div style={{ width: "50%" }}>
-            <List playlist={playlistPreview}>
-              <Button icon={{ icon: Icons.SHUFFLE }} onClick={reshuffle} />
-              <Button icon={{ icon: Icons.PIN }} onClick={saveMix} />
-            </List>
-          </div>
+          <List playlist={playlistPreview} style={{ width: "50%" }}>
+            <Button icon={{ icon: Icons.SHUFFLE }} onClick={reshuffle} />
+            <Button icon={{ icon: Icons.PIN }} onClick={saveMix} />
+          </List>
+
           <div style={{ width: "50%" }}>
             <Stats stats={stats} />
           </div>

@@ -65,6 +65,7 @@ function List({
   selectedTrackIndex = null,
   onTrackClick = (trackIndex) => {},
   children = [], // buttons at bottom
+  style = {},
 }) {
   // get all artists for track artist names
   const [artists, setArtists] = useState({});
@@ -108,6 +109,7 @@ function List({
     <div
       className="playlist"
       style={{
+        ...style,
         borderRight: BORDER_STYLE,
         display: "flex",
         flexDirection: "column",
@@ -134,22 +136,20 @@ function List({
       </div>
 
       {/* playlist */}
-      <div style={{ flexGrow: 1 }}>
-        <Scrollable>
-          {playlist.map((track, index) => {
-            return (
-              <ListItem
-                key={track.id}
-                index={index}
-                selected={index === selectedTrackIndex}
-                track={track}
-                artistString={artistString(track)}
-                onClick={() => onTrackClick(index)}
-              />
-            );
-          })}
-        </Scrollable>
-      </div>
+      <Scrollable style={{ flexGrow: 1 }}>
+        {playlist.map((track, index) => {
+          return (
+            <ListItem
+              key={track.id}
+              index={index}
+              selected={index === selectedTrackIndex}
+              track={track}
+              artistString={artistString(track)}
+              onClick={() => onTrackClick(index)}
+            />
+          );
+        })}
+      </Scrollable>
 
       {/* some buttons at the bottom */}
       {children && children.length > 0 && (

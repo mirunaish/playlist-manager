@@ -70,18 +70,16 @@ function App() {
        */}
       <Status />
 
-      <div style={{ flexGrow: 1 }}>
-        {/* select page based on tab info */}
-        {page === Pages.NEW_MIX && <NewMix {...navProps} />}
-        {page === Pages.SEARCH && <Search />}
-        {page === Pages.QUICKPLAY && <Quickplay />}
-        {page === Pages.SETTINGS && <Settings />}
-        {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
-        {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
-        {page === Pages.UNTRACKED && (
-          <Untracked selectedTabId={selectedTabId} navigate={navigate} />
-        )}
-      </div>
+      {/* select page based on tab info */}
+      {page === Pages.NEW_MIX && <NewMix {...navProps} />}
+      {page === Pages.SEARCH && <Search />}
+      {page === Pages.QUICKPLAY && <Quickplay />}
+      {page === Pages.SETTINGS && <Settings />}
+      {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
+      {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
+      {page === Pages.UNTRACKED && (
+        <Untracked selectedTabId={selectedTabId} navigate={navigate} />
+      )}
 
       <Tabs
         selectedTabId={selectedTabId}

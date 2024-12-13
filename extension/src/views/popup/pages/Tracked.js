@@ -43,7 +43,7 @@ function Tracked({ selectedTabId }) {
   }, [editingTrackInfo, selectedTabId, trackInfo, updateStatus]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
       <Banner theme="DARK_PINK" />
 
       <TrackInfo
