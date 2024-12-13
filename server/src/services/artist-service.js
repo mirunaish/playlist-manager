@@ -33,8 +33,14 @@ export async function artistMatch(string) {
   return ids;
 }
 
-export async function createArtist(artistData) {
+export async function createArtist(artistData, transaction = null) {
   const id = uuid();
-  await Artist.create({ starred: false, ...artistData, id });
+  if (!artistData.starred) artistData.starred = false;
+  await Artist.create({ ...artistData, id }, { transaction });
   return id;
+}
+
+/** create multiple artists */
+export async function createArtists(artistData, transaction = null) {
+  return await Promise.all(artistData.map((a) => createArtist(a, transaction)));
 }

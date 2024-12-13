@@ -23,12 +23,12 @@ export async function getPlaylist(filters) {
   const include = [];
 
   // add rating filters
-  if (filters.rating.length > 0) {
+  if (filters.rating?.length > 0) {
     where = { ...where, rating: { [Op.in]: filters.rating } };
   }
 
   // add artist filters
-  if (filters.artists.length > 0) {
+  if (filters.artists?.length > 0) {
     // artist filter is an array of either "starred", "not starred", or an id
 
     const artistWhere = [];
