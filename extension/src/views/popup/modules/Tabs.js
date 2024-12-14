@@ -21,7 +21,7 @@ const Tab = forwardRef(({ tab, selected, onClick, color }, ref) => {
       className={"tab" + (selected ? " selected" : "")}
       style={{ backgroundColor: color }}
     >
-      <p>{shorten(tab.title ?? "Untitled")}</p>
+      <p>{tab.title ?? "Untitled"}</p>
     </div>
   );
 });
@@ -84,9 +84,13 @@ function Tabs({ selectedTabId, selectTab }) {
           key={id}
           onClick={() => selectTab(id)}
           className={"tab" + (selectedTabId === id ? " selected" : "")}
-          style={{ float: right ? "right" : "left" }}
+          style={{
+            float: right ? "right" : "left",
+            paddingLeft: "8px",
+            paddingRight: "8px",
+          }}
         >
-          <Icon {...icon} size={14} />
+          <Icon {...icon} size={13} />
         </div>
       ))}
 

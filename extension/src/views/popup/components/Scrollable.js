@@ -8,7 +8,7 @@ function Scrollable({
   selectedItemRef = null,
   selectedItemId = null,
   children,
-  style,
+  style = {},
 }) {
   const scrollableDivRef = useRef(null);
 

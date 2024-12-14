@@ -49,7 +49,7 @@ body {
   white-space: nowrap;
 
   width: 100%;
-  height: 38px;
+  height: 36px;
   box-sizing: border-box;
   flex-shrink: 0;
 
@@ -73,12 +73,19 @@ body {
   transition-duration: 0.1s;
   user-select: none;
 
+  font-size: 13px;
+  max-width: 200px;
+
+  align-content: center;
   padding: 8px 12px;
-  margin-left: 2px;
-  margin-right: 2px;
+  margin: 0px 2px;
   box-sizing: border-box;
 
   cursor: pointer;
+}
+.tab > p {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 }
 .tab > svg.icon > path {
   fill: var(--secondaryText);
