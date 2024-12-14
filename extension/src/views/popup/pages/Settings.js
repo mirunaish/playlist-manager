@@ -1,15 +1,8 @@
-import React, { useCallback, useMemo, useEffect, useState } from "react";
-import Rating from "../components/Rating";
+import React from "react";
 import Button from "../components/Button";
-import { useStatusUpdate } from "../hooks";
-import Thumbnail from "../components/Thumbnail";
-import { Icons } from "../icons";
 import Banner from "../components/Banner";
-import { StatusTypes } from "../../../consts";
 
 function Settings() {
-  const updateStatus = useStatusUpdate();
-
   // ask background script for track info from page
   // useEffect(() => {
   //   (async () => {
