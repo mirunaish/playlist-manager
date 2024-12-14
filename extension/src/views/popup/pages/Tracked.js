@@ -38,6 +38,7 @@ function Tracked({ selectedTabId }) {
     if (ok) {
       updateStatus("track edited", StatusTypes.SUCCESS);
       setTrackInfo(editingTrackInfo); // set updated track info
+      setEditing(false); // set editing to false
       // background will navigate to new url if it was changed
     } else updateStatus("track could not be edited", StatusTypes.ERROR);
   }, [editingTrackInfo, selectedTabId, trackInfo, updateStatus]);

@@ -67,6 +67,7 @@ function Playlist({ selectedTabId }) {
       const newPlaylistInfo = { ...playlistInfo };
       newPlaylistInfo.tracks[playingIndex] = editingTrackInfo;
       setPlaylistInfo(newPlaylistInfo);
+      setEditing(false); // set editing to false
       // background will navigate to new url if it was changed
     } else updateStatus("track could not be edited", StatusTypes.ERROR);
   }, [

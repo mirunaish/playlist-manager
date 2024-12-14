@@ -140,11 +140,11 @@ export async function editTrack(id, trackData, newArtists, newTags) {
 
     // create new artists and tags and add them to track
     const newArtistIds = await createArtists(newArtists, transaction);
-    artists.append(newArtistIds);
+    artists.concat(newArtistIds);
     await editTrackArtists(id, artists, transaction);
 
     const newTagIds = await createTags(newTags, transaction);
-    tags.append(newTagIds);
+    tags.concat(newTagIds);
     await editTrackTags(id, tags, transaction);
 
     // return edited track

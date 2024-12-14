@@ -44,6 +44,11 @@ app.use("/playlist", routers.playlistRouter);
 app.use("/tags", routers.tagRouter);
 app.use("/tracks", routers.trackRouter);
 
+// add 404 route for all requests not caught by one of the above ^
+app.use((req, res, next) => {
+  res.status(404).json({ error: "invalid request url" });
+});
+
 // start app
 app.listen(5000, () => {
   console.log(`Server is running on port 5000.`);

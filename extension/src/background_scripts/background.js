@@ -332,8 +332,8 @@ async function add(trackData) {
 /** edit track info */
 async function edit(oldUrl, trackData, tabId = null) {
   // edit info about the song currently playing
-  const response = await request("/edit", {
-    method: "POST",
+  const response = await request("/tracks", {
+    method: "PATCH",
     body: { track: trackData, newArtists: [], newTags: [] },
   });
   if (response.ok) {
