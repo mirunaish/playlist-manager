@@ -8,9 +8,13 @@ export const SearchInputDeco = {
   TAG: "tag",
 };
 
+/**
+ * options: array [{ value, label, color, decoration etc }]
+ * value: array of values
+ */
 function SearchInput({
   label = "Select...",
-  options,
+  options = [],
   deco = null,
   value = [],
   onChange = (value) => {},
@@ -97,43 +101,40 @@ function SearchInput({
     [style]
   );
 
-  const props = useMemo(
-    () => ({
-      placeholder: label,
-      options,
-      onChange: (options) => onChange(options.map((option) => option.value)),
-      isMulti: true,
-
-      unstyled: true,
-      classNamePrefix: "searchinput",
-      className: "searchinput",
-      styles: {
-        container: propStyle,
-        control: propStyle,
-        option: optionStyle,
-        multiValue: multiValueStyle,
-        multiValueLabel: multiValueLabelStyle,
-        multiValueRemove: multiValueRemoveStyle,
-      },
-    }),
-    [
-      label,
-      options,
-      onChange,
-      propStyle,
-      optionStyle,
-      multiValueStyle,
-      multiValueLabelStyle,
-      multiValueRemoveStyle,
-    ]
+  // react-select Select takes as a value prop option objects, not just values
+  // get objects from ids
+  const selectedOptions = useMemo(
+    () => value.map((v) => options.find((option) => option.value === v)),
+    [options, value]
   );
+
+  const props = {
+    isMulti: true,
+    value: selectedOptions,
+    options,
+    onChange: (options) => {
+      onChange(options.map((option) => option.value));
+    },
+
+    placeholder: label,
+    unstyled: true,
+    classNamePrefix: "searchinput",
+    className: "searchinput",
+    styles: {
+      container: propStyle,
+      control: propStyle,
+      option: optionStyle,
+      multiValue: multiValueStyle,
+      multiValueLabel: multiValueLabelStyle,
+      multiValueRemove: multiValueRemoveStyle,
+    },
+  };
 
   return createable ? (
     <Creatable
       {...props}
       onCreateOption={(newOption) => {
         createOption(newOption);
-        value = [...value, newOption];
       }}
     />
   ) : (

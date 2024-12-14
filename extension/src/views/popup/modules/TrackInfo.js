@@ -6,7 +6,8 @@ import { background, closePopup } from "../util";
 import { SupportedSites } from "../../../consts";
 import Button from "../components/Button";
 import { Icons } from "../icons";
-import SearchInput, { SearchInputDeco } from "../components/SearchInput";
+import ArtistsDropdown from "./ArtistsDropdown";
+import TagsDropdown from "./TagsDropdown";
 
 function TrackInfo({
   track,
@@ -17,7 +18,7 @@ function TrackInfo({
   actions = [],
   showSearch = false,
 }) {
-  // get all artists for artist search input
+  // get all artists for getting artist names
   const [artists, setArtists] = useState({});
   useEffect(() => {
     (async () => {
@@ -31,7 +32,7 @@ function TrackInfo({
     return track.artists.map((id) => artists[id]?.name).join(", ");
   }, [track, artists]);
 
-  // and all tags
+  // and all tags, for tag labels + colors
   const [tags, setTags] = useState({});
   useEffect(() => {
     (async () => {
@@ -92,25 +93,10 @@ function TrackInfo({
                   updateTrack({ title: e.target.value });
                 }}
               />
-              <SearchInput
+              <ArtistsDropdown
                 // createable TODO
-                label="Artists"
-                options={Object.values(artists).map((artist) => ({
-                  value: artist.id,
-                  label: artist.name,
-                  star: artist.isStarred,
-                  backgroundColor: artist.isStarred
-                    ? "var(--primary)"
-                    : "var(--backgroundAccent)",
-                  color: artist.isStarred
-                    ? "var(--primary-text)"
-                    : "var(--text)",
-                }))}
-                deco={SearchInputDeco.STAR}
                 value={track.artists}
-                onChange={(value) => {
-                  updateTrack({ artists: value });
-                }}
+                onChange={(value) => updateTrack({ artists: value })}
               />
             </>
           ) : (
@@ -143,15 +129,8 @@ function TrackInfo({
                 updateTrack({ rating: value });
               }}
             />
-            <SearchInput
-              createable
-              label="Tags"
-              options={Object.values(tags).map((tag) => ({
-                value: tag.id,
-                label: tag.name,
-                backgroundColor: tag.color,
-              }))}
-              deco={SearchInputDeco.TAG}
+            <TagsDropdown
+              // createable
               value={track.tags}
               onChange={(value) => updateTrack({ tags: value })}
               style={{ height: "100%", flexGrow: 1 }}
