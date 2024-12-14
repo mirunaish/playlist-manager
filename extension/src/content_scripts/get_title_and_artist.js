@@ -1,41 +1,35 @@
 import { MessageTypes } from "../consts";
 
 (function () {
-  let fullTitle = "";
-  let posterName = "";
-  let imageLink = "";
-  let url = "";
-
   // get the text inside an element
   function getText(sel) {
     return document.querySelector(sel).textContent;
   }
 
   function youtube() {
-    fullTitle = document.title.slice(0, -10);
-    posterName = getText("a.yt-formatted-string");
-
     const vidId = window.location.href.match(/(?<=watch\?v=)[a-zA-Z0-9_\\-]*/g);
-    imageLink = "https://i.ytimg.com/vi/" + vidId + "/hqdefault.jpg";
 
-    url = window.location.href.replace(/&.*/, "");
+    return {
+      fullTitle: document.title.slice(0, -10),
+      posterName: getText("a.yt-formatted-string"),
+      imageLink: "https://i.ytimg.com/vi/" + vidId + "/hqdefault.jpg",
+      url: window.location.href.replace(/&.*/, ""),
+    };
   }
 
   function soundcloud() {
-    fullTitle = getText("h1.soundTitle__title > span");
-    posterName = getText("h2.soundTitle__username > a:nth-child(1)");
+    return {
+      fullTitle: getText("h1.soundTitle__title > span"),
+      posterName: getText("h2.soundTitle__username > a:nth-child(1)"),
+    };
   }
 
   // TODO
   function spotify() {
-    fullTitle = "";
-    posterName = "";
+    return { fullTitle: "", posterName: "" };
   }
 
-  function parseData() {
-    let title = "";
-    let artist = "";
-
+  function parseData(fullTitle, posterName) {
     // remove things like (official audio)
     fullTitle = fullTitle.replace(/\([^)]*audio[^(]*\)/gi, "");
     fullTitle = fullTitle.replace(/\([^)]*video[^(]*\)/gi, "");
@@ -43,7 +37,9 @@ import { MessageTypes } from "../consts";
     fullTitle = fullTitle.replace(/\[[^\]]*video[^[]*\]/gi, "");
 
     // separate artist and title
-    let array = fullTitle.split("-");
+    const array = fullTitle.split("-");
+    let title = "";
+    let artist = "";
     if (array.length > 1) {
       artist = array[0];
       title = array[1];
@@ -55,24 +51,47 @@ import { MessageTypes } from "../consts";
 
     // remove extra spaces
     title = title.trim().replace(/ +/g, " ");
-    artist = artist.trim().replace(/ +/g, " ");
 
-    return { title, artist, imageLink, url };
+    // separate multiple artists, and remove extra whitespace
+    const artists = artist
+      .split(/,|&|and/)
+      .map((a) => a.trim().replace(/ +/g, " "));
+
+    return { title, artists };
   }
 
-  const where = window.location.href;
-  // run site-specific function
-  if (where.includes("://www.youtube.com/")) {
-    youtube();
-  } else if (where.includes("://soundcloud.com/")) {
-    soundcloud();
-  } else if (where.includes("://open.spotify.com/")) {
-    spotify();
+  function run() {
+    const where = window.location.href;
+    let func = null;
+    // choose which site-specific function to run
+    if (where.includes("://www.youtube.com/")) {
+      func = youtube;
+    } else if (where.includes("://soundcloud.com/")) {
+      func = soundcloud;
+    } else if (where.includes("://open.spotify.com/")) {
+      func = spotify;
+    }
+
+    // get stuff from site-specific function
+    const { fullTitle, posterName, imageLink, url } = func();
+
+    // parse data into title and artists
+    const { title, artists } = parseData(fullTitle, posterName);
+
+    // send data to background script
+    browser.runtime.sendMessage({
+      type: MessageTypes.TRACK_INFO,
+      payload: { title, artists, imageLink, url },
+    });
   }
 
-  // send data to background script
-  browser.runtime.sendMessage({
-    type: MessageTypes.TRACK_INFO,
-    payload: parseData(),
+  // listen for background asking me to send data
+  browser.runtime.onMessage.addListener((message) => {
+    if (message.type === MessageTypes.REQUEST_TRACK_INFO) {
+      run();
+    }
   });
+
+  // also run once when loaded
+  run();
 })();

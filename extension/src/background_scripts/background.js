@@ -38,12 +38,14 @@ async function getTabType(tabId) {
 /** get info about a tab playing an untracked track */
 async function getUntrackedInfo(tabId) {
   try {
-    // insert content script
+    // insert content script if not already inserted
     await insertScript(tabId, "get_title_and_artist.js");
-    // will listen for messages from content script and call insertGuessedInfo
+    // background is listening for messages from content script and will call insertGuessedInfo
   } catch (e) {
-    console.error("could not get track info:", e);
-    updateStatus("could not get track info.", StatusTypes.ERROR);
+    // script already inserted, send it a message instead
+    await getBrowser().tabs.sendMessage(tabId, {
+      type: MessageTypes.REQUEST_TRACK_INFO,
+    });
   }
 }
 

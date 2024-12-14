@@ -1,8 +1,6 @@
-/** cannot make these consts because i get weird errors */
+export const SERVER_URL = "http://localhost:5000";
 
-export let SERVER_URL = "http://localhost:5000";
-
-export let SupportedSites = {
+export const SupportedSites = {
   youtube: {
     query: "*://www.youtube.com/*",
     regex: /.*:\/\/www\.youtube\.com\/watch.*/,
@@ -13,15 +11,15 @@ export let SupportedSites = {
   soundcloud: {
     query: "*://soundcloud.com/*",
     regex: /.*:\/\/soundcloud\.com\/.*\/.*/,
-    getQuery: (query) => "https://soundcloud.com/", // TODO
+    getQuery: (query) => "https://soundcloud.com/search?q=" + query,
   },
 };
 
-export let SUPPORTED_QUERY = Object.values(SupportedSites).map(
+export const SUPPORTED_QUERY = Object.values(SupportedSites).map(
   (obj) => obj.query
 );
 
-export let Pages = {
+export const Pages = {
   DEFAULT: "NEW_MIX",
 
   QUICKPLAY: "QUICKPLAY",
@@ -34,7 +32,7 @@ export let Pages = {
   PLAYLIST: "PLAYLIST",
 };
 
-export let MessageTypes = {
+export const MessageTypes = {
   FUNCTION_CALL: "function-call",
 
   STATUS_UPDATE: "status-update",
@@ -44,18 +42,19 @@ export let MessageTypes = {
 
   SELECT_TAB: "select-tab", // you should select this tab
 
+  REQUEST_TRACK_INFO: "request-track-info",
   TRACK_INFO: "track-info",
   TRACK_INFO_FORWARD: "track-info-forward",
   MEDIA_CONTROL: "media-control",
 };
 
-export let StatusTypes = {
+export const StatusTypes = {
   INFO: "info",
   ERROR: "error",
   SUCCESS: "success",
 };
 
-export let EMPTY_TRACK = {
+export const EMPTY_TRACK = {
   id: "",
   title: "",
   artists: [],
@@ -66,7 +65,7 @@ export let EMPTY_TRACK = {
   tags: [],
   rating: 0,
 };
-export let EMPTY_PLAYLIST = {
+export const EMPTY_PLAYLIST = {
   title: "Playlist",
   theme: "DARK_PINK",
 
@@ -74,9 +73,9 @@ export let EMPTY_PLAYLIST = {
   filters: {},
 };
 
-export let BORDER_STYLE = "1px solid var(--ui)";
+export const BORDER_STYLE = "1px solid var(--ui)";
 
-export let GRADIENT = {
+export const GRADIENT = {
   gradientQuality: 5, // quality of gradient on star (will need higher quality for bigger angle)
   animationQuality: 10, // quality of color transitions in gradient (should always be high-ish)
   rainbowDegrees: 180, // how many degrees of rainbow to show in a star, out of 360
