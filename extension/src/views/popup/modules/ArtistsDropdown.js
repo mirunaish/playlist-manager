@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import { background } from "../util";
 
 const ArtistsDropdown = ({
   createable = false,
-  value = [],
-  onChange = () => {},
   extraOptions = false,
+  value = [],
+  onChange = (newValue) => {},
+  guessedValue = [], // inserted by content script. won't be saved until confirmed by user
+  setGuessedValue = (newGuessedValue) => {},
 }) => {
   const [artists, setArtists] = useState({});
 
@@ -17,16 +19,36 @@ const ArtistsDropdown = ({
     })();
   }, []);
 
+  const createArtist = useCallback(
+    (artistName) => {
+      (async () => {
+        const { ok, artist, error } = await background("createArtist", {
+          name: artistName,
+        });
+        if (!ok) {
+          console.error("failed to create artist", error);
+          return;
+        }
+
+        setArtists({ [artist.id]: artist, ...artists });
+      })();
+    },
+    [artists]
+  );
+
+  // guessed value is not included in options
   const artistOptions = useMemo(() => {
     return Object.values(artists).map((artist) => {
       return {
         value: artist.id,
         label: artist.name,
-        star: artist.isStarred,
+        deco: artist.isStarred ? SearchInputDeco.STAR : null,
         backgroundColor: artist.isStarred
           ? "var(--primary)"
-          : "var(--backgroundAccent)",
-        color: artist.isStarred ? "var(--primary-text)" : "var(--text)",
+          : "var(--secondary)",
+        color: artist.isStarred
+          ? "var(--primary-text)"
+          : "var(--secondary-text)",
       };
     });
   }, [artists]);
@@ -41,21 +63,19 @@ const ArtistsDropdown = ({
               {
                 value: "starred",
                 label: "Starred",
-                star: true,
+                deco: SearchInputDeco.STAR,
                 backgroundColor: "var(--primary)",
                 color: "var(--primary-text)",
               },
               {
                 value: "not starred",
                 label: "Not starred",
-                star: false,
-                backgroundColor: "var(--backgroundAccent)",
-                color: "var(--text)",
+                backgroundColor: "var(--secondary)",
+                color: "var(--secondary-text)",
               },
               {
                 value: "artistless",
                 label: "Artistless",
-                star: false,
                 backgroundColor: "var(--backgroundAccent)",
                 color: "var(--text)",
               },
@@ -63,9 +83,26 @@ const ArtistsDropdown = ({
             ]
           : artistOptions
       }
-      deco={SearchInputDeco.STAR}
-      value={value}
-      onChange={onChange}
+      value={[
+        // guessed values are not in the options
+        // so i need to give all their data here
+        ...guessedValue.map((name) => ({
+          value: name,
+          label: name,
+          backgroundColor: "var(--backgroundAccent)",
+          color: "var(--text)",
+        })),
+        ...value,
+      ]}
+      onChange={(updatedValue) => {
+        const newGuessedValue = updatedValue.filter((v) =>
+          guessedValue.includes(v)
+        );
+        const newValue = updatedValue.filter((v) => !guessedValue.includes(v));
+        setGuessedValue(newGuessedValue);
+        onChange(newValue);
+      }}
+      createOption={createArtist}
     />
   );
 };

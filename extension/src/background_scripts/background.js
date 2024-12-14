@@ -165,6 +165,36 @@ async function getAllArtists() {
   return artistCache.data;
 }
 
+async function getTrackArtists(ids) {
+  const artists = await getAllArtists();
+  return ids.map((id) => artists[id]);
+}
+
+async function getArtistByName(name) {
+  // TODO move this to backend?
+  const artists = await getAllArtists();
+  // case insensitive find artist by name
+  return Object.values(artists).find(
+    (artist) => artist.name.toLowerCase() === name.toLowerCase()
+  );
+}
+
+async function createArtist(artist) {
+  console.log("creating artist", artist);
+  const response = await request("/artists", {
+    method: "POST",
+    body: artist,
+  });
+  if (response.ok) {
+    artistCache.valid = false;
+  }
+  return {
+    ok: response.ok,
+    artist: response.body.artist,
+    error: response.body.error,
+  };
+}
+
 const tagCache = {
   valid: false,
   data: {},
@@ -176,6 +206,26 @@ async function getAllTags() {
   tagCache.data = buildRecord(tags);
   tagCache.valid = true;
   return tagCache.data;
+}
+
+async function getTrackTags(ids) {
+  const tags = await getAllTags();
+  return ids.map((id) => tags[id]);
+}
+
+async function createTag(tag) {
+  const response = await request("/tags", {
+    method: "POST",
+    body: tag,
+  });
+  if (response.ok) {
+    tagCache.valid = false;
+  }
+  return {
+    ok: response.ok,
+    tag: response.body.tag,
+    error: response.body.error,
+  };
 }
 
 /** ask backend for a playlist */
@@ -315,11 +365,11 @@ async function stopPlaying(tabId) {
 }
 
 /** add new track */
-async function add(trackData) {
+async function createTrack(trackData) {
   // make request to backend
   const response = await request("/tracks", {
     method: "POST",
-    body: { track: trackData, newArtists: [], newTags: [] },
+    body: trackData,
   });
   if (response.ok) {
     artistCache.valid = false;
@@ -330,11 +380,11 @@ async function add(trackData) {
 }
 
 /** edit track info */
-async function edit(oldUrl, trackData, tabId = null) {
+async function editTrack(trackData, oldUrl, tabId = null) {
   // edit info about the song currently playing
   const response = await request("/tracks", {
     method: "PATCH",
-    body: { track: trackData, newArtists: [], newTags: [] },
+    body: trackData,
   });
   if (response.ok) {
     // may have created a new artist
@@ -399,7 +449,12 @@ export const FUNCTIONS = {
   getTabType,
   switchToTab,
   getAllArtists,
+  getTrackArtists,
+  getArtistByName,
+  createArtist,
   getAllTags,
+  getTrackTags,
+  createTag,
   getPlaylist,
   addPlaylistTrackData,
   startPlaying,
@@ -410,8 +465,8 @@ export const FUNCTIONS = {
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,
-  add,
-  edit,
+  createTrack,
+  editTrack,
   searchOtherSite,
 };
 

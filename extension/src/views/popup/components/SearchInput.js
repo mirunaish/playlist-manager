@@ -1,21 +1,21 @@
 import React, { useCallback, useMemo } from "react";
 import Select from "react-select";
-import Creatable, { useCreatable } from "react-select/creatable";
+import Creatable from "react-select/creatable";
 import { contrastingColor } from "../../../util";
 
 export const SearchInputDeco = {
   STAR: "star",
   TAG: "tag",
+  PENCIL: "pencil", // for new options?
 };
 
 /**
  * options: array [{ value, label, color, decoration etc }]
- * value: array of values
+ * value: array of values or objects
  */
 function SearchInput({
   label = "Select...",
   options = [],
-  deco = null,
   value = [],
   onChange = (value) => {},
   style = {},
@@ -23,54 +23,66 @@ function SearchInput({
   createOption = (newOption) => {},
 }) {
   /** add decoration to options: star or tag shaped background */
-  const optionStyle = useCallback(
-    (baseStyles, { data }) => {
-      // no color provided, no decoration
-      if (!data.backgroundColor) return { ...baseStyles };
+  const optionStyle = useCallback((baseStyles, { data }) => {
+    // no color provided, no decoration
+    if (!data.backgroundColor) return { ...baseStyles };
 
-      // stars can be a color or primary color by default
-      if (deco === SearchInputDeco.STAR && data.star) {
-        const color = data.backgroundColor ?? "var(--primary)";
+    // stars can be a color or primary color by default
+    if (data.deco === SearchInputDeco.STAR) {
+      return {
+        ...baseStyles,
 
-        return {
-          ...baseStyles,
+        alignItems: "baseline",
+        display: "flex",
 
-          alignItems: "baseline",
-          display: "flex",
+        ":before": {
+          color: data.backgroundColor ?? "var(--primary)",
+          content: '"★"',
+          marginRight: 6,
+          fontSize: 16,
+        },
+      };
+    }
 
-          ":before": {
-            color: color,
-            content: '"★"',
-            marginRight: 6,
-            fontSize: 16,
-          },
-        };
-      }
+    // add a tag icon to option
+    if (data.deco === SearchInputDeco.TAG) {
+      return {
+        ...baseStyles,
 
-      // add a tag icon to option
-      if (data.backgroundColor && deco === SearchInputDeco.TAG) {
-        return {
-          ...baseStyles,
+        alignItems: "center",
+        display: "flex",
 
-          alignItems: "center",
-          display: "flex",
+        ":before": {
+          backgroundColor: data.backgroundColor ?? "var(--primary)",
+          borderRadius: "2px 5px 5px 2px",
+          content: '" "',
+          display: "block",
+          marginRight: 8,
+          height: 10,
+          width: 16,
+        },
+      };
+    }
 
-          ":before": {
-            backgroundColor: data.backgroundColor,
-            borderRadius: "2px 5px 5px 2px",
-            content: '" "',
-            display: "block",
-            marginRight: 8,
-            height: 10,
-            width: 16,
-          },
-        };
-      }
+    // add pen icon to option
+    if (data.deco === SearchInputDeco.PENCIL) {
+      return {
+        ...baseStyles,
 
-      return { ...baseStyles };
-    },
-    [deco]
-  );
+        alignItems: "baseline",
+        display: "flex",
+
+        ":before": {
+          backgroundColor: data.backgroundColor ?? "var(--secondary)",
+          content: '"✎"',
+          marginRight: 6,
+          fontSize: 16,
+        },
+      };
+    }
+
+    return { ...baseStyles };
+  }, []);
 
   // TODO fix rerendering on hover
   const multiValueStyle = useCallback(
@@ -104,7 +116,12 @@ function SearchInput({
   // react-select Select takes as a value prop option objects, not just values
   // get objects from ids
   const selectedOptions = useMemo(
-    () => value.map((v) => options.find((option) => option.value === v)),
+    () =>
+      value.map((v) => {
+        if (typeof v === "string")
+          return options.find((option) => option.value === v);
+        else return v;
+      }),
     [options, value]
   );
 
@@ -131,12 +148,7 @@ function SearchInput({
   };
 
   return createable ? (
-    <Creatable
-      {...props}
-      onCreateOption={(newOption) => {
-        createOption(newOption);
-      }}
-    />
+    <Creatable {...props} onCreateOption={createOption} />
   ) : (
     <Select {...props} />
   );

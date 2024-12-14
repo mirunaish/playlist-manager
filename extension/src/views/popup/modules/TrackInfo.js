@@ -11,6 +11,8 @@ import TagsDropdown from "./TagsDropdown";
 
 function TrackInfo({
   track,
+  guessedArtists = [], // in case of untracked
+  setGuessedArtists = (v) => {}, // just forward these to ArtistsDropdown
   big = true,
   editing = false,
   allowEditingUrl = true,
@@ -18,28 +20,25 @@ function TrackInfo({
   actions = [],
   showSearch = false,
 }) {
-  // get all artists for getting artist names
-  const [artists, setArtists] = useState({});
+  // comma-separated artist names
+  const [artistString, setArtistString] = useState("");
   useEffect(() => {
     (async () => {
-      const result = await background("getAllArtists");
-      setArtists(result);
+      // get objects from ids
+      const artists = await background("getTrackArtists", track.artists);
+      const string = artists.map((a) => a.name).join(", "); // join them
+      setArtistString(string);
     })();
-  }, []);
+  }, [track]);
 
-  const artistString = useMemo(() => {
-    if (!artists) return "";
-    return track.artists.map((id) => artists[id]?.name).join(", ");
-  }, [track, artists]);
-
-  // and all tags, for tag labels + colors
-  const [tags, setTags] = useState({});
+  // tag labels + colors
+  const [tags, setTags] = useState([]);
   useEffect(() => {
     (async () => {
-      const result = await background("getAllTags");
+      const result = await background("getTrackTags", track.tags);
       setTags(result);
     })();
-  }, []);
+  }, [track]);
 
   const search = useCallback(
     async (site) => {
@@ -94,9 +93,11 @@ function TrackInfo({
                 }}
               />
               <ArtistsDropdown
-                // createable TODO
+                createable
                 value={track.artists}
                 onChange={(value) => updateTrack({ artists: value })}
+                guessedValue={guessedArtists}
+                setGuessedValue={setGuessedArtists}
               />
             </>
           ) : (
@@ -130,7 +131,7 @@ function TrackInfo({
               }}
             />
             <TagsDropdown
-              // createable
+              createable
               value={track.tags}
               onChange={(value) => updateTrack({ tags: value })}
               style={{ height: "100%", flexGrow: 1 }}
@@ -160,12 +161,9 @@ function TrackInfo({
         <div style={{ display: "flex", flexDirection: "row", gap: 5 }}>
           <Rating value={track.rating} extended disabled />
 
-          {track.tags.map((id) => (
-            <div key={id}>
-              <Tag
-                name={tags[id]?.name ?? "unknown tag"}
-                color={tags[id]?.color ?? "#9f8f9f"}
-              />
+          {tags.map(({ name, color }) => (
+            <div key={name}>
+              <Tag name={name ?? "unknown tag"} color={color ?? "#9f8f9f"} />
             </div>
           ))}
         </div>

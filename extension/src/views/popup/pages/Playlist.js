@@ -56,9 +56,9 @@ function Playlist({ selectedTabId }) {
   const edit = useCallback(async () => {
     updateStatus("editing track...");
     const ok = await background(
-      "edit",
-      trackInfo.url,
+      "editTrack",
       editingTrackInfo,
+      trackInfo.url,
       selectedTabId
     );
     if (ok) {

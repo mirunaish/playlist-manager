@@ -17,12 +17,8 @@ export async function getTagById(id) {
 export async function createTag(tagData, transaction = null) {
   const id = uuid();
   if (!tagData.color) tagData.color = "#7f7f7f";
-  await Tag.create({ ...tagData, id }, { transaction });
-  return id;
-}
-
-export async function createTags(tagData, transaction = null) {
-  return await Promise.all(tagData.map((t) => createTag(t, transaction)));
+  const tag = await Tag.create({ ...tagData, id }, { transaction });
+  return tag;
 }
 
 export async function editTag(id, tagData) {

@@ -7,8 +7,6 @@ import {
   Tag,
   TrackTag,
 } from "../../src/index.js";
-import { createArtists } from "./artist-service.js";
-import { createTags } from "./tag-service.js";
 
 export async function getTrackById(id, transaction = null) {
   let track = await Track.findByPk(id, { transaction });
@@ -78,7 +76,7 @@ export async function getTrackTags(trackId, transaction = null) {
  * creates artists and tags if they're missing.
  * and also creates mappings between track and artists and tags
  */
-export async function createTrack(trackData, newArtists, newTags) {
+export async function createTrack(trackData) {
   const transaction = await sequelize.transaction();
 
   try {
@@ -97,13 +95,8 @@ export async function createTrack(trackData, newArtists, newTags) {
     let id = uuid();
     await Track.create({ ...track, id }, { transaction });
 
-    // create new artists and tags and add them to track
-    const newArtistIds = await createArtists(newArtists, transaction);
-    artists.concat(newArtistIds);
+    // add artists and tags to track
     await editTrackArtists(id, artists, transaction);
-
-    const newTagIds = await createTags(newTags, transaction);
-    tags.concat(newTagIds);
     await editTrackTags(id, tags, transaction);
 
     // return the new track object
@@ -117,7 +110,7 @@ export async function createTrack(trackData, newArtists, newTags) {
 }
 
 /** edit an existing track */
-export async function editTrack(id, trackData, newArtists, newTags) {
+export async function editTrack(id, trackData) {
   const transaction = await sequelize.transaction();
 
   try {
@@ -138,13 +131,8 @@ export async function editTrack(id, trackData, newArtists, newTags) {
     // update track
     await Track.update({ ...track }, { where: { id }, transaction });
 
-    // create new artists and tags and add them to track
-    const newArtistIds = await createArtists(newArtists, transaction);
-    artists.concat(newArtistIds);
+    // add artists and tags to track
     await editTrackArtists(id, artists, transaction);
-
-    const newTagIds = await createTags(newTags, transaction);
-    tags.concat(newTagIds);
     await editTrackTags(id, tags, transaction);
 
     // return edited track
