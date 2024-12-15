@@ -18,7 +18,8 @@ function NewMix() {
     artists: [],
     includedTags: [],
     excludedTags: [],
-    rating: [3, 4, 5, 6],
+    rating: [],
+    sort: "shuffle",
   });
   const [mixName, setMixName] = useState("Custom Mix");
   const [theme, setTheme] = useState("DARK_PINK");
@@ -47,9 +48,10 @@ function NewMix() {
     await background("saveMix", filters);
   }, [filters]);
 
-  const reshuffle = useCallback(() => {
-    return;
-  }, []);
+  const reshuffle = useCallback(async () => {
+    const shuffled = await background("reshuffle", playlistPreview);
+    setPlaylistPreview(shuffled);
+  }, [playlistPreview]);
 
   // reset preview playlist when filters are changed
   useEffect(() => {

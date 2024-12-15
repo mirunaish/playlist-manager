@@ -159,6 +159,7 @@ function List({
             flexDirection: "row",
             justifyContent: "space-between",
             borderTop: BORDER_STYLE,
+            padding: "3px 5px 5px 5px",
           }}
         >
           {children}

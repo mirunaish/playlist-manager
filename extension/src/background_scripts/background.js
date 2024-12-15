@@ -366,6 +366,17 @@ async function stopPlaying(tabId) {
   popup(MessageTypes.REMOVE_TAB, { id: tabId });
 }
 
+function reshuffle(playlist) {
+  // shuffle items in playlist
+  for (let i = 0; i < playlist.length - 1; i++) {
+    // pick random track
+    let j = Math.floor(Math.random() * (playlist.length - i)) + i;
+    // move it to the front (j can be =i in which case i doesn't move)
+    [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+  }
+  return playlist;
+}
+
 /** add new track */
 async function createTrack(trackData) {
   // make request to backend
@@ -464,6 +475,7 @@ export const FUNCTIONS = {
   next,
   previous,
   stopPlaying,
+  reshuffle,
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,

@@ -88,7 +88,8 @@ export async function getPlaylist(filters) {
     // shuffle the playlist
     for (let i = 0; i < playlist.length - 1; i++) {
       // pick random track and move it to the front
-      let j = Math.floor(i + Math.random() * (playlist.length - i));
+      let j = Math.floor(Math.random() * (playlist.length - i)) + i;
+
       // swap
       [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
     }

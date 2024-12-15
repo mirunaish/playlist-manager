@@ -4,19 +4,17 @@ import { BORDER_STYLE } from "../../../consts";
 import ArtistsDropdown from "./ArtistsDropdown";
 import TagsDropdown from "./TagsDropdown";
 
-function Filters({ setFilters, filters = null, children = [] }) {
-  const itemStyle = {
-    padding: "4px",
-  };
-
+function Filters({ setFilters, filters = null, children = null }) {
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         width: "100%",
-        alignItems: "center",
         borderBottom: BORDER_STYLE,
+        padding: 8,
+        boxSizing: "border-box",
+        gap: 6,
       }}
     >
       <div
@@ -25,22 +23,33 @@ function Filters({ setFilters, filters = null, children = [] }) {
           flexDirection: "row",
           width: "100%",
           alignItems: "center",
+          gap: 6,
         }}
       >
-        <div style={{ ...itemStyle, flexGrow: 1 }}>
+        <div style={{ flexGrow: 1 }}>
           <ArtistsDropdown
             value={filters.artists}
             onChange={(value) => setFilters({ ...filters, artists: value })}
             extraOptions
           />
         </div>
-        <div style={{ ...itemStyle, width: "max-content" }}>
+        <div style={{ width: "max-content" }}>
           <Rating
             multiselect
             extended
             value={filters.rating}
             onChange={(value) => setFilters({ ...filters, rating: value })}
           />
+        </div>
+        <div style={{ width: "max-content" }}>
+          <select
+            value={filters.sort}
+            onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+          >
+            {["shuffle"].map((sort) => (
+              <option key={sort} value={sort} label={sort} />
+            ))}
+          </select>
         </div>
       </div>
 
@@ -49,10 +58,9 @@ function Filters({ setFilters, filters = null, children = [] }) {
           display: "flex",
           flexDirection: "row",
           width: "100%",
-          alignItems: "stretch",
         }}
       >
-        <div style={{ ...itemStyle, width: "47%" }}>
+        <div style={{ width: "50%", paddingRight: 3 }}>
           <TagsDropdown
             label="Include tags"
             value={filters.includedTags}
@@ -62,7 +70,7 @@ function Filters({ setFilters, filters = null, children = [] }) {
             style={{ height: "100%" }}
           />
         </div>
-        <div style={{ ...itemStyle, width: "47%" }}>
+        <div style={{ width: "50%", paddingLeft: 3 }}>
           <TagsDropdown
             label="Exclude tags"
             value={filters.excludedTags}
@@ -75,7 +83,7 @@ function Filters({ setFilters, filters = null, children = [] }) {
       </div>
 
       {/* buttons, eg save, preview, etc */}
-      <div>{children}</div>
+      {children}
     </div>
   );
 }

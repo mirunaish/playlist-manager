@@ -212,13 +212,6 @@ img {
   stroke: var(--secondary);
 }
 
-button,
-input,
-select,
-.searchinput__control {
-  margin: 2px;
-}
-
 input,
 select,
 .searchinput__control {
@@ -232,9 +225,8 @@ select,
   padding: 5px;
 }
 
-input,
-.searchinput__control {
-  cursor: text !important;
+input {
+  cursor: text;
 }
 input:disabled {
   background-color: var(--backgroundAccent);
@@ -285,6 +277,9 @@ select > option:checked {
 }
 .searchinput__value-container {
   gap: 5px;
+}
+.searchinput__input-container {
+  cursor: text;
 }
 .searchinput__multi-value {
   border-radius: 4px;
