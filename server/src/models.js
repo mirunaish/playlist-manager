@@ -32,7 +32,7 @@ export function track(sequelize) {
       id: { type: DataTypes.UUID, primaryKey: true },
       url: { type: DataTypes.STRING, allowNull: false },
       title: { type: DataTypes.STRING, allowNull: false },
-      length: { type: DataTypes.INTEGER, allowNull: false }, // in seconds
+      duration: { type: DataTypes.INTEGER, allowNull: false }, // in seconds
       imageLink: { type: DataTypes.STRING, allowNull: true },
       rating: { type: DataTypes.INTEGER, allowNull: false }, // 0-6
     },

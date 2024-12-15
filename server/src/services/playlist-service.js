@@ -23,12 +23,12 @@ export async function getPlaylist(filters) {
   const include = [];
 
   // add rating filters
-  if (filters.rating.length > 0) {
+  if (filters.rating?.length > 0) {
     where = { ...where, rating: { [Op.in]: filters.rating } };
   }
 
   // add artist filters
-  if (filters.artists.length > 0) {
+  if (filters.artists?.length > 0) {
     // artist filter is an array of either "starred", "not starred", or an id
 
     const artistWhere = [];
@@ -72,20 +72,15 @@ export async function getPlaylist(filters) {
   // });
 
   // get playlist with filters
-  let playlist = await Track.findAll({ raw: true, where, include });
+  let playlist = await Track.findAll({
+    raw: true,
+    attributes: ["id", "url"],
+    where,
+    include,
+  });
 
   if (playlist.length == 0) {
     throw "Found no tracks matching these filters";
-  }
-
-  // TODO simplify this?
-  // for each track, get artists as an array of { id, name }
-  // and tags as an array of { id, name, color }
-  for (let track of playlist) {
-    track.artists = await getTrackArtists(track.id);
-    track.artistString = track.artists.map((a) => a.name).join(", ");
-
-    track.tags = await getTrackTags(track.id);
   }
 
   // sort TODO add more sorts
@@ -93,7 +88,8 @@ export async function getPlaylist(filters) {
     // shuffle the playlist
     for (let i = 0; i < playlist.length - 1; i++) {
       // pick random track and move it to the front
-      let j = Math.floor(i + Math.random() * (playlist.length - i));
+      let j = Math.floor(Math.random() * (playlist.length - i)) + i;
+
       // swap
       [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
     }

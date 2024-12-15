@@ -7,20 +7,21 @@ import {
   Tag,
   TrackTag,
 } from "../../src/index.js";
-import { artistMatch } from "./artist-service.js";
 
-export async function getTrackById(id) {
-  let track = await Track.findByPk(id);
+export async function getTrackById(id, transaction = null) {
+  let track = await Track.findByPk(id, { transaction });
   if (track === null) throw Error("could not find track");
-  track.artist = await getTrackArtists(track.id);
+  track.artist = await getTrackArtists(track.id, transaction);
+  track.tags = await getTrackTags(track.id, transaction);
 
   return track;
 }
 
 export async function getTrackByUrl(url) {
-  let track = await Track.findOne({ where: { url } });
+  let track = await Track.findOne({ raw: true, where: { url } });
   if (track === null) throw Error("could not find track");
-  track.artist = await getTrackArtists(track.id);
+  track.artists = await getTrackArtists(track.id);
+  track.tags = await getTrackTags(track.id);
 
   return track;
 }
@@ -36,75 +37,135 @@ export async function getTracksByTitle() {
 }
 
 /** get an array of ids of artists */
-export async function getTrackArtists(trackId) {
+export async function getTrackArtists(trackId, transaction = null) {
   // get all artists on this track
   const result = await Artist.findAll({
-    include: [{ model: TrackArtist, required: true, where: { trackId } }],
+    raw: true,
+    attributes: ["id"], // select the id of each
+    include: [
+      {
+        model: TrackArtist,
+        required: true,
+        where: { trackId },
+        attributes: [], // don't select anything from trackartists
+      },
+    ],
+    transaction,
   });
 
-  // select the id of each
   return result.map((a) => a.id);
 }
 
-/** get an array of { id, name, color } */
-export async function getTrackTags(trackId) {
+/** get an array of ids */
+export async function getTrackTags(trackId, transaction = null) {
   // get all tags on this track
   const result = await Tag.findAll({
-    include: [{ model: TrackTag, required: true, where: { trackId } }],
+    attributes: ["id"],
+    raw: true,
+    include: [
+      { model: TrackTag, required: true, where: { trackId }, attributes: [] },
+    ],
+    transaction,
   });
 
-  return result;
+  return result.map((t) => t.id);
 }
 
-/** add a new track */
-export async function add(data) {
-  const { artist, ...trackData } = data;
-  // artist is given as a comma-separated string of names (for now)
-  // TODO change this?
+/**
+ * add a new track.
+ * creates artists and tags if they're missing.
+ * and also creates mappings between track and artists and tags
+ */
+export async function createTrack(trackData) {
+  const transaction = await sequelize.transaction();
 
-  // check that url does not exist
-  const existing = await Track.findOne({
-    where: { url: trackData.url },
-  });
-  if (existing != null) throw "track already exists";
+  try {
+    // artists is given as an array of artist ids
+    // and tags as an array of tag ids
+    const { artists, tags, ...track } = trackData;
 
-  // create track object
-  let id = uuid();
-  await Track.create({ ...trackData, id });
+    // check that url does not exist
+    const existing = await Track.findOne({
+      where: { url: track.url },
+      transaction,
+    });
+    if (existing != null) throw Error("track already exists");
 
-  // create mapping to artists
-  const artistIds = await artistMatch(artist);
-  await editTrackArtists(id, artistIds);
+    // create track object
+    let id = uuid();
+    await Track.create({ ...track, id }, { transaction });
 
-  // return the new track object
-  return await getTrackById(id);
+    // add artists and tags to track
+    await editTrackArtists(id, artists, transaction);
+    await editTrackTags(id, tags, transaction);
+
+    // return the new track object
+    const newTrack = await getTrackById(id, transaction);
+    await transaction.commit();
+    return newTrack;
+  } catch (e) {
+    await transaction.rollback();
+    throw e;
+  }
 }
 
 /** edit an existing track */
-export async function edit(id, data) {
-  const { artist, ...trackData } = data;
+export async function editTrack(id, trackData) {
+  const transaction = await sequelize.transaction();
 
-  // get current track data
-  const currentData = await getTrackById(id);
+  try {
+    const { artists, tags, ...track } = trackData;
 
-  // update track
-  await Track.update({ ...trackData }, { where: { id } });
+    // get current track data
+    const currentData = await getTrackById(id, transaction);
 
-  // update artist mapping
-  const artistIds = await artistMatch(artist);
-  await editTrackArtists(id, artistIds);
+    // if url was changed, check that new url does not exist
+    if (track.url !== currentData.url) {
+      const existing = await Track.findOne({
+        where: { url: track.url },
+        transaction,
+      });
+      if (existing != null) throw Error("track already exists");
+    }
 
-  // return edited track
-  return await getTrackById(id);
+    // update track
+    await Track.update({ ...track }, { where: { id }, transaction });
+
+    // add artists and tags to track
+    await editTrackArtists(id, artists, transaction);
+    await editTrackTags(id, tags, transaction);
+
+    // return edited track
+    const newTrack = await getTrackById(id, transaction);
+    await transaction.commit();
+    return newTrack;
+  } catch (e) {
+    await transaction.rollback();
+    throw e;
+  }
 }
 
 /** edit the mappings from track to artists (add or remove track artists) */
-async function editTrackArtists(trackId, artistIds) {
+async function editTrackArtists(trackId, artistIds, transaction = null) {
   // delete all existing mappings
-  await TrackArtist.destroy({ where: { trackId } });
+  await TrackArtist.destroy({ where: { trackId }, transaction });
 
   // add new ones
   for (let artistId of artistIds) {
-    await TrackArtist.create({ id: uuid(), artistId, trackId, main: false });
+    await TrackArtist.create(
+      { id: uuid(), artistId, trackId, main: false },
+      { transaction }
+    );
+  }
+}
+
+/** edit the mapping from track to tags */
+async function editTrackTags(trackId, tagIds, transaction = null) {
+  // delete all existing mappings
+  await TrackTag.destroy({ where: { trackId }, transaction });
+
+  // add new ones
+  for (let tagId of tagIds) {
+    await TrackTag.create({ id: uuid(), tagId, trackId }, { transaction });
   }
 }

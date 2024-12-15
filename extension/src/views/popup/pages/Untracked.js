@@ -1,115 +1,98 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Rating from "../components/Rating";
-import Button from "../components/Button";
-import { useListener } from "../hooks";
+import { useListener, useStatusUpdate } from "../hooks";
 import { background } from "../util";
-import Thumbnail from "../components/Thumbnail";
 import Banner from "../components/Banner";
-import { MessageTypes, SupportedSites } from "../../../consts";
+import { EMPTY_TRACK, MessageTypes, StatusTypes } from "../../../consts";
 import PlayBar from "../components/PlayBar";
-import { Icons } from "../icons";
+import TrackInfo from "../modules/TrackInfo";
 
-const emptyTrack = {
-  title: null,
-  artist: null,
-  imageLink: null,
-  url: "",
-  length: 0,
-};
+function Untracked({ selectedTabId, navigate }) {
+  const updateStatus = useStatusUpdate();
 
-function Untracked({ selectedTabId }) {
-  // need to separate track data into two to prevent threads from overwriting data from each other
-  // TODO find a better way to do this?
-  const [untrackedInfo, setUntrackedInfo] = useState(emptyTrack); // info from the content script
-  const [trackInfo, setTrackInfo] = useState({ rating: 0 }); // info from background + defaults
-  // TODO add length from content script
+  const [guessedArtists, setGuessedArtists] = useState([]); // artists guessed by content script
+  const [untrackedInfo, setUntrackedInfo] = useState(EMPTY_TRACK); // info from the content script
 
   // add listener that adds track info from content script
   useListener(MessageTypes.TRACK_INFO_FORWARD, (payload) => {
-    // populate track info with received data
-    setUntrackedInfo(payload);
+    (async () => {
+      // populate track info with received data
+      const { artists, ...trackInfo } = payload;
+
+      // determine which artists are real and which aren't
+      const real = [];
+      const notReal = [];
+      for (const artistName of artists) {
+        const artist = await background("getArtistByName", artistName);
+        if (artist) real.push(artist.id);
+        else notReal.push(artistName);
+      }
+
+      setUntrackedInfo({ ...untrackedInfo, ...trackInfo, artists: real });
+      setGuessedArtists(notReal);
+    })();
   });
-  // listener removes itself on cleanup if not manually removed
 
   // get untracked info from content script
   useEffect(() => {
     // reset untracked info
-    setUntrackedInfo(emptyTrack);
+    setUntrackedInfo(EMPTY_TRACK);
+    setGuessedArtists([]);
     // ask background script to get track info from page
     background("getUntrackedInfo", selectedTabId);
     // background will later send a message with the info which the listener will catch
   }, [selectedTabId]);
 
-  const search = useCallback(
-    async (site) => {
-      // background will open a new tab with the search
-      await background(
-        "searchOtherSite",
-        untrackedInfo.title + " - " + untrackedInfo.artist,
-        site
-      );
-      // close the popup
-      // @ts-ignore
-      window.close();
-    },
-    [untrackedInfo.title, untrackedInfo.artist]
-  );
-
   // save untracked track to backend
   const save = useCallback(async () => {
-    console.log("saving track", { ...trackInfo, ...untrackedInfo });
-    await background("add", { ...trackInfo, ...untrackedInfo });
-  }, [trackInfo, untrackedInfo]);
+    console.log("saving track", untrackedInfo.title);
+    updateStatus("saving track...");
+
+    // create guessed artists if any
+    const artistIds = [];
+    for (const artistName of guessedArtists) {
+      const { ok, artist, error } = await background("createArtist", {
+        name: artistName,
+      });
+      if (!ok) {
+        updateStatus(`failed to create artist: ${error}`, StatusTypes.ERROR);
+        return;
+      }
+      artistIds.push(artist.id);
+    }
+
+    const { ok, error } = await background("createTrack", {
+      ...untrackedInfo,
+      artists: [...untrackedInfo.artists, ...artistIds],
+    });
+
+    if (!ok) {
+      updateStatus(`track could not be saved: ${error}`, StatusTypes.ERROR);
+      return;
+    }
+
+    updateStatus("track saved", StatusTypes.SUCCESS);
+    // tell popup to switch to tracked view (but same tab id)
+    navigate(selectedTabId); // will get tab type etc again
+  }, [guessedArtists, navigate, selectedTabId, untrackedInfo, updateStatus]);
 
   return (
-    <div>
+    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
       <Banner title="Untracked" />
 
-      <Thumbnail src={untrackedInfo.imageLink} />
-
-      {/* <p>{untrackedInfo.url}</p> */}
-
-      <input
-        value={untrackedInfo.title ?? ""}
-        onChange={(e) => {
-          setUntrackedInfo({ ...untrackedInfo, title: e.target.value });
-        }}
-      />
-      <input
-        value={untrackedInfo.artist ?? ""}
-        onChange={(e) => {
-          setUntrackedInfo({ ...untrackedInfo, artist: e.target.value });
-        }}
-      />
-      <input
-        value={untrackedInfo.imageLink ?? ""}
-        onChange={(e) => {
-          setUntrackedInfo({ ...untrackedInfo, imageLink: e.target.value });
-        }}
-      ></input>
-      <Rating
-        value={trackInfo.rating}
-        extended={true}
-        onChange={(value) => {
-          setTrackInfo({ ...trackInfo, rating: value });
-        }}
+      <TrackInfo
+        track={untrackedInfo}
+        updateTrack={(newTrack) =>
+          setUntrackedInfo({ ...untrackedInfo, ...newTrack })
+        }
+        guessedArtists={guessedArtists}
+        setGuessedArtists={setGuessedArtists}
+        editing={true}
+        allowEditingUrl={false}
+        actions={[{ title: "save", primary: true, func: save }]}
+        showSearch
       />
 
-      <p>Search for this track on:</p>
-      {/* render buttons for sites except ones this track is on */}
-      {Object.entries(SupportedSites).map(([site, { regex }]) =>
-        untrackedInfo.url.match(regex) ? null : (
-          <Button
-            icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
-            onClick={() => search(site)}
-            primary={false}
-          />
-        )
-      )}
-
-      <Button title="save" onClick={save} />
-
-      <PlayBar totalTime={60 * 3} currentTime={44} />
+      <PlayBar totalTime={untrackedInfo.duration} currentTime={44} />
     </div>
   );
 }

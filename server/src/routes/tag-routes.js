@@ -17,8 +17,8 @@ tagRouter.get("/", async (req, res) => {
 // create new tag
 tagRouter.post("/", async (req, res) => {
   try {
-    const tagId = await db.createTag(req.body);
-    res.json(tagId);
+    const tag = await db.createTag(req.body);
+    res.json({ tag });
   } catch (e) {
     console.log(e);
     res.status(500).send("Could not create tag");

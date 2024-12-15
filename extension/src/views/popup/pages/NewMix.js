@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Button from "../components/Button";
 import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
@@ -8,6 +8,7 @@ import Filters from "../modules/Filters";
 import List from "../modules/List";
 import Stats from "../modules/Stats";
 import ThemesDropdown from "../modules/ThemesDropdown";
+import { Icons } from "../icons";
 
 /** start new custom playlist page */
 function NewMix() {
@@ -17,19 +18,21 @@ function NewMix() {
     artists: [],
     includedTags: [],
     excludedTags: [],
-    rating: [3, 4, 5, 6],
+    rating: [],
+    sort: "shuffle",
   });
   const [mixName, setMixName] = useState("Custom Mix");
   const [theme, setTheme] = useState("DARK_PINK");
 
-  const [playlist, setPlaylist] = useState(null);
+  const [playlistPreview, setPlaylistPreview] = useState(null);
   const [stats, setStats] = useState(null);
 
   const preview = useCallback(async () => {
     updateStatus("fetching playlist...");
     try {
-      const { playlist, stats } = await background("getPlaylist", filters);
-      setPlaylist(playlist);
+      let { playlist, stats } = await background("getPlaylist", filters);
+      playlist = await background("addPlaylistTrackData", playlist);
+      setPlaylistPreview(playlist);
       setStats(stats);
       updateStatus("");
     } catch (e) {
@@ -38,27 +41,25 @@ function NewMix() {
   }, [filters, updateStatus]);
 
   const play = useCallback(async () => {
-    await background("startPlaying", mixName, theme, filters, playlist);
-  }, [filters, mixName, playlist, theme]);
+    await background("startPlaying", mixName, theme, filters, playlistPreview);
+  }, [filters, mixName, playlistPreview, theme]);
 
   const saveMix = useCallback(async () => {
     await background("saveMix", filters);
   }, [filters]);
 
-  const reshuffle = useCallback(() => {
-    return;
-  }, []);
+  const reshuffle = useCallback(async () => {
+    const shuffled = await background("reshuffle", playlistPreview);
+    setPlaylistPreview(shuffled);
+  }, [playlistPreview]);
 
   // reset preview playlist when filters are changed
   useEffect(() => {
-    setPlaylist(null);
+    setPlaylistPreview(null);
   }, [filters]);
 
   return (
-    <div
-      className="expand"
-      style={{ display: "flex", flexDirection: "column" }}
-    >
+    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
       <Banner title="New mix" />
 
       <Filters filters={filters} setFilters={setFilters}>
@@ -72,26 +73,26 @@ function NewMix() {
         <ThemesDropdown value={theme} onChange={(value) => setTheme(value)} />
 
         <Button title="Preview" onClick={preview} />
-        <Button title="Play" onClick={play} />
+        <Button primary title="Play" onClick={play} />
         <Button title="Save to Quickplay" onClick={saveMix} />
       </Filters>
 
       {/* preview playlist */}
-      {playlist && stats ? (
+      {playlistPreview && stats ? (
         <div
           style={{
             flexGrow: 1,
             display: "flex",
             flexDirection: "row",
             justifyContent: "stretch",
+            overflow: "hidden",
           }}
         >
-          <div style={{ width: "50%" }}>
-            <List playlist={playlist}>
-              <Button title="🔀" onClick={reshuffle} />
-              <Button title="📌" onClick={saveMix} />
-            </List>
-          </div>
+          <List playlist={playlistPreview} style={{ width: "50%" }}>
+            <Button icon={{ icon: Icons.SHUFFLE }} onClick={reshuffle} />
+            <Button icon={{ icon: Icons.PIN }} onClick={saveMix} />
+          </List>
+
           <div style={{ width: "50%" }}>
             <Stats stats={stats} />
           </div>

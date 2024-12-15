@@ -1,96 +1,68 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useStatusUpdate } from "../hooks";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { SupportedSites } from "../../../consts";
-import Thumbnail from "../components/Thumbnail";
-import Button from "../components/Button";
-import Rating from "../components/Rating";
 import PlayBar from "../components/PlayBar";
-import { Icons } from "../icons";
+import TrackInfo from "../modules/TrackInfo";
+import { EMPTY_TRACK, StatusTypes } from "../../../consts";
+import { useStatusUpdate } from "../hooks";
 
 function Tracked({ selectedTabId }) {
-  const [trackInfo, setTrackInfo] = useState({
-    title: null,
-    artist: null,
-    imageLink: null,
-    url: "",
-    length: 0,
-    rating: 0,
-  });
+  const updateStatus = useStatusUpdate();
+
+  const [editing, setEditing] = useState(false);
+
+  const [trackInfo, setTrackInfo] = useState(EMPTY_TRACK);
+  const [editingTrackInfo, setEditingTrackInfo] = useState(EMPTY_TRACK);
 
   // ask background script for track info from database
   useEffect(() => {
     (async () => {
-      const info = await background("getTrackedInfo", selectedTabId);
+      const info = await background("getTrackedInfo", { tabId: selectedTabId });
       setTrackInfo(info);
     })();
   }, [selectedTabId]);
 
-  const search = useCallback(async (site) => {
-    // background will open a new tab with the search
-    await background(
-      "searchOtherSite",
-      trackInfo.artist + " - " + trackInfo.title,
-      site
-    );
-    // close the popup
-    // @ts-ignore
-    window.close();
-  }, []);
+  // if trackInfo changes or i start/stop editing, reset editingTrackInfo
+  useEffect(() => {
+    setEditingTrackInfo(trackInfo);
+  }, [editing, trackInfo]);
 
   const edit = useCallback(async () => {
-    console.log("edit button pressed");
-    // await background("edit", trackInfo);
-  }, [trackInfo]);
+    updateStatus("editing track...");
+    const ok = await background(
+      "editTrack",
+      editingTrackInfo,
+      trackInfo.url,
+      selectedTabId
+    );
+    if (ok) {
+      updateStatus("track edited", StatusTypes.SUCCESS);
+      setTrackInfo(editingTrackInfo); // set updated track info
+      setEditing(false); // set editing to false
+      // background will navigate to new url if it was changed
+    } else updateStatus("track could not be edited", StatusTypes.ERROR);
+  }, [editingTrackInfo, selectedTabId, trackInfo, updateStatus]);
 
   return (
-    <div>
-      <Banner theme="DARK_PINK" disabled={true} />
+    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
+      <Banner theme="DARK_PINK" />
 
-      <Thumbnail src={trackInfo.imageLink} />
-
-      <p>{trackInfo.url}</p>
-
-      <p>Search for this track on:</p>
-      {/* render buttons for sites except ones this track is on */}
-      {Object.entries(SupportedSites).map(([site, { regex }]) => {
-        return trackInfo.url.match(regex) ? null : (
-          <Button
-            key={site}
-            icon={{ icon: Icons[site.toUpperCase()], type: Icons.FILL }}
-            onClick={() => search(site)}
-          />
-        );
-      })}
-
-      <input
-        value={trackInfo.title ?? ""}
-        onChange={(e) => {
-          setTrackInfo({ ...trackInfo, title: e.target.value });
-        }}
+      <TrackInfo
+        track={editing ? editingTrackInfo : trackInfo}
+        updateTrack={(newTrack) =>
+          setEditingTrackInfo({ ...editingTrackInfo, ...newTrack })
+        }
+        editing={editing}
+        actions={
+          editing
+            ? [
+                { title: "save", primary: true, func: edit },
+                { title: "cancel", func: () => setEditing(false) },
+              ]
+            : [{ title: "edit", func: () => setEditing(true) }]
+        }
+        showSearch={!editing}
       />
-      <input
-        value={trackInfo.artist ?? ""}
-        onChange={(e) => {
-          setTrackInfo({ ...trackInfo, artist: e.target.value });
-        }}
-      />
-      <input
-        value={trackInfo.imageLink ?? ""}
-        onChange={(e) => {
-          setTrackInfo({ ...trackInfo, imageLink: e.target.value });
-        }}
-      ></input>
-      <Rating
-        value={trackInfo.rating}
-        extended={true}
-        onChange={(value) => {
-          setTrackInfo({ ...trackInfo, rating: value });
-        }}
-      />
-
-      <Button title="edit" onClick={edit} />
 
       <PlayBar totalTime={60 * 3} currentTime={44} />
     </div>

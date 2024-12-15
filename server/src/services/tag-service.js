@@ -14,10 +14,11 @@ export async function getTagById(id) {
   if (tag === null) throw Error("could not find tag");
 }
 
-export async function createTag(tagData) {
+export async function createTag(tagData, transaction = null) {
   const id = uuid();
-  await Tag.create({ ...tagData, id });
-  return id;
+  if (!tagData.color) tagData.color = "#7f7f7f";
+  const tag = await Tag.create({ ...tagData, id }, { transaction });
+  return tag;
 }
 
 export async function editTag(id, tagData) {

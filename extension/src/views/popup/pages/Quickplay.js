@@ -29,7 +29,7 @@ function Quickplay() {
   }, []);
 
   return (
-    <div>
+    <div className="page">
       <Banner title="Quickplay" />
 
       <div

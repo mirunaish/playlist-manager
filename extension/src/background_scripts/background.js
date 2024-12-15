@@ -8,7 +8,7 @@ import {
   SupportedSites,
 } from "../consts";
 import { getBrowser, getTab, popup, insertScript, request } from "./util";
-import { pick, buildRecord } from "../util";
+import { pick, buildRecord, stripSupportedUrl } from "../util";
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
@@ -29,8 +29,8 @@ async function switchToTab(id) {
 
 /** which page should show on this tab's tab? */
 async function getTabType(tabId) {
-  if (getPlaylistInfo(tabId)) return Pages.PLAYLIST;
-  if ((await getTrackedInfo(tabId)) != null) return Pages.TRACKED;
+  if (playlists[tabId]) return Pages.PLAYLIST;
+  if ((await getTrackedInfo({ tabId })) != null) return Pages.TRACKED;
 
   return Pages.UNTRACKED;
 }
@@ -38,64 +38,86 @@ async function getTabType(tabId) {
 /** get info about a tab playing an untracked track */
 async function getUntrackedInfo(tabId) {
   try {
-    // insert content script
+    // insert content script if not already inserted
     await insertScript(tabId, "get_title_and_artist.js");
-    // will listen for messages from content script and call insertGuessedInfo
+    // background is listening for messages from content script and will call insertGuessedInfo
   } catch (e) {
-    console.error("could not get track info:", e);
-    updateStatus("could not get track info.", StatusTypes.ERROR);
+    // script already inserted, send it a message instead
+    await getBrowser().tabs.sendMessage(tabId, {
+      type: MessageTypes.REQUEST_TRACK_INFO,
+    });
   }
 }
 
+const trackedCache = {}; // { url: { trackedInfo: Track | null, valid: bool } }
+
 /** get info about a tab playing a tracked track */
-async function getTrackedInfo(tabId) {
-  // get tab url
-  const url = (await getTab(tabId)).url;
+async function getTrackedInfo({ tabId = null, url = null }) {
+  // get tab url if not given
+  if (tabId && !url) url = (await getTab(tabId)).url;
+
+  // strip url if supported
+  url = stripSupportedUrl(url);
+
+  if (trackedCache[url]?.valid) return trackedCache[url].trackedInfo;
 
   const { ok, body } = await request("/tracks/url", { body: { url } });
-  if (!ok) return null;
-  return body;
+
+  trackedCache[url] = {
+    trackedInfo: ok ? body : null,
+    valid: true,
+  };
+
+  return trackedCache[url].trackedInfo;
+}
+
+async function tabIsSupported(tab) {
+  // supported?
+  if (Object.values(SupportedSites).some((site) => tab.url.match(site.regex)))
+    return true;
+  // playlist?
+  if (playlists[tab.id]) return true;
+  // audible?
+  if (tab.audible) return true;
+  // tracked?
+  if (await getTrackedInfo({ tabId: tab.id })) return true;
+
+  return false;
 }
 
 /** get limited info about all tabs, for rendering tab bar */
 async function getSupportedTabs() {
-  let tabs = [];
-
-  // put in id:object map to only keep one copy of each tab
-  const allTabs = Object.values({
-    ...buildRecord(
-      await Promise.all(
-        Object.keys(playlists).map((id) => getTab(parseInt(id)))
-      )
-    ), // playlist tabs, even if not supported or audible
-    ...buildRecord(await getBrowser().tabs.query({ url: SUPPORTED_QUERY })), // supported site tabs
-    ...buildRecord(await getBrowser().tabs.query({ audible: true })), // audible tabs
-  });
+  // filter tabs (can't use allTabs.filter because of await)
+  const supportedTabs = [];
+  for (let tab of await getBrowser().tabs.query({})) {
+    if (await tabIsSupported(tab)) supportedTabs.push(tab);
+  }
 
   // keys to get for each tab
   const keys = ["id", "title", "audible", "discarded", "muted", "index"];
 
-  // get tab data for each tab and push to array
-  // this is a for and not a map because of awaits
-  for (let tab of allTabs) {
-    // select keys from tab data
-    const tabData = pick(tab, keys);
+  // get tab data for each tab
+  let tabs = await Promise.all(
+    supportedTabs.map(async (tab) => {
+      // select keys from tab data
+      const tabData = pick(tab, keys);
 
-    // add track data, if tracked
-    // will put track title in tab
-    const trackData = await getTrackedInfo(tab.id);
+      // add track data, if tracked
+      // will put track title in tab
+      const trackData = await getTrackedInfo({ tabId: tab.id });
 
-    // add playlist data, if playlist
-    const playlistData = playlists[tab.id];
-    if (playlistData?.title)
-      tabData.title = `${playlistData.title} - ${playlistData.tracks[playlistData.playingIndex].title}`;
+      // add playlist data, if playlist
+      const playlistData = await getPlaylistInfo(tab.id);
+      if (playlistData?.title)
+        tabData.title = `${playlistData.title} - ${playlistData.tracks[playlistData.playingIndex].title}`;
 
-    tabs.push({
-      tab: tabData,
-      track: trackData,
-      playlist: playlistData,
-    });
-  }
+      return {
+        tab: tabData,
+        track: trackData,
+        playlist: playlistData,
+      };
+    })
+  );
 
   // sort tabs by index
   tabs.sort((a, b) => a.tab.index - b.tab.index);
@@ -145,6 +167,69 @@ async function getAllArtists() {
   return artistCache.data;
 }
 
+async function getTrackArtists(ids) {
+  const artists = await getAllArtists();
+  return ids.map((id) => artists[id]);
+}
+
+async function getArtistByName(name) {
+  // TODO move this to backend?
+  const artists = await getAllArtists();
+  // case insensitive find artist by name
+  return Object.values(artists).find(
+    (artist) => artist.name.toLowerCase() === name.toLowerCase()
+  );
+}
+
+async function createArtist(artist) {
+  console.log("creating artist", artist);
+  const response = await request("/artists", {
+    method: "POST",
+    body: artist,
+  });
+  if (response.ok) {
+    artistCache.valid = false;
+  }
+  return {
+    ok: response.ok,
+    artist: response.body.artist,
+    error: response.body.error,
+  };
+}
+
+const tagCache = {
+  valid: false,
+  data: {},
+};
+async function getAllTags() {
+  if (tagCache.valid) return tagCache.data;
+
+  const tags = (await request("/tags")).body;
+  tagCache.data = buildRecord(tags);
+  tagCache.valid = true;
+  return tagCache.data;
+}
+
+async function getTrackTags(ids) {
+  const tags = await getAllTags();
+  return ids.map((id) => tags[id]);
+}
+
+async function createTag(tag) {
+  const response = await request("/tags", {
+    method: "POST",
+    body: tag,
+  });
+  if (response.ok) {
+    tagCache.valid = false;
+  }
+  return {
+    ok: response.ok,
+    tag: response.body.tag,
+    error: response.body.error,
+  };
+}
+
 /** ask backend for a playlist */
 async function getPlaylist(filters) {
   // get playlist from backend
@@ -161,22 +246,30 @@ async function getPlaylist(filters) {
   return response.body; // { playlist, stats }
 }
 
+// given an array of {id, url}, add all other track info
+async function addPlaylistTrackData(tracks) {
+  return await Promise.all(tracks.map(({ url }) => getTrackedInfo({ url })));
+}
+
 // TODO move to firefox local storage?
 /**
  * all playlists playing.
  * tabid: {
  *   title: mix title,
  *   theme: id of color theme,
- *   tracks: array of tracks,
- *   playingIndex: index of track playing (numbered from 0),
  *   filters: applied filters
+ *   tracks: array of tracks { id, url },
+ *   playingIndex: index of track playing (numbered from 0),
  * }
  */
 let playlists = {};
 
 /** get all info about playlist */
-function getPlaylistInfo(tabId) {
-  return playlists[tabId];
+async function getPlaylistInfo(tabId) {
+  const playlistInfo = playlists[tabId];
+  if (!playlistInfo) return null;
+  playlistInfo.tracks = await addPlaylistTrackData(playlistInfo.tracks);
+  return playlistInfo;
 }
 
 // start playlist button was pressed
@@ -192,8 +285,13 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
 
   // if playlist not provided, get it from backend
   if (playlistData.tracks === null) {
-    // @ts-ignore
-    playlistData.tracks = (await getPlaylist()).playlist;
+    playlistData.tracks = (await getPlaylist(filters)).playlist;
+  } else {
+    // if playlist was provided, remove all info except id and url
+    playlistData.tracks = playlistData.tracks.map(({ id, url }) => ({
+      id,
+      url,
+    }));
   }
 
   // create new tab to play in
@@ -227,6 +325,8 @@ async function playTrack(tabId, index) {
 
   // tell popup that playing index changed
   popup(MessageTypes.PLAYLIST_UPDATE, { tabId, index });
+  // tell popup that tabs changed too
+  popup(MessageTypes.TABS_UPDATE);
 }
 
 /**
@@ -266,22 +366,19 @@ async function stopPlaying(tabId) {
   popup(MessageTypes.REMOVE_TAB, { id: tabId });
 }
 
-// edit track info
-async function edit(trackData) {
-  // edit info about the song currently playing
-  const response = await request("/edit", { method: "POST", body: trackData });
-  // if (response.ok) {
-  //   // may have created a new artist
-  //   artistCacheValid = false;
-  //   // change track data in playlist and playingTrack
-  //   playlist[playingIndex] = response.body;
-  //   playingTrack = response.body;
-  // }
-  return response.ok;
+function reshuffle(playlist) {
+  // shuffle items in playlist
+  for (let i = 0; i < playlist.length - 1; i++) {
+    // pick random track
+    let j = Math.floor(Math.random() * (playlist.length - i)) + i;
+    // move it to the front (j can be =i in which case i doesn't move)
+    [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+  }
+  return playlist;
 }
 
-// add new track
-async function add(trackData) {
+/** add new track */
+async function createTrack(trackData) {
   // make request to backend
   const response = await request("/tracks", {
     method: "POST",
@@ -289,8 +386,49 @@ async function add(trackData) {
   });
   if (response.ok) {
     artistCache.valid = false;
-    updateStatus("track added successfully", StatusTypes.SUCCESS);
-  } else updateStatus("failed to add track", StatusTypes.ERROR);
+    tagCache.valid = false;
+    if (trackedCache[trackData.url]) trackedCache[trackData.url].valid = false; // will replace null with new data
+  }
+  return { ok: response.ok, error: response.body.error };
+}
+
+/** edit track info */
+async function editTrack(trackData, oldUrl, tabId = null) {
+  // edit info about the song currently playing
+  const response = await request("/tracks", {
+    method: "PATCH",
+    body: trackData,
+  });
+  if (response.ok) {
+    // may have created a new artist
+    artistCache.valid = false;
+    // may have created new tags
+    tagCache.valid = false;
+    // need to update trackinfo cache too, both old and new urls
+    if (trackedCache[trackData.url]) trackedCache[trackData.url].valid = false;
+    if (trackedCache[oldUrl]) trackedCache[oldUrl].valid = false;
+
+    // if url changed, change it in playlists
+    if (trackData.url !== oldUrl) {
+      for (const playlist of Object.values(playlists)) {
+        for (const track of playlist.tracks) {
+          if (track.id === trackData.id) {
+            track.url = trackData.url;
+          }
+        }
+      }
+
+      // if tabId was given (and url changed), switch to new url
+      if (tabId) {
+        await getBrowser().tabs.update(tabId, { url: trackData.url });
+      }
+    }
+
+    // tell popup to update tabs (title and/or artist may have changed)
+    popup(MessageTypes.TABS_UPDATE);
+  }
+
+  return response.ok;
 }
 
 /** search for a track on one of the supported sites in a new tab */
@@ -318,38 +456,31 @@ async function insertGuessedInfo(info) {
  * using other methods such as window[functionName] as far as i can tell
  */
 export const FUNCTIONS = {
+  tabIsSupported,
   getSupportedTabs,
   getMostImportantTabId,
   getTabType,
   switchToTab,
   getAllArtists,
-  getAllTags: async () => {
-    return {
-      123: { id: 123, name: "my tag", color: "darkred" },
-      234: { id: 234, name: "another tag", color: "darkblue" },
-      4343: { id: 4343, name: "some tag", color: "brown" },
-      1: { id: 1, name: "just a tag", color: "darkgreen" },
-
-      3: { id: 3, name: "a tag", color: "yellow" },
-      4: { id: 4, name: "some other tag", color: "cyan" },
-      43: { id: 43, name: "random tag", color: "pink" },
-      11: { id: 11, name: "this is a tag", color: "red" },
-
-      6657: { id: 6657, name: "aaaaaa", color: "black" },
-      78787: { id: 78787, name: "bbbbbb", color: "white" },
-    };
-  },
+  getTrackArtists,
+  getArtistByName,
+  createArtist,
+  getAllTags,
+  getTrackTags,
+  createTag,
   getPlaylist,
+  addPlaylistTrackData,
   startPlaying,
   playTrack,
   next,
   previous,
   stopPlaying,
+  reshuffle,
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,
-  add,
-  edit,
+  createTrack,
+  editTrack,
   searchOtherSite,
 };
 

@@ -30,23 +30,23 @@ trackRouter.get("/url", async (req, res) => {
 // insert new track
 trackRouter.post("/", async (req, res) => {
   try {
-    const track = await db.add(req.body);
-    res.status(200).json(track);
+    const createdTrack = await db.createTrack(req.body);
+    res.status(200).json(createdTrack);
   } catch (e) {
     console.log(e);
-    res.status(500).json("could not add");
+    res.status(500).json({ error: e.message });
   }
 });
 
 // edit track
 trackRouter.patch("/", async (req, res) => {
   try {
-    const { id, ...trackData } = req.body;
-    const track = await db.edit(id, trackData);
-    res.status(200).json(track);
+    const { id, ...track } = req.body;
+    const createdTrack = await db.editTrack(id, track);
+    res.status(200).json(createdTrack);
   } catch (e) {
     console.log(e);
-    res.status(500).json("could not edit");
+    res.status(500).json({ error: e.message });
   }
 });
 

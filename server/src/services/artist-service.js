@@ -25,7 +25,7 @@ export async function artistMatch(string) {
     )?.id;
 
     // if not, create them
-    if (!id) id = await createArtist({ name });
+    if (!id) id = (await createArtist({ name })).id;
 
     // add this artist's id
     ids.push(id);
@@ -33,8 +33,9 @@ export async function artistMatch(string) {
   return ids;
 }
 
-export async function createArtist(artistData) {
+export async function createArtist(artistData, transaction = null) {
   const id = uuid();
-  await Artist.create({ starred: false, ...artistData, id });
-  return id;
+  if (!artistData.starred) artistData.starred = false;
+  const artist = await Artist.create({ ...artistData, id }, { transaction });
+  return artist;
 }

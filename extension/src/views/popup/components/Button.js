@@ -4,7 +4,7 @@ import { Icon } from "../icons";
 function Button({
   title = "",
   icon = null, // should be an object with icon props
-  primary = true,
+  primary = false,
   onClick = () => {},
 }) {
   return (
@@ -12,7 +12,14 @@ function Button({
       className={(primary ? "primary " : "") + (title.length > 0 ? "wide" : "")}
       onClick={onClick}
     >
-      {icon && <Icon {...icon} />}
+      {icon && (
+        // if given both a title and an icon, put padding between them
+        <Icon
+          {...icon}
+          className={icon.className + " disabled"}
+          style={{ ...icon.style, ...(title ? { marginRight: 5 } : {}) }}
+        />
+      )}
       {title}
     </button>
   );

@@ -51,6 +51,16 @@ function App() {
     setSelectedTabId(id);
   });
 
+  const [navProps, setNavProps] = useState(null);
+  // a page wants to switch to a diff page
+  const navigate = useCallback(
+    (tabId, props = null) => {
+      setNavProps(props);
+      setSelectedTabId(tabId); // will check tab type etc
+    },
+    [setSelectedTabId]
+  );
+
   return (
     <>
       {/*
@@ -60,20 +70,24 @@ function App() {
        */}
       <Status />
 
-      <div style={{ flexGrow: 1 }}>
-        {/* select page based on tab info */}
-        {page === Pages.NEW_MIX && <NewMix />}
-        {page === Pages.SEARCH && <Search />}
-        {page === Pages.QUICKPLAY && <Quickplay />}
-        {page === Pages.Settings && <Settings />}
-        {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
-        {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
-        {page === Pages.UNTRACKED && (
-          <Untracked selectedTabId={selectedTabId} />
-        )}
-      </div>
+      {/* select page based on tab info */}
+      {page === Pages.NEW_MIX && <NewMix {...navProps} />}
+      {page === Pages.SEARCH && <Search />}
+      {page === Pages.QUICKPLAY && <Quickplay />}
+      {page === Pages.SETTINGS && <Settings />}
+      {page === Pages.PLAYLIST && <Playlist selectedTabId={selectedTabId} />}
+      {page === Pages.TRACKED && <Tracked selectedTabId={selectedTabId} />}
+      {page === Pages.UNTRACKED && (
+        <Untracked selectedTabId={selectedTabId} navigate={navigate} />
+      )}
 
-      <Tabs selectedTabId={selectedTabId} selectTab={setSelectedTabId} />
+      <Tabs
+        selectedTabId={selectedTabId}
+        selectTab={(tabId) => {
+          setNavProps(null); // reset nav props
+          setSelectedTabId(tabId);
+        }}
+      />
     </>
   );
 }

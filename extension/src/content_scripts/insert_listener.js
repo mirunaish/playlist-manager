@@ -34,10 +34,10 @@ import { MessageTypes } from "../consts";
 
   // try to call the callback for a few seconds
   function tryRepeatedlyForTo(timeInSeconds, callback) {
-    function makeTry() {
+    let makeTry = () => {
       callback();
       setTimeout(makeTry, 200);
-    }
+    };
     makeTry();
     // after the time is up, stop making attempts
     setTimeout(() => {
@@ -106,7 +106,7 @@ import { MessageTypes } from "../consts";
 
       const reportTimeUpdate = (mutations) => {
         console.log("" + prog.getAttribute("aria-valuenow") + "/" + endTime);
-        if (prog.getAttribute("aria-valuenow") == endTime) forward();
+        if (prog.getAttribute("aria-valuenow") === endTime) forward();
       };
       const options = {
         attributes: true,

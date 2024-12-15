@@ -7,10 +7,10 @@
   --primary: #d631d6;
   --primaryDark: #961296;
   --primaryText: #faf1f9;
-  --secondary: #969696;
-  --secondaryDark: #565656;
+  --secondary: #4b0082;
+  --secondaryDark: #2c004b;
   --secondaryText: #ffffff;
-  --hue: 0deg;
+  --hue: 300deg;
   --error: #fc3f52;
   --success: #3ffc5b;
 }
@@ -35,6 +35,12 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column-reverse;
+  align-items: stretch;
+}
+
+.page {
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 .tabs {
@@ -43,9 +49,10 @@ body {
   white-space: nowrap;
 
   width: 100%;
-
+  height: 36px;
   box-sizing: border-box;
-  height: 38px;
+  flex-shrink: 0;
+
   overflow: hidden;
   padding-top: 4px;
   padding-left: 2px;
@@ -61,25 +68,36 @@ body {
 .tab {
   display: inline-block;
   background-color: var(--secondary);
+  color: var(--secondaryText);
   border-radius: 4px;
   transition-duration: 0.1s;
   user-select: none;
 
+  font-size: 13px;
+  max-width: 200px;
+
+  align-content: center;
   padding: 8px 12px;
-  margin-left: 2px;
-  margin-right: 2px;
+  margin: 0px 2px;
+  box-sizing: border-box;
 
   cursor: pointer;
 }
-.tab:hover {
-  background-color: var(--secondaryDark);
+.tab > p {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+}
+.tab > svg.icon > path {
+  fill: var(--secondaryText);
+  stroke: var(--secondaryText);
 }
 .tab.selected {
   background-color: var(--primary);
   padding-bottom: 18px;
 }
-.tab.selected:hover {
-  background-color: var(--primaryDark);
+.tab.selected > svg.icon > path {
+  fill: var(--primaryText);
+  stroke: var(--primaryText);
 }
 
 .banner {
@@ -110,6 +128,7 @@ body {
 
   width: 100%;
   height: 30px;
+  flex-shrink: 0;
 
   display: flex;
   flex-direction: row;
@@ -128,6 +147,15 @@ body {
 
 .playlist {
   height: 100%;
+  overflow: hidden;
+}
+.playlistItem {
+  text-wrap: wrap;
+  background-color: var(--background);
+}
+.playlistItem.selected {
+  background-color: var(--secondary);
+  color: var(--secondaryText);
 }
 
 .tag {
@@ -156,12 +184,6 @@ p {
   margin: 0;
   padding: 0;
 }
-.title {
-  font-size: 18px;
-}
-.artist {
-  font-size: 16px;
-}
 .fineprint {
   font-size: 12px;
   color: var(--textFineprint);
@@ -175,27 +197,19 @@ img {
 }
 
 .icon {
-  padding: 5px;
-  vertical-align: middle;
+  display: block;
 }
 .icon > path {
   fill: var(--text);
   stroke: var(--text);
-  stroke-width: 16px;
 }
-.icon.fill > path {
-  stroke: none !important;
-  stroke-width: 0 !important;
+.icon.primary > path {
+  fill: var(--primary);
+  stroke: var(--primary);
 }
-.icon.stroke > path {
-  fill: none !important;
-}
-
-button,
-input,
-select,
-.searchinput__control {
-  margin: 2px;
+.icon.secondary > path {
+  fill: var(--secondary);
+  stroke: var(--secondary);
 }
 
 input,
@@ -204,68 +218,29 @@ select,
   background-color: var(--background);
   color: var(--text);
 
-  border: 1px solid var(--ui);
+  border: 1px solid var(--primaryDark);
 
   border-radius: 4px;
   font-size: 14px;
   padding: 5px;
 }
 
-input,
-.searchinput__control {
-  cursor: text !important;
+input {
+  cursor: text;
 }
-
-button,
-select {
-  cursor: pointer;
+input:disabled {
+  background-color: var(--backgroundAccent);
+  color: var(--textFineprint);
+  cursor: not-allowed;
 }
-
-button {
-  background-color: var(--secondary);
-  color: var(--secondaryText);
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  padding: 5px;
-  text-align: center;
-  display: inline-block;
-  transition-duration: 0.1s;
-}
-button.wide {
-  width: 120px;
-}
-button > svg > path {
-  fill: var(--secondaryText);
-  stroke: var(--secondaryText);
-}
-button:hover {
-  background-color: var(--secondaryDark);
-}
-button.primary {
-  background-color: var(--primary);
-  color: var(--primaryText);
-}
-button.primary > svg > path {
-  fill: var(--primaryText);
-  stroke: var(--primaryText);
-}
-button.primary:hover {
-  background-color: var(--primaryDark);
-}
-button > svg {
-  padding: 0px 5px 0px 0px;
-}
-
 input::placeholder {
   color: var(--textFineprint);
   opacity: 1;
 }
 
-select:hover {
-  background-color: var(--secondaryDark);
+select {
+  cursor: pointer;
 }
-select > option:hover,
 select > option:checked {
   background-color: var(--secondaryDark);
 }
@@ -303,6 +278,9 @@ select > option:checked {
 .searchinput__value-container {
   gap: 5px;
 }
+.searchinput__input-container {
+  cursor: text;
+}
 .searchinput__multi-value {
   border-radius: 4px;
   display: flex;
@@ -311,21 +289,60 @@ select > option:checked {
   gap: 3px;
 }
 
+button {
+  background-color: var(--secondary);
+  color: var(--secondaryText);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 5px;
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+  transition-duration: 0.1s;
+}
+button.wide {
+  padding: 5px 20px 5px 20px;
+}
+button > svg.icon > path {
+  fill: var(--secondaryText);
+  stroke: var(--secondaryText);
+}
+button.primary {
+  background-color: var(--primary);
+  color: var(--primaryText);
+}
+button.primary > svg.icon > path {
+  fill: var(--primaryText);
+  stroke: var(--primaryText);
+}
+
+.rating {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
 .rating > img,
 .rating > svg {
   padding: 3px 1.5px;
 }
-.rating > svg > path {
-  fill: var(--primary);
-  stroke: var(--primary);
+.rating > .icon.star.fill > path {
+  stroke: none !important;
+  stroke-width: 0 !important;
 }
-.rating > svg:hover > path {
-  fill: var(--primaryDark);
-  stroke: var(--primaryDark);
+.rating > .icon.star.stroke > path {
+  stroke-width: 16px;
+  fill: none !important;
 }
-.rating > svg.disabled:hover > path {
-  fill: var(--primary);
-  stroke: var(--primary);
+
+button:hover,
+select:hover,
+select > option:hover,
+.icon:not(.disabled):hover,
+.tab:not(.selected):hover,
+.playlistItem:not(.selected):hover,
+.quickplay-card:hover {
+  filter: brightness(0.7) contrast(1.2);
 }
 
 .hidden {
