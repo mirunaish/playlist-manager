@@ -486,14 +486,8 @@ export const FUNCTIONS = {
 
 // receive messages from content script and popup
 getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // if popup components want to update the status they send a message to the
-  // background script which then forwards it to the status component
-  if (message.type === MessageTypes.STATUS_UPDATE) {
-    getBrowser().runtime.sendMessage(message);
-  }
-
   // content script catches next and previous hardware key presses
-  else if (message.type === MessageTypes.MEDIA_CONTROL) {
+  if (message.type === MessageTypes.MEDIA_CONTROL) {
     // will call next() or previous() on first audible tab that's a playlist
     // (if any)
     getAudibleTabs().then((result) => {

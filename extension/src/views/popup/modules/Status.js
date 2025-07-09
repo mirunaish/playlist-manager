@@ -1,18 +1,10 @@
-import React, { useState } from "react";
-import { MessageTypes, StatusTypes } from "../../../consts";
-import { useListener } from "../hooks";
+import React from "react";
+import { StatusTypes } from "../../../consts";
+import { useStatus, useStatusUpdate } from "./StatusProvider";
 
 function Status() {
-  const [status, setStatus] = useState({ message: "", type: StatusTypes.INFO });
-
-  function updateStatus(message, type) {
-    setStatus({ message, type });
-  }
-
-  // listen for status messages from background
-  useListener(MessageTypes.STATUS_UPDATE, ({ message, type }) => {
-    updateStatus(message, type);
-  });
+  const status = useStatus();
+  const updateStatus = useStatusUpdate();
 
   return (
     <div

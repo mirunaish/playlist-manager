@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Banner from "../components/Banner";
-import { useListener, useStatusUpdate } from "../hooks";
+import { useListener } from "../hooks";
+import { useStatusUpdate } from "../modules/StatusProvider";
 import { background } from "../util";
 import List from "../modules/List";
 import TrackInfo from "../modules/TrackInfo";

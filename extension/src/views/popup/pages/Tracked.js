@@ -4,7 +4,7 @@ import Banner from "../components/Banner";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
 import { EMPTY_TRACK, StatusTypes } from "../../../consts";
-import { useStatusUpdate } from "../hooks";
+import { useStatusUpdate } from "../modules/StatusProvider";
 
 function Tracked({ selectedTabId }) {
   const updateStatus = useStatusUpdate();

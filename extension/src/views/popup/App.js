@@ -14,6 +14,7 @@ import {
   Untracked,
 } from "./pages";
 import { useListener } from "./hooks";
+import StatusProvider from "./modules/StatusProvider";
 
 function App() {
   // made these into a single state to force both to update at the same time
@@ -62,7 +63,7 @@ function App() {
   );
 
   return (
-    <>
+    <StatusProvider>
       {/*
        * status is first so the status update listener is added
        * before other components are rendered.
@@ -88,7 +89,7 @@ function App() {
           setSelectedTabId(tabId);
         }}
       />
-    </>
+    </StatusProvider>
   );
 }
 
