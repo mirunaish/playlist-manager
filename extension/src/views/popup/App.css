@@ -288,6 +288,9 @@ select > option:checked {
   padding: 3px;
   gap: 3px;
 }
+.searchinput__multi-value__label {
+  text-wrap: wrap;
+}
 
 button {
   background-color: var(--secondary);

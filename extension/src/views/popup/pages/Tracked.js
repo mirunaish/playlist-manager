@@ -28,19 +28,23 @@ function Tracked({ selectedTabId }) {
   }, [editing, trackInfo]);
 
   const edit = useCallback(async () => {
-    updateStatus("editing track...");
-    const ok = await background(
-      "editTrack",
-      editingTrackInfo,
-      trackInfo.url,
-      selectedTabId
-    );
-    if (ok) {
-      updateStatus("track edited", StatusTypes.SUCCESS);
+    updateStatus("Editing track...");
+    try {
+      await background(
+        "editTrack",
+        editingTrackInfo,
+        trackInfo.url,
+        selectedTabId
+      );
+
+      updateStatus("Track edited successfully", StatusTypes.SUCCESS);
       setTrackInfo(editingTrackInfo); // set updated track info
       setEditing(false); // set editing to false
       // background will navigate to new url if it was changed
-    } else updateStatus("track could not be edited", StatusTypes.ERROR);
+    } catch (e) {
+      console.error("failed to edit track", e);
+      updateStatus("Track could not be edited", StatusTypes.ERROR);
+    }
   }, [editingTrackInfo, selectedTabId, trackInfo, updateStatus]);
 
   return (

@@ -9,6 +9,7 @@ import {
 } from "../consts";
 import { getBrowser, getTab, popup, insertScript, request } from "./util";
 import { pick, buildRecord, stripSupportedUrl } from "../util";
+import * as db from "./database";
 
 /** update status bar in popup with info (default), error, or success */
 async function updateStatus(message, statusType) {
@@ -51,6 +52,11 @@ async function getUntrackedInfo(tabId) {
 
 const trackedCache = {}; // { url: { trackedInfo: Track | null, valid: bool } }
 
+function invalidateTrackedCache(url) {
+  url = stripSupportedUrl(url);
+  trackedCache[url] = { valid: false };
+}
+
 /** get info about a tab playing a tracked track */
 async function getTrackedInfo({ tabId = null, url = null }) {
   // get tab url if not given
@@ -59,12 +65,14 @@ async function getTrackedInfo({ tabId = null, url = null }) {
   // strip url if supported
   url = stripSupportedUrl(url);
 
+  // if it's cached, return it
   if (trackedCache[url]?.valid) return trackedCache[url].trackedInfo;
 
-  const { ok, body } = await request("/tracks/url", { body: { url } });
+  // otherwise, fetch from database
+  const tracked = await db.getTrackByUrl(url);
 
   trackedCache[url] = {
-    trackedInfo: ok ? body : null,
+    trackedInfo: tracked, // will either be tracked info or null
     valid: true,
   };
 
@@ -161,7 +169,7 @@ const artistCache = {
 async function getAllArtists() {
   if (artistCache.valid) return artistCache.data;
 
-  const artists = (await request("/artists")).body;
+  const artists = await db.getAllArtists();
   artistCache.data = buildRecord(artists);
   artistCache.valid = true;
   return artistCache.data;
@@ -182,19 +190,9 @@ async function getArtistByName(name) {
 }
 
 async function createArtist(artist) {
-  console.log("creating artist", artist);
-  const response = await request("/artists", {
-    method: "POST",
-    body: artist,
-  });
-  if (response.ok) {
-    artistCache.valid = false;
-  }
-  return {
-    ok: response.ok,
-    artist: response.body.artist,
-    error: response.body.error,
-  };
+  artistCache.valid = false;
+  const newArtist = await db.createArtist(artist);
+  return newArtist;
 }
 
 const tagCache = {
@@ -204,7 +202,7 @@ const tagCache = {
 async function getAllTags() {
   if (tagCache.valid) return tagCache.data;
 
-  const tags = (await request("/tags")).body;
+  const tags = await db.getAllTags();
   tagCache.data = buildRecord(tags);
   tagCache.valid = true;
   return tagCache.data;
@@ -216,34 +214,14 @@ async function getTrackTags(ids) {
 }
 
 async function createTag(tag) {
-  const response = await request("/tags", {
-    method: "POST",
-    body: tag,
-  });
-  if (response.ok) {
-    tagCache.valid = false;
-  }
-  return {
-    ok: response.ok,
-    tag: response.body.tag,
-    error: response.body.error,
-  };
+  tagCache.valid = false;
+  const newTag = await db.createTag(tag);
+  return newTag;
 }
 
 /** ask backend for a playlist */
 async function getPlaylist(filters) {
-  // get playlist from backend
-  const response = await request("/playlist", {
-    method: "POST",
-    body: filters,
-  });
-
-  // if no tracks found, throw error message
-  if (!response.ok) {
-    throw Error("No tracks matching filter found");
-  }
-
-  return response.body; // { playlist, stats }
+  return await db.getPlaylist(filters);
 }
 
 // given an array of {id, url}, add all other track info
@@ -380,55 +358,46 @@ function reshuffle(playlist) {
 /** add new track */
 async function createTrack(trackData) {
   // make request to backend
-  const response = await request("/tracks", {
-    method: "POST",
-    body: trackData,
-  });
-  if (response.ok) {
-    artistCache.valid = false;
-    tagCache.valid = false;
-    if (trackedCache[trackData.url]) trackedCache[trackData.url].valid = false; // will replace null with new data
-  }
-  return { ok: response.ok, error: response.body.error };
+  const newTrack = await db.createTrack(trackData);
+  artistCache.valid = false;
+  tagCache.valid = false;
+  invalidateTrackedCache(trackData.url);
+  return newTrack;
 }
 
 /** edit track info */
 async function editTrack(trackData, oldUrl, tabId = null) {
-  // edit info about the song currently playing
-  const response = await request("/tracks", {
-    method: "PATCH",
-    body: trackData,
-  });
-  if (response.ok) {
-    // may have created a new artist
-    artistCache.valid = false;
-    // may have created new tags
-    tagCache.valid = false;
-    // need to update trackinfo cache too, both old and new urls
-    if (trackedCache[trackData.url]) trackedCache[trackData.url].valid = false;
-    if (trackedCache[oldUrl]) trackedCache[oldUrl].valid = false;
+  // may create a new artist
+  artistCache.valid = false;
+  // may create new tags
+  tagCache.valid = false;
+  // need to update tracked info cache too, both old and new urls
+  invalidateTrackedCache(trackData.url);
+  invalidateTrackedCache(oldUrl);
 
-    // if url changed, change it in playlists
-    if (trackData.url !== oldUrl) {
-      for (const playlist of Object.values(playlists)) {
-        for (const track of playlist.tracks) {
-          if (track.id === trackData.id) {
-            track.url = trackData.url;
-          }
+  // edit track
+  const editedTrack = await db.editTrack(trackData.id, trackData);
+
+  // if url changed, change it in playlists
+  if (trackData.url !== oldUrl) {
+    for (const playlist of Object.values(playlists)) {
+      for (const track of playlist.tracks) {
+        if (track.id === trackData.id) {
+          track.url = trackData.url;
         }
-      }
-
-      // if tabId was given (and url changed), switch to new url
-      if (tabId) {
-        await getBrowser().tabs.update(tabId, { url: trackData.url });
       }
     }
 
-    // tell popup to update tabs (title and/or artist may have changed)
-    popup(MessageTypes.TABS_UPDATE);
+    // if tabId was given (and url changed), switch to new url
+    if (tabId) {
+      await getBrowser().tabs.update(tabId, { url: trackData.url });
+    }
   }
 
-  return response.ok;
+  // tell popup to update tabs (title and/or artist may have changed)
+  popup(MessageTypes.TABS_UPDATE);
+
+  return editedTrack;
 }
 
 /** search for a track on one of the supported sites in a new tab */
@@ -518,8 +487,14 @@ getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
   else if (message.type === MessageTypes.FUNCTION_CALL) {
     try {
       // call function and return its result
+      // this works even if the called function is async
+      // don't await it or it'll break! this callback function has to stay synchronous
+      // i think it returns a promise that the popup awaits? maybe
       sendResponse(FUNCTIONS[message.functionName](...(message.args ?? [])));
     } catch (e) {
+      // because i don't await, this won't actually catch errors thrown by async functions
+      // the error will be propagated directly to the popup when the promise is rejected
+      // (i think??)
       console.error(
         "failed to run function %s: %s",
         message.functionName,
@@ -536,7 +511,8 @@ getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // add event listener that injects content script after the page loads
 // TODO inject listener and send track info if inactive tab becomes active
-// browser.tabs.onUpdated.addListener(
+// TODO fix this
+// getBrowser().tabs.onUpdated.addListener(
 //   async (tabId, changeInfo, tabInfo) => {
 //     if (
 //       siteSupported(tabInfo.url) &&
@@ -565,13 +541,15 @@ getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
 // TODO
 
 // add event listener that stops playing if tab is closed
+// not needed if the popup is closed
 getBrowser().tabs.onRemoved.addListener(async (tabId) => {
+  // if the playlist ended and the tab was closed, there's a chance the popup was open
   if (playlists[tabId]) {
     await stopPlaying(tabId);
     return; // stopPlaying tells popup to remove tab
   }
 
-  // let popup know to remove this tabs
+  // otherwise, let popup know to remove this tabs
   // even though popup is likely closed if tab wasn't playlist
   popup(MessageTypes.REMOVE_TAB, { id: tabId });
 });

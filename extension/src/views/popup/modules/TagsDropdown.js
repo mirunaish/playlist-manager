@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { background } from "../util";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import { useStatusUpdate } from "./StatusProvider";
+import { StatusTypes } from "../../../consts";
 
 const TagsDropdown = ({
   label = "Tags",
@@ -23,15 +24,13 @@ const TagsDropdown = ({
   const createTag = useCallback(
     (tagName) => {
       (async () => {
-        const { ok, tag, error } = await background("createTag", {
-          name: tagName,
-        });
-        if (!ok) {
-          updateStatus("failed to create tag: " + error);
-          return;
+        try {
+          const tag = await background("createTag", { name: tagName });
+          setTags({ ...tags, [tag.id]: tag });
+        } catch (e) {
+          console.error("failed to create tag", e);
+          updateStatus(`Failed to create tag ${tagName}`, StatusTypes.ERROR);
         }
-
-        setTags({ [tag.id]: tag, ...tags });
       })();
     },
     [tags, updateStatus]

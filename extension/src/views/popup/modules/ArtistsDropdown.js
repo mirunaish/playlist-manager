@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import { background } from "../util";
+import { useStatusUpdate } from "./StatusProvider";
+import { StatusTypes } from "../../../consts";
 
 const ArtistsDropdown = ({
   createable = false,
@@ -10,6 +12,8 @@ const ArtistsDropdown = ({
   guessedValue = [], // inserted by content script. won't be saved until confirmed by user
   setGuessedValue = (newGuessedValue) => {},
 }) => {
+  const updateStatus = useStatusUpdate();
+
   const [artists, setArtists] = useState({});
 
   useEffect(() => {
@@ -22,18 +26,25 @@ const ArtistsDropdown = ({
   const createArtist = useCallback(
     (artistName) => {
       (async () => {
-        const { ok, artist, error } = await background("createArtist", {
-          name: artistName,
-        });
-        if (!ok) {
-          console.error("failed to create artist", error);
-          return;
-        }
+        try {
+          const artist = await background("createArtist", {
+            name: artistName,
+          });
 
-        setArtists({ [artist.id]: artist, ...artists });
+          setArtists({ ...artists, [artist.id]: artist });
+
+          // add the newly created artist to the dropdown value
+          onChange([...value, artist.id]);
+        } catch (e) {
+          console.error("failed to create artist", e);
+          updateStatus(
+            "Failed to create artist " + artistName,
+            StatusTypes.ERROR
+          );
+        }
       })();
     },
-    [artists]
+    [artists, onChange, updateStatus, value]
   );
 
   // guessed value is not included in options

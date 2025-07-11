@@ -56,13 +56,13 @@ function Playlist({ selectedTabId }) {
 
   const edit = useCallback(async () => {
     updateStatus("editing track...");
-    const ok = await background(
-      "editTrack",
-      editingTrackInfo,
-      trackInfo.url,
-      selectedTabId
-    );
-    if (ok) {
+    try {
+      await background(
+        "editTrack",
+        editingTrackInfo,
+        trackInfo.url,
+        selectedTabId
+      );
       updateStatus("track edited", StatusTypes.SUCCESS);
       // set edited track info in playlist
       const newPlaylistInfo = { ...playlistInfo };
@@ -70,7 +70,10 @@ function Playlist({ selectedTabId }) {
       setPlaylistInfo(newPlaylistInfo);
       setEditing(false); // set editing to false
       // background will navigate to new url if it was changed
-    } else updateStatus("track could not be edited", StatusTypes.ERROR);
+    } catch (e) {
+      console.error("failed to edit track", e);
+      updateStatus("Track could not be edited", StatusTypes.ERROR);
+    }
   }, [
     editingTrackInfo,
     playingIndex,

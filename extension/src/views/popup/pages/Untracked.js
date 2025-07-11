@@ -46,34 +46,39 @@ function Untracked({ selectedTabId, navigate }) {
   // save untracked track to backend
   const save = useCallback(async () => {
     console.log("saving track", untrackedInfo.title);
-    updateStatus("saving track...");
+    updateStatus("Saving track...");
 
     // create guessed artists if any
+    // TODO REFACTOR
     const artistIds = [];
     for (const artistName of guessedArtists) {
-      const { ok, artist, error } = await background("createArtist", {
-        name: artistName,
-      });
-      if (!ok) {
-        updateStatus(`failed to create artist: ${error}`, StatusTypes.ERROR);
+      try {
+        const artist = await background("createArtist", {
+          name: artistName,
+        });
+        artistIds.push(artist.id);
+      } catch (e) {
+        updateStatus(
+          `Failed to create artist ${artistName}`,
+          StatusTypes.ERROR
+        );
         return;
       }
-      artistIds.push(artist.id);
     }
 
-    const { ok, error } = await background("createTrack", {
-      ...untrackedInfo,
-      artists: [...untrackedInfo.artists, ...artistIds],
-    });
+    try {
+      await background("createTrack", {
+        ...untrackedInfo,
+        artists: [...untrackedInfo.artists, ...artistIds],
+      });
 
-    if (!ok) {
-      updateStatus(`track could not be saved: ${error}`, StatusTypes.ERROR);
-      return;
+      updateStatus("track saved", StatusTypes.SUCCESS);
+      // tell popup to switch to tracked view (but same tab id)
+      navigate(selectedTabId); // will get tab type etc again
+    } catch (e) {
+      console.error("failed to save track", e);
+      updateStatus("Failed to save track", StatusTypes.ERROR);
     }
-
-    updateStatus("track saved", StatusTypes.SUCCESS);
-    // tell popup to switch to tracked view (but same tab id)
-    navigate(selectedTabId); // will get tab type etc again
   }, [guessedArtists, navigate, selectedTabId, untrackedInfo, updateStatus]);
 
   return (
