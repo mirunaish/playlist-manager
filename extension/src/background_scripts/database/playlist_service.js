@@ -45,7 +45,27 @@ export async function getPlaylist(filters) {
     }
   }
 
-  // add tag filters TODO
+  // add tag filters
+  if (filters.includedTags.length > 0) {
+    if (!has_where) {
+      query = query.where("tags").anyOf(filters.includedTags);
+      has_where = true;
+    } else {
+      query = query.and((track) =>
+        track.tags.some((t) => filters.includedTags.includes(t))
+      );
+    }
+  }
+  if (filters.excludedTags.length > 0) {
+    if (!has_where) {
+      query = query.where("tags").noneOf(filters.excludedTags);
+      has_where = true;
+    } else {
+      query = query.and(
+        (track) => !track.tags.some((t) => filters.excludedTags.includes(t))
+      );
+    }
+  }
 
   // get playlist with filters
   let playlist = await query.toArray().map((t) => pick(t, ["id", "url"]));
