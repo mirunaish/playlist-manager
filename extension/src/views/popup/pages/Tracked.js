@@ -17,7 +17,9 @@ function Tracked({ selectedTabId }) {
   // ask background script for track info from database
   useEffect(() => {
     (async () => {
-      const info = await background("getTrackedInfo", { tabId: selectedTabId });
+      const info = await background("getTrackInfoFromDB", {
+        tabId: selectedTabId,
+      });
       setTrackInfo(info);
     })();
   }, [selectedTabId]);

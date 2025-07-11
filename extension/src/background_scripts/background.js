@@ -31,13 +31,13 @@ async function switchToTab(id) {
 /** which page should show on this tab's tab? */
 async function getTabType(tabId) {
   if (playlists[tabId]) return Pages.PLAYLIST;
-  if ((await getTrackedInfo({ tabId })) != null) return Pages.TRACKED;
+  if ((await getTrackInfoFromDB({ tabId })) != null) return Pages.TRACKED;
 
   return Pages.UNTRACKED;
 }
 
 /** get info about a tab playing an untracked track */
-async function getUntrackedInfo(tabId) {
+async function getTrackInfoFromTab(tabId) {
   try {
     // insert content script if not already inserted
     await insertScript(tabId, "get_title_and_artist.js");
@@ -51,7 +51,7 @@ async function getUntrackedInfo(tabId) {
 }
 
 /** get info about a tab playing a tracked track */
-async function getTrackedInfo({ tabId = null, url = null }) {
+async function getTrackInfoFromDB({ tabId = null, url = null }) {
   // get tab url if not given
   if (tabId && !url) url = (await getTab(tabId)).url;
 
@@ -67,7 +67,7 @@ async function tabIsSupported(tab) {
   // audible?
   if (tab.audible) return true;
   // tracked?
-  if (await getTrackedInfo({ tabId: tab.id })) return true;
+  if (await getTrackInfoFromDB({ tabId: tab.id })) return true;
 
   return false;
 }
@@ -91,7 +91,7 @@ async function getSupportedTabs() {
 
       // add track data, if tracked
       // will put track title in tab
-      const trackData = await getTrackedInfo({ tabId: tab.id });
+      const trackData = await getTrackInfoFromDB({ tabId: tab.id });
 
       // add playlist data, if playlist
       const playlistData = await getPlaylistInfo(tab.id);
@@ -147,7 +147,9 @@ async function getPlaylist(filters) {
 
 // given an array of {id, url}, add all other track info
 async function addPlaylistTrackData(tracks) {
-  return await Promise.all(tracks.map(({ url }) => getTrackedInfo({ url })));
+  return await Promise.all(
+    tracks.map(({ url }) => getTrackInfoFromDB({ url }))
+  );
 }
 
 // TODO move to firefox local storage?
@@ -342,8 +344,8 @@ export const FUNCTIONS = {
   stopPlaying,
   reshuffle,
   getPlaylistInfo,
-  getTrackedInfo,
-  getUntrackedInfo,
+  getTrackInfoFromDB,
+  getTrackInfoFromTab,
   editTrack,
   searchOtherSite,
 

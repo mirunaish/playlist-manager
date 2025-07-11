@@ -39,7 +39,7 @@ function Untracked({ selectedTabId, navigate }) {
     setUntrackedInfo(EMPTY_TRACK);
     setGuessedArtists([]);
     // ask background script to get track info from page
-    background("getUntrackedInfo", selectedTabId);
+    background("getTrackInfoFromTab", selectedTabId);
     // background will later send a message with the info which the listener will catch
   }, [selectedTabId]);
 

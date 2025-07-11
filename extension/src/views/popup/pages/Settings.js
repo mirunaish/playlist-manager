@@ -6,7 +6,7 @@ function Settings() {
   // ask background script for track info from page
   // useEffect(() => {
   //   (async () => {
-  //     const info = await background.getUntrackedInfo(selectedTabId);
+  //     const info = await background.getTrackInfoFromTab(selectedTabId);
   //     setTrackInfo(info);
   //   })();
   // }, [background, selectedTabId]);
