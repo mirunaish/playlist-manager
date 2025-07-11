@@ -50,33 +50,12 @@ async function getUntrackedInfo(tabId) {
   }
 }
 
-const trackedCache = {}; // { url: { trackedInfo: Track | null, valid: bool } }
-
-function invalidateTrackedCache(url) {
-  url = stripSupportedUrl(url);
-  trackedCache[url] = { valid: false };
-}
-
 /** get info about a tab playing a tracked track */
 async function getTrackedInfo({ tabId = null, url = null }) {
   // get tab url if not given
   if (tabId && !url) url = (await getTab(tabId)).url;
 
-  // strip url if supported
-  url = stripSupportedUrl(url);
-
-  // if it's cached, return it
-  if (trackedCache[url]?.valid) return trackedCache[url].trackedInfo;
-
-  // otherwise, fetch from database
-  const tracked = await db.getTrackByUrl(url);
-
-  trackedCache[url] = {
-    trackedInfo: tracked, // will either be tracked info or null
-    valid: true,
-  };
-
-  return trackedCache[url].trackedInfo;
+  return await db.getTrackByUrl(url);
 }
 
 async function tabIsSupported(tab) {
@@ -159,64 +138,6 @@ async function getMostImportantTabId() {
   if (audibleTab) return audibleTab.id;
 
   return null;
-}
-
-// cache array of artists
-const artistCache = {
-  valid: false,
-  data: {},
-};
-async function getAllArtists() {
-  if (artistCache.valid) return artistCache.data;
-
-  const artists = await db.getAllArtists();
-  artistCache.data = buildRecord(artists);
-  artistCache.valid = true;
-  return artistCache.data;
-}
-
-async function getTrackArtists(ids) {
-  const artists = await getAllArtists();
-  return ids.map((id) => artists[id]);
-}
-
-async function getArtistByName(name) {
-  // TODO move this to backend?
-  const artists = await getAllArtists();
-  // case insensitive find artist by name
-  return Object.values(artists).find(
-    (artist) => artist.name.toLowerCase() === name.toLowerCase()
-  );
-}
-
-async function createArtist(artist) {
-  artistCache.valid = false;
-  const newArtist = await db.createArtist(artist);
-  return newArtist;
-}
-
-const tagCache = {
-  valid: false,
-  data: {},
-};
-async function getAllTags() {
-  if (tagCache.valid) return tagCache.data;
-
-  const tags = await db.getAllTags();
-  tagCache.data = buildRecord(tags);
-  tagCache.valid = true;
-  return tagCache.data;
-}
-
-async function getTrackTags(ids) {
-  const tags = await getAllTags();
-  return ids.map((id) => tags[id]);
-}
-
-async function createTag(tag) {
-  tagCache.valid = false;
-  const newTag = await db.createTag(tag);
-  return newTag;
 }
 
 /** ask backend for a playlist */
@@ -355,30 +276,13 @@ function reshuffle(playlist) {
   return playlist;
 }
 
-/** add new track */
-async function createTrack(trackData) {
-  // make request to backend
-  const newTrack = await db.createTrack(trackData);
-  artistCache.valid = false;
-  tagCache.valid = false;
-  invalidateTrackedCache(trackData.url);
-  return newTrack;
-}
-
 /** edit track info */
 async function editTrack(trackData, oldUrl, tabId = null) {
-  // may create a new artist
-  artistCache.valid = false;
-  // may create new tags
-  tagCache.valid = false;
-  // need to update tracked info cache too, both old and new urls
-  invalidateTrackedCache(trackData.url);
-  invalidateTrackedCache(oldUrl);
-
   // edit track
   const editedTrack = await db.editTrack(trackData.id, trackData);
 
   // if url changed, change it in playlists
+  // TODO also change artists and tags if necessary
   if (trackData.url !== oldUrl) {
     for (const playlist of Object.values(playlists)) {
       for (const track of playlist.tracks) {
@@ -430,14 +334,6 @@ export const FUNCTIONS = {
   getMostImportantTabId,
   getTabType,
   switchToTab,
-  getAllArtists,
-  getTrackArtists,
-  getArtistByName,
-  createArtist,
-  getAllTags,
-  getTrackTags,
-  createTag,
-  getPlaylist,
   addPlaylistTrackData,
   startPlaying,
   playTrack,
@@ -448,9 +344,17 @@ export const FUNCTIONS = {
   getPlaylistInfo,
   getTrackedInfo,
   getUntrackedInfo,
-  createTrack,
   editTrack,
   searchOtherSite,
+
+  getAllArtists: db.getAllArtists,
+  getTrackArtists: db.getArtistsByIds,
+  getArtistByName: db.getArtistByName,
+  createArtist: db.createArtist,
+  getAllTags: db.getAllTags,
+  getTrackTags: db.getTagsByIds,
+  createTag: db.createTag,
+  createTrack: db.createTrack,
 };
 
 // receive messages from content script and popup

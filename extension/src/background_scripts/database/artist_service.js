@@ -1,9 +1,20 @@
 import { v4 as uuid } from "uuid";
 import { db } from "./database";
+import { buildRecord } from "../utils";
+import { artistCache } from "./caches";
 
+// returns a record
 export async function getAllArtists() {
+  if (artistCache.valid) return artistCache.data;
+
   try {
-    return await db.artists.orderBy("name").toArray();
+    const artists = await db.artists.orderBy("name").toArray();
+    const record = buildRecord(artists);
+
+    artistCache.data = record;
+    artistCache.valid = true;
+
+    return record;
   } catch (e) {
     console.error("database error:", e);
     throw Error("Failed to get artists: " + e.message);
@@ -12,12 +23,32 @@ export async function getAllArtists() {
 
 export async function getArtistById(id) {
   try {
-    const artist = await db.artists.get(id);
-    if (artist === null) throw Error("Artist does not exist.");
+    const artist = artistCache.valid
+      ? artistCache.data[id] // get artist from cache if valid
+      : await db.artists.get(id); // otherwise fetch from db
+
+    if (!artist) throw Error("Artist does not exist.");
+
     return artist;
   } catch (e) {
     console.error("database error:", e);
     throw Error("Could not get artist: " + e.message);
+  }
+}
+
+export async function getArtistsByIds(ids) {
+  if (artistCache.valid) return ids.map((id) => artistCache.data[id]);
+
+  const artists = await db.artists.where("id").anyOf(ids).toArray();
+  return artists;
+}
+
+export async function getArtistByName(name) {
+  try {
+    return await db.artists.where("name").equalsIgnoreCase(name).first();
+  } catch (e) {
+    console.error("database error:", e);
+    throw Error("Could not get artist by name: " + e.message);
   }
 }
 
@@ -55,6 +86,7 @@ export async function createArtist(artistData) {
     return await db.transaction("rw", db.artists, async () => {
       await db.artists.add({ ...artistData, id });
       const newArtist = await getArtistById(id);
+      artistCache[newArtist.id] = newArtist; // update cache
       return newArtist;
     });
   } catch (e) {

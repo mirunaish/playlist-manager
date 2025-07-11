@@ -1,9 +1,14 @@
 import { v4 as uuid } from "uuid";
 import { db } from "./database";
+import { trackCache } from "./caches";
+import { stripSupportedUrl } from "../utils";
 
 export async function getTrackById(id) {
   try {
     let track = await db.tracks.get(id);
+
+    trackCache[track.url] = { track, valid: true }; // save to cache
+
     if (track === null) throw Error("Not found");
     return track;
   } catch (e) {
@@ -15,7 +20,16 @@ export async function getTrackById(id) {
 /** returns either the track or null if track was not found */
 export async function getTrackByUrl(url) {
   try {
+    // strip url if supported
+    url = stripSupportedUrl(url);
+
+    // check cache first
+    if (trackCache[url]?.valid) return trackCache[url].track;
+
     let track = await db.tracks.get({ url });
+
+    trackCache[url] = { track, valid: true }; // save to cache
+
     return track;
   } catch (e) {
     console.error("database error:", e);
@@ -44,6 +58,7 @@ export async function createTrack(trackData) {
     // and tags as an array of tag ids
     // const { artists, tags, ...track } = trackData;
     const track = trackData;
+    track.url = stripSupportedUrl(track.url); // strip url if supported
 
     return await db.transaction(
       "rw",
@@ -52,7 +67,7 @@ export async function createTrack(trackData) {
       // db.tags,
       async () => {
         // check that url does not exist
-        const existing = await db.tracks.get({ url: track.url });
+        const existing = await getTrackByUrl(track.url);
         if (existing != null) throw Error("That URL has already been saved");
 
         // create track object
@@ -65,6 +80,9 @@ export async function createTrack(trackData) {
 
         // return the new track object
         const newTrack = await getTrackById(id);
+
+        // (also refresh cache)
+        trackCache[newTrack.url] = { track: newTrack, valid: true };
 
         return newTrack;
       }
@@ -80,6 +98,7 @@ export async function editTrack(id, trackData) {
   try {
     // const { artists, tags, ...track } = trackData;
     const track = trackData;
+    track.url = stripSupportedUrl(track.url); // strip url if supported
 
     return await db.transaction(
       "rw",
@@ -89,11 +108,14 @@ export async function editTrack(id, trackData) {
       async () => {
         // get current track data
         const currentData = await getTrackById(id);
+        if (currentData === null) throw Error("Track does not exist");
 
         // if url was changed, check that new url does not exist
         if (track.url !== currentData.url) {
-          const existing = await db.tracks.get({ url: track.url });
+          const existing = await getTrackByUrl(track.url);
           if (existing != null) throw Error("That URL has already been saved");
+          // also invalidate cache for old url
+          trackCache[currentData.url].valid = false;
         }
 
         // update track
@@ -103,8 +125,11 @@ export async function editTrack(id, trackData) {
         // await editTrackArtists(id, artists);
         // await editTrackTags(id, tags);
 
-        // return edited track
         const newTrack = await getTrackById(id);
+        // (also refresh cache)
+        trackCache[newTrack.url] = { track: newTrack, valid: true };
+
+        // return edited track
         return newTrack;
       }
     );
