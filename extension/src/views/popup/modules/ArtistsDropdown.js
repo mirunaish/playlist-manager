@@ -6,11 +6,9 @@ import { StatusTypes } from "../../../consts";
 
 const ArtistsDropdown = ({
   createable = false,
-  extraOptions = false,
+  extraOptions = [],
   value = [],
   onChange = (newValue) => {},
-  guessedValue = [], // inserted by content script. won't be saved until confirmed by user
-  setGuessedValue = (newGuessedValue) => {},
 }) => {
   const updateStatus = useStatusUpdate();
 
@@ -47,7 +45,6 @@ const ArtistsDropdown = ({
     [artists, onChange, updateStatus, value]
   );
 
-  // guessed value is not included in options
   const artistOptions = useMemo(() => {
     return Object.values(artists).map((artist) => {
       return {
@@ -68,51 +65,9 @@ const ArtistsDropdown = ({
     <SearchInput
       createable={createable}
       label="Artists"
-      options={
-        extraOptions
-          ? [
-              {
-                value: "starred",
-                label: "Starred",
-                deco: SearchInputDeco.STAR,
-                backgroundColor: "var(--primary)",
-                color: "var(--primary-text)",
-              },
-              {
-                value: "not starred",
-                label: "Not starred",
-                backgroundColor: "var(--secondary)",
-                color: "var(--secondary-text)",
-              },
-              {
-                value: "artistless",
-                label: "Artistless",
-                backgroundColor: "var(--backgroundAccent)",
-                color: "var(--text)",
-              },
-              ...artistOptions,
-            ]
-          : artistOptions
-      }
-      value={[
-        // guessed values are not in the options
-        // so i need to give all their data here
-        ...guessedValue.map((name) => ({
-          value: name,
-          label: name,
-          backgroundColor: "var(--backgroundAccent)",
-          color: "var(--text)",
-        })),
-        ...value,
-      ]}
-      onChange={(updatedValue) => {
-        const newGuessedValue = updatedValue.filter((v) =>
-          guessedValue.includes(v)
-        );
-        const newValue = updatedValue.filter((v) => !guessedValue.includes(v));
-        setGuessedValue(newGuessedValue);
-        onChange(newValue);
-      }}
+      options={[...extraOptions, ...artistOptions]}
+      value={value}
+      onChange={onChange}
       createOption={createArtist}
     />
   );

@@ -1,5 +1,3 @@
-import { SERVER_URL } from "../consts";
-
 // this is to prevent error messages everywhere
 // @ts-ignore
 export const getBrowser = () => browser;
@@ -14,38 +12,6 @@ export async function popup(messageType, payload) {
     type: messageType,
     payload,
   });
-}
-
-/**
- * make a request to the server.
- * options format: { method, body }.
- * default method is GET
- */
-export async function request(path, options = {}) {
-  try {
-    if (!options.method) options.method = "GET";
-
-    // if get, cannot use body. use query instead
-    if (options.method === "GET" && options.body) {
-      let reqQuery = "?";
-      for (var key in options.body) {
-        reqQuery += key + "=" + encodeURIComponent(options.body[key]) + "&";
-      }
-      reqQuery = reqQuery.slice(0, -1);
-      path += reqQuery;
-      delete options.body;
-    }
-    if (options.body) {
-      options.body = JSON.stringify(options.body);
-      options.headers = { "Content-Type": "application/json" };
-    }
-
-    const response = await fetch(SERVER_URL + path, options);
-    return { ok: response.ok, body: await response.json() };
-  } catch (e) {
-    console.error("request error:", e);
-    throw Error("Could not connect to server.");
-  }
 }
 
 /** insert a content script */

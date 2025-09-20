@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { db } from "./database";
-import { buildRecord } from "../utils";
+import { buildRecord } from "../../util";
 import { artistCache } from "./caches";
 
 // returns a record
@@ -52,31 +52,44 @@ export async function getArtistByName(name) {
   }
 }
 
-// currently unused
-// might change this to a function that takes as input an array of names
-// and returns an object with keys names and values either an id if it exists or null if it doesn't
-// export async function artistMatch(string) {
-//   // return array of ids given string of names
-//   // if no matches, create new artist and return id
-//   const ids = [];
-//   const names = string.split(",").map((s) => s.trim());
+export async function getTrackArtists(trackId) {
+  try {
+    // get the track
+    // can't use getTrackById because of circular imports
+    const track = await db.tracks.get(trackId);
 
-//   for (let name of names) {
-//     // does the artist exist? (case insensitive)
-//     let id = (
-//       await Artist.findOne({
-//         where: { name: { [Op.iLike]: name } },
-//       })
-//     )?.id;
+    if (artistCache.valid)
+      return track.artists.map((id) => artistCache.data[id]);
 
-//     // if not, create them
-//     // if (!id) id = (await createArtist({ name })).id;
+    // need to do it this way to get them in order
+    const artists = await Promise.all(
+      track.artists.map(async (artistId) => await db.artists.get(artistId))
+    );
 
-//     // add this artist's id
-//     ids.push(id);
-//   }
-//   return ids;
-// }
+    return artists;
+  } catch (e) {
+    console.error("database error:", e);
+    throw Error("Could not get artists for track: " + e.message);
+  }
+}
+
+/**
+ * for each name, add the id if the artist exists
+ * maintain the order of the names...
+ */
+export async function artistMatch(names) {
+  const artists = [];
+
+  for (let name of names) {
+    // does the artist exist? (case insensitive)
+    const id = (await db.artists.where("name").equalsIgnoreCase(name).first())
+      ?.id;
+
+    // add this artist's id or an object containing the name
+    artists.push(!!id ? id : { isReal: false, name });
+  }
+  return artists;
+}
 
 export async function createArtist(artistData) {
   try {

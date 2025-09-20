@@ -12,6 +12,8 @@ import {
   MessageTypes,
   StatusTypes,
 } from "../../../consts";
+import Button from "../components/Button";
+import { Icons } from "../icons";
 
 function Playlist({ selectedTabId }) {
   const updateStatus = useStatusUpdate();
@@ -107,7 +109,11 @@ function Playlist({ selectedTabId }) {
           playlist={playlistInfo.tracks}
           selectedTrackIndex={playingIndex}
           onTrackClick={selectTrack}
-        ></List>
+        >
+          {/* TODO stop button, something else? */}
+          <Button icon={{ icon: Icons.SETTINGS }} />
+          <Button icon={{ icon: Icons.PIN }} />
+        </List>
 
         <div style={{ display: "flex", flexDirection: "column", width: "50%" }}>
           <TrackInfo

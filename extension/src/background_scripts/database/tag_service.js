@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { db } from "./database";
-import { buildRecord } from "../utils";
+import { buildRecord } from "../../util";
 import { tagCache } from "./caches";
 
 export async function getAllTags() {
@@ -18,14 +18,6 @@ export async function getAllTags() {
     console.error("database error:", e);
     throw Error("Could not get tags: " + e.message);
   }
-}
-
-export async function getTagsByIds(ids) {
-  if (tagCache.valid) return ids.map((id) => tagCache.data[id]);
-
-  const tags = await db.tags.where("id").anyOf(ids).toArray();
-  // NOTE: these might not be in the same order as the ids
-  return tags;
 }
 
 export async function getTagById(id) {
@@ -47,6 +39,26 @@ export async function getTagByName(name) {
   } catch (e) {
     console.error("database error:", e);
     throw Error("Could not get tag: " + e.message);
+  }
+}
+
+export async function getTrackTags(trackId) {
+  try {
+    // get the track
+    // can't use getTrackById because of circular imports
+    const track = await db.tracks.get(trackId);
+
+    if (tagCache.valid) return track.tags.map((id) => tagCache.data[id]);
+
+    // need to do it this way to get them in order
+    const tags = await Promise.all(
+      track.tags.map(async (tagId) => await db.tags.get(tagId))
+    );
+
+    return tags;
+  } catch (e) {
+    console.error("database error:", e);
+    throw Error("Could not get tags for track: " + e.message);
   }
 }
 

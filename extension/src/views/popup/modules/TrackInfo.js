@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Thumbnail from "../components/Thumbnail";
 import Rating from "../components/Rating";
 import Tag from "../components/Tag";
@@ -11,8 +11,6 @@ import TagsDropdown from "./TagsDropdown";
 
 function TrackInfo({
   track,
-  guessedArtists = [], // in case of untracked
-  setGuessedArtists = (v) => {}, // just forward these to ArtistsDropdown
   big = true,
   editing = false,
   allowEditingUrl = true,
@@ -20,12 +18,16 @@ function TrackInfo({
   actions = [],
   showSearch = false,
 }) {
-  // comma-separated artist names
+  // construct comma-separated artist names for displaying etc
   const [artistString, setArtistString] = useState("");
+  // TODO this (and some other stuff in this component) only works for tracked tracks
+  // but track info is used in the untracked page too
+  // and i (probably) can't just use track.artists because it might be outdated
+  // unless i edit the playlists object every time i delete a tag for example
   useEffect(() => {
     (async () => {
       // get objects from ids
-      const artists = await background("getTrackArtists", track.artists);
+      const artists = await background("getTrackArtists", track.id);
       const string = artists.map((a) => a.name).join(", "); // join them
       setArtistString(string);
     })();
@@ -94,10 +96,28 @@ function TrackInfo({
               />
               <ArtistsDropdown
                 createable
-                value={track.artists}
-                onChange={(value) => updateTrack({ artists: value })}
-                guessedValue={guessedArtists}
-                setGuessedValue={setGuessedArtists}
+                value={track.artists.map((a) =>
+                  a.isReal
+                    ? a.id
+                    : {
+                        // use just the name
+                        // putting a special character at the start so i can more easily tell names apart from ids later...
+                        value: "!" + a.name,
+                        // i need to put extra data here because this isn't in the options
+                        label: a.name,
+                        backgroundColor: "var(--backgroundAccent)",
+                        color: "var(--text)",
+                      }
+                )}
+                onChange={(value) => {
+                  // updatedValue is an array of ids for real artists and names for non real ones
+                  const newValue = value.map((v) =>
+                    v.startsWith("!")
+                      ? { isReal: false, name: v.slice(1) }
+                      : { isReal: true, id: v }
+                  );
+                  updateTrack({ artists: newValue });
+                }}
               />
             </>
           ) : (

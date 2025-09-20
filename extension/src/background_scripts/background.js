@@ -7,8 +7,8 @@ import {
   SUPPORTED_QUERY,
   SupportedSites,
 } from "../consts";
-import { getBrowser, getTab, popup, insertScript, request } from "./util";
-import { pick, buildRecord, stripSupportedUrl } from "../util";
+import { getBrowser, getTab, popup, insertScript } from "./util";
+import { pick } from "../util";
 import * as db from "./database";
 
 /** update status bar in popup with info (default), error, or success */
@@ -96,7 +96,9 @@ async function getSupportedTabs() {
       // add playlist data, if playlist
       const playlistData = await getPlaylistInfo(tab.id);
       if (playlistData?.title)
-        tabData.title = `${playlistData.title} - ${playlistData.tracks[playlistData.playingIndex].title}`;
+        tabData.title = `${playlistData.title} - ${
+          playlistData.tracks[playlistData.playingIndex].title
+        }`;
 
       return {
         tab: tabData,
@@ -350,11 +352,11 @@ export const FUNCTIONS = {
   searchOtherSite,
 
   getAllArtists: db.getAllArtists,
-  getTrackArtists: db.getArtistsByIds,
-  getArtistByName: db.getArtistByName,
+  getTrackArtists: db.getTrackArtists,
+  artistMatch: db.artistMatch,
   createArtist: db.createArtist,
   getAllTags: db.getAllTags,
-  getTrackTags: db.getTagsByIds,
+  getTrackTags: db.getTrackTags,
   createTag: db.createTag,
   createTrack: db.createTrack,
 };
