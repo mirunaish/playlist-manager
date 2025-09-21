@@ -142,47 +142,15 @@ export function createModel(name, fields) {
         .join(", ");
     }
 
-    /** find an object by the primary key */
-    static async findById(id) {
-      return await dexie[name].get(id);
-    }
-
     /**
-     * find an object by any number of fields.
-     * only the first field uses the db index, the others are filtered in memory;
-     * so put the most restrictive filter first.
-     * the first field must be indexed, but the others don't have to be.
-     * each field must be an object, the key is the field name and the value is
-     * either a string value to be matched, an array of values, or an options object.
-     * ignoreCase is false by default.
+     * helper function for findOne, findAll, modify, etc. builds the selection part of the query.
      * @param {{ [key: string]: { value: any | any[], exclude: any | any[], ignoreCase?: boolean } | any | any[] }} filters
      */
-    static async findOne(filters) {
-      // find all
-      const all = await this.findAll(filters);
-      // and return the first one
-      return all.length > 0 ? all[0] : null;
-    }
-
-    /**
-     * find all objects that match filters
-     * only the first field uses the db index, the others are filtered in memory;
-     * so put the most restrictive filter first.
-     * the first field must be indexed, but the others don't have to be.
-     * each field must be an object, the key is the field name and the value is
-     * either a string value to be matched, an array of values, or an options object.
-     * ignoreCase is false by default.
-     * @param {{ [key: string]: { value: any | any[], exclude: any | any[], ignoreCase?: boolean } | any | any[] }} filters
-     * @param {{ orderBy?: string }} options
-     */
-    static async findAll(filters = {}, options = {}) {
-      // no fields given; return all data
+    static _select(filters) {
+      // no fields given; select entire table
       if (!filters || Object.keys(filters).length === 0) {
-        let query = dexie[name];
-        if (options.orderBy) {
-          query = query.orderBy(options.orderBy);
-        }
-        return await query.toArray();
+        const query = dexie[name];
+        return query;
       }
 
       // convert all filters from whatever format they were given in
@@ -242,12 +210,57 @@ export function createModel(name, fields) {
         query = field.addToQueryInMemory(query, { value, ...other });
       });
 
-      // finally...... sort
+      return query;
+    }
+
+    /** find an object by the primary key */
+    static async findById(id) {
+      return await dexie[name].get(id);
+    }
+
+    /**
+     * find an object by any number of fields.
+     * only the first field uses the db index, the others are filtered in memory;
+     * so put the most restrictive filter first.
+     * the first field must be indexed, but the others don't have to be.
+     * each field must be an object, the key is the field name and the value is
+     * either a string value to be matched, an array of values, or an options object.
+     * ignoreCase is false by default.
+     * @param {{ [key: string]: { value: any | any[], exclude: any | any[], ignoreCase?: boolean } | any | any[] }} filters
+     */
+    static async findOne(filters) {
+      let query = this._select(filters);
+      return await query.first();
+    }
+
+    /**
+     * find all objects that match filters
+     * only the first field uses the db index, the others are filtered in memory;
+     * so put the most restrictive filter first.
+     * the first field must be indexed, but the others don't have to be.
+     * each field must be an object, the key is the field name and the value is
+     * either a string value to be matched, an array of values, or an options object.
+     * ignoreCase is false by default.
+     * @param {{ [key: string]: { value: any | any[], exclude: any | any[], ignoreCase?: boolean } | any | any[] }} filters
+     * @param {{ orderBy?: string }} options
+     */
+    static async findAll(filters = {}, options = {}) {
+      let query = this._select(filters);
+
       if (options.orderBy) {
         query = query.orderBy(options.orderBy);
       }
 
       return await query.toArray();
+    }
+
+    /**
+     * @param {{ [key: string]: any; }} filters
+     * @param {(data: any) => any} callback
+     */
+    static async modify(filters, callback) {
+      let query = this._select(filters);
+      return await query.modify(callback);
     }
 
     constructor(data) {
