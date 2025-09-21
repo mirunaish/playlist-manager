@@ -17,6 +17,10 @@ class DexieDatabase {
 
     return await this.db.open();
   }
+
+  async transaction(mode, tables, callback) {
+    return await this.db.transaction(mode, tables, callback);
+  }
 }
 
 export const dexie = new DexieDatabase();
@@ -123,6 +127,8 @@ export function createModel(name, fields) {
   if (dexie.models[name]) throw Error(`A model with ${name} already exists.`);
 
   const model = class Model {
+    static model = dexie.db[name];
+
     static fields = Object.entries(fields).reduce((acc, [name, options]) => {
       acc[name] = new Field({ name, ...options });
       return acc;
@@ -130,6 +136,7 @@ export function createModel(name, fields) {
 
     static get indexedProps() {
       return Object.values(this.fields)
+        .sort((a, b) => (b.isPrimaryKey ? 1 : 0) - (a.isPrimaryKey ? 1 : 0)) // put the primary key first
         .map((f) => f.indexedProps)
         .filter((p) => p !== null)
         .join(", ");
@@ -166,17 +173,22 @@ export function createModel(name, fields) {
      * either a string value to be matched, an array of values, or an options object.
      * ignoreCase is false by default.
      * @param {{ [key: string]: { value: any | any[], exclude: any | any[], ignoreCase?: boolean } | any | any[] }} filters
+     * @param {{ orderBy?: string }} options
      */
-    static async findAll(filters) {
+    static async findAll(filters = {}, options = {}) {
       // no fields given; return all data
-      if (!filters || filters.length === 0) {
-        return await dexie[name].toArray();
+      if (!filters || Object.keys(filters).length === 0) {
+        let query = dexie[name];
+        if (options.orderBy) {
+          query = query.orderBy(options.orderBy);
+        }
+        return await query.toArray();
       }
 
       // convert all filters from whatever format they were given in
       // to { key, value, isArray, exclude: boolean, ignoreCase }
       // remove any values that are undefined
-      const options = Object.entries(filters)
+      const search = Object.entries(filters)
         .filter(([key, value]) => value !== undefined)
         .flatMap(([key, value]) => {
           const DEFAULTS = { exclude: false, ignoreCase: false };
@@ -220,15 +232,20 @@ export function createModel(name, fields) {
       let query = dexie[name];
 
       // get the first field and query the db
-      const { key, value, ...option } = options.shift();
+      const { key, value, ...other } = search.shift();
       const field = this.fields[key];
-      query = field.addToQuery(query, { value, ...option });
+      query = field.addToQuery(query, { value, ...other });
 
       // now apply all other filters as in-memory
-      options.forEach(({ key, value, ...option }) => {
+      search.forEach(({ key, value, ...other }) => {
         const field = this.fields[key];
-        query = field.addToQueryInMemory(query, { value, ...option });
+        query = field.addToQueryInMemory(query, { value, ...other });
       });
+
+      // finally...... sort
+      if (options.orderBy) {
+        query = query.orderBy(options.orderBy);
+      }
 
       return await query.toArray();
     }
