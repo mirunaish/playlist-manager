@@ -21,8 +21,14 @@ async function getActiveTab() {
   return tab.data;
 }
 
+async function createTab(tabData) {
+  const tab = new Tabs(tabData);
+  await tab.save();
+  return tab.data;
+}
+
 async function makeTabActive(id) {
-  const tab = await getTabById(id);
+  const tab = await Tabs.findById(id);
   if (!tab) throw new Error("couldn't find tab with id " + id);
 
   // make tab active and window focused
@@ -30,10 +36,25 @@ async function makeTabActive(id) {
   await tab.save();
 }
 
+async function changeTabUrl(id, url) {
+  const tab = await Tabs.findById(id);
+  if (!tab) throw new Error("couldn't find tab with id " + id);
+  tab.set({ url });
+  await tab.save();
+}
+
+async function closeTab(id) {
+  const tab = await Tabs.findById(id);
+  await tab.delete();
+}
+
 export const tabRepository = {
   getAllTabs,
   getAudibleTabs,
   getTabById,
   getActiveTab,
+  createTab,
   makeTabActive,
+  changeTabUrl,
+  closeTab,
 };

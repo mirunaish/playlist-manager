@@ -11,13 +11,13 @@ async function getAllTags() {
 
 async function getTagById(id) {
   const tag = await Tags.findById(id);
-  if (!tag) throw Error("Tag does not exist.");
+  if (!tag) return null;
   return tag.data;
 }
 
 async function getTagByName(name) {
   const tag = await Tags.findOne({ name });
-  if (tag === null) throw Error("Tag does not exist.");
+  if (tag === null) return null;
   return tag.data;
 }
 
@@ -39,7 +39,7 @@ async function createTag(tagData) {
 async function editTag(id, tagData) {
   return await dexie.transaction("rw", Tags.model, async () => {
     // get existing tag
-    const tag = await getTagById(id);
+    const tag = await Tags.findById(id);
     if (!tag) throw Error("Tag does not exist");
 
     // if name was changed, check that new name does not exist

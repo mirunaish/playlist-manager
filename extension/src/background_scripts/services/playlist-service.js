@@ -86,7 +86,8 @@ async function getPlaylist(tabId) {
 }
 
 export const playlistService = {
+  ...playlistRepository,
+  getPlaylist, // overwrite the method from repository
   reshuffle,
   previewPlaylist,
-  getPlaylist,
 };

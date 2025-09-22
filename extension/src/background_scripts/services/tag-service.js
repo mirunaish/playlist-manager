@@ -26,6 +26,6 @@ async function deleteTag(id) {
 
 export const tagService = {
   ...tagRepository,
+  deleteTag, // overwrite repository
   getTrackTags,
-  deleteTag,
 };

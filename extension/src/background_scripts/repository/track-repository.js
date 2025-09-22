@@ -37,10 +37,10 @@ async function createTrack(trackData) {
 }
 
 async function updateTrack(id, trackData) {
-  const currentTrack = await getTrackById(id);
-  currentTrack.set(trackData);
-  await currentTrack.save();
-  return currentTrack.data;
+  const track = await Tracks.findById(id);
+  track.set(trackData);
+  await track.save();
+  return track.data;
 }
 
 async function removeTagFromTracks(tagId) {

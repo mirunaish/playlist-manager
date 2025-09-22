@@ -5,6 +5,34 @@ async function getPlaylistByTabId(tabId) {
   return playlist.data;
 }
 
+async function createPlaylist(tabId, playlistData) {
+  const playlist = new Playlists({
+    _id: tabId,
+    ...playlistData,
+  });
+
+  await playlist.save();
+
+  return playlist;
+}
+
+async function editPlaylist(tabId, newData) {
+  const playlist = await Playlists.findById(tabId);
+  if (!playlist) throw new Error("no playlist with tabId " + tabId);
+
+  playlist.set(newData);
+  await playlist.save();
+  return playlist.data;
+}
+
+async function deletePlaylist(tabId) {
+  const playlist = await Playlists.findById(tabId);
+  await playlist.remove();
+}
+
 export const playlistRepository = {
   getPlaylistByTabId,
+  createPlaylist,
+  editPlaylist,
+  deletePlaylist,
 };

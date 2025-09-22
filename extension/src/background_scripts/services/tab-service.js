@@ -100,6 +100,19 @@ async function getSupportedTabs() {
   return tabs;
 }
 
+/** get first audible tab that's also a playlist */
+async function getFirstAudiblePlaylistTab() {
+  const audibleTabs = await tabRepository.getAudibleTabs();
+
+  // find the first one that has a playlist attached
+  for (let tab of audibleTabs) {
+    const playlist = await playlistRepository.getPlaylistByTabId(tab.id);
+    if (playlist) return tab;
+  }
+
+  return null;
+}
+
 /**
  * active tab in current window if it's supported / playlist / audible >
  * (TODO maybe return the first audible tab that's also a playlist if any?)
@@ -123,7 +136,11 @@ async function getMostImportantTabId() {
     if (playlist) return activeTab.id;
   }
 
-  // get all audible tabs and just return the first one if any
+  // if a playlist is audible, return that
+  const audiblePlaylistTab = await getFirstAudiblePlaylistTab();
+  if (audiblePlaylistTab) return audiblePlaylistTab.id;
+
+  // or just get all audible tabs and return the first one if any
   const audibleTab = (await tabRepository.getAudibleTabs())[0];
   if (audibleTab) return audibleTab.id;
 
@@ -132,10 +149,20 @@ async function getMostImportantTabId() {
   return null;
 }
 
+/** search for a track on one of the supported sites in a new tab */
+async function searchOtherSite(query, site) {
+  const url = SupportedSites[site].getQuery(query);
+
+  await tabRepository.createTab({ url, active: true });
+}
+
 export const tabService = {
+  ...tabRepository,
   switchToTab,
   getTabType,
   guessTrackInfo,
   getSupportedTabs,
+  getFirstAudiblePlaylistTab,
   getMostImportantTabId,
+  searchOtherSite,
 };

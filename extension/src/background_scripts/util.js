@@ -1,4 +1,7 @@
 // this is to prevent error messages everywhere
+
+import { MessageTypes } from "../utils";
+
 // @ts-ignore
 export const getBrowser = () => browser;
 
@@ -8,6 +11,15 @@ export async function popup(messageType, payload) {
     type: messageType,
     payload,
   });
+}
+
+/** update status bar in popup with info (default), error, or success */
+export async function updateStatus(message, statusType) {
+  try {
+    await popup(MessageTypes.STATUS_UPDATE, { message, statusType });
+  } catch (e) {
+    console.error('failed to update status "' + message + '";', e);
+  }
 }
 
 /** insert a content script */

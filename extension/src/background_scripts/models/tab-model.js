@@ -52,4 +52,15 @@ export class Tabs {
 
     return this.tab;
   }
+
+  async delete() {
+    if (this.tab === null) return;
+    try {
+      await Tabs.tabs.remove(this.tab.id);
+    } catch (e) {
+      // tab was probably already closed, ignore
+    }
+
+    this.tab = null;
+  }
 }
