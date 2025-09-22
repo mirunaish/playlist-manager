@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Button from "../components/Button";
-import { useStatusUpdate } from "../modules/StatusProvider";
+import { useStatusUpdate } from "../providers/StatusProvider";
 import { background } from "../util";
 import Banner from "../components/Banner";
 import { FUNCTIONS, StatusTypes } from "../../../utils";

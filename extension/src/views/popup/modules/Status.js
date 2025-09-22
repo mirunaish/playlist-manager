@@ -1,6 +1,6 @@
 import React from "react";
 import { StatusTypes } from "../../../utils";
-import { useStatus, useStatusUpdate } from "./StatusProvider";
+import { useStatus, useStatusUpdate } from "../providers/StatusProvider";
 
 function Status() {
   const status = useStatus();

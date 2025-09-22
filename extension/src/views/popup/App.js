@@ -14,7 +14,7 @@ import {
   Untracked,
 } from "./pages";
 import { useListener } from "./hooks";
-import StatusProvider from "./modules/StatusProvider";
+import StatusProvider from "./providers/StatusProvider";
 
 function App() {
   // made these into a single state to force both to update at the same time

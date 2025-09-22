@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import { background } from "../util";
-import { useStatusUpdate } from "./StatusProvider";
+import { useStatusUpdate } from "../providers/StatusProvider";
 import { FUNCTIONS, StatusTypes } from "../../../utils";
 
 const ArtistsDropdown = ({

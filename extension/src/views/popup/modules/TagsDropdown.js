@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { background } from "../util";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
-import { useStatusUpdate } from "./StatusProvider";
+import { useStatusUpdate } from "../providers/StatusProvider";
 import { FUNCTIONS, StatusTypes } from "../../../utils";
 
 const TagsDropdown = ({

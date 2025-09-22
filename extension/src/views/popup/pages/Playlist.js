@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Banner from "../components/Banner";
 import { useListener } from "../hooks";
-import { useStatusUpdate } from "../modules/StatusProvider";
+import { useStatusUpdate } from "../providers/StatusProvider";
 import { background } from "../util";
 import List from "../modules/List";
 import TrackInfo from "../modules/TrackInfo";
