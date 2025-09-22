@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Star, Stars } from "../icons/Star";
-import { GRADIENT } from "../../../consts";
+import { GRADIENT } from "../../../utils";
 
 function Rating({
   // !multiselect: value is a number

@@ -3,7 +3,7 @@ import "./App.css";
 import Status from "./modules/Status";
 import Tabs from "./modules/Tabs";
 import { background } from "./util";
-import { MessageTypes, Pages } from "../../consts";
+import { MessageTypes, Pages } from "../../utils";
 import {
   NewMix,
   Search,

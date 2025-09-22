@@ -1,4 +1,4 @@
-import { MessageTypes } from "../consts";
+import { MessageTypes } from "../utils";
 
 (function () {
   // get the text inside an element

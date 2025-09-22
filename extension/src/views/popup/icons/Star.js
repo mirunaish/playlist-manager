@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { GRADIENT } from "../../../consts";
+import { GRADIENT } from "../../../utils";
 
 export const Stars = {
   4: {

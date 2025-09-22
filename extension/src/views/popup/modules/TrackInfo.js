@@ -3,7 +3,7 @@ import Thumbnail from "../components/Thumbnail";
 import Rating from "../components/Rating";
 import Tag from "../components/Tag";
 import { background, closePopup } from "../util";
-import { SupportedSites } from "../../../consts";
+import { SupportedSites } from "../../../utils";
 import Button from "../components/Button";
 import { Icons } from "../icons";
 import ArtistsDropdown from "./ArtistsDropdown";

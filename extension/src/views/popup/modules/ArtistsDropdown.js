@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import { background } from "../util";
 import { useStatusUpdate } from "./StatusProvider";
-import { StatusTypes } from "../../../consts";
+import { StatusTypes } from "../../../utils";
 
 const ArtistsDropdown = ({
   createable = false,

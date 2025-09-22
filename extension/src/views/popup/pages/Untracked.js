@@ -3,7 +3,7 @@ import { useListener } from "../hooks";
 import { useStatusUpdate } from "../modules/StatusProvider";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { EMPTY_TRACK, MessageTypes, StatusTypes } from "../../../consts";
+import { EMPTY_TRACK, MessageTypes, StatusTypes } from "../../../utils";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
 

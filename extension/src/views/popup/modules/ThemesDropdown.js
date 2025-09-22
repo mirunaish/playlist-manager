@@ -1,6 +1,5 @@
 import React from "react";
-import { Themes } from "../../../themes";
-import { humanReadable } from "../../../util";
+import { Themes, humanReadable } from "../../../utils";
 
 function ThemesDropdown({ value = null, onChange = (id) => {} }) {
   // get themes TODO if themes are ever moved to db instead of hardcoded

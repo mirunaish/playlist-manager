@@ -1,4 +1,4 @@
-import { MessageTypes } from "../../consts";
+import { MessageTypes } from "../../utils";
 
 /** get the result of a background function */
 export async function background(functionName, ...args) {

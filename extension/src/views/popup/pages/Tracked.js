@@ -3,7 +3,7 @@ import { background } from "../util";
 import Banner from "../components/Banner";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
-import { EMPTY_TRACK, StatusTypes } from "../../../consts";
+import { EMPTY_TRACK, StatusTypes } from "../../../utils";
 import { useStatusUpdate } from "../modules/StatusProvider";
 
 function Tracked({ selectedTabId }) {

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { MessageTypes, StatusTypes } from "../../../consts";
+import { MessageTypes, StatusTypes } from "../../../utils";
 import { useListener } from "../hooks";
 
 const StatusContext = createContext({

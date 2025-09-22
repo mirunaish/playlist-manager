@@ -1,6 +1,6 @@
 import React from "react";
 import Rating from "../components/Rating";
-import { BORDER_STYLE } from "../../../consts";
+import { BORDER_STYLE } from "../../../utils";
 import ArtistsDropdown from "./ArtistsDropdown";
 import TagsDropdown from "./TagsDropdown";
 

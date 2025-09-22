@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { background } from "../util";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import { useStatusUpdate } from "./StatusProvider";
-import { StatusTypes } from "../../../consts";
+import { StatusTypes } from "../../../utils";
 
 const TagsDropdown = ({
   label = "Tags",

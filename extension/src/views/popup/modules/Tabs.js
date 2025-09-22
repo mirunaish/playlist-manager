@@ -5,10 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { shorten } from "../../../util";
 import { background } from "../util";
-import { Themes } from "../../../themes";
-import { MessageTypes, Pages } from "../../../consts";
+import { MessageTypes, Pages, Themes } from "../../../utils";
 import Scrollable from "../components/Scrollable";
 import { useListener } from "../hooks";
 import { Icon, Icons } from "../icons";

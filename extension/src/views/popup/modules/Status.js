@@ -1,5 +1,5 @@
 import React from "react";
-import { StatusTypes } from "../../../consts";
+import { StatusTypes } from "../../../utils";
 import { useStatus, useStatusUpdate } from "./StatusProvider";
 
 function Status() {

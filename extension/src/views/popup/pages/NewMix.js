@@ -3,7 +3,7 @@ import Button from "../components/Button";
 import { useStatusUpdate } from "../modules/StatusProvider";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { StatusTypes } from "../../../consts";
+import { StatusTypes } from "../../../utils";
 import Filters from "../modules/Filters";
 import List from "../modules/List";
 import Stats from "../modules/Stats";

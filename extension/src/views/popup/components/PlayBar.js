@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Icon, Icons } from "../icons/index";
-import { BORDER_STYLE } from "../../../consts";
-import { formatTime } from "../../../util";
+import { BORDER_STYLE, formatTime } from "../../../utils";
 
 function PlayBar({ totalTime, currentTime, disabled = false }) {
   const [playing, setPlaying] = useState(false);

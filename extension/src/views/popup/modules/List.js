@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { BORDER_STYLE } from "../../../consts";
-import { formatTime } from "../../../util";
+import { BORDER_STYLE, formatTime } from "../../../utils";
 import Thumbnail from "../components/Thumbnail";
 import Scrollable from "../components/Scrollable";
 import Rating from "../components/Rating";
