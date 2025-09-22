@@ -3,7 +3,7 @@ import { background } from "../util";
 import Banner from "../components/Banner";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
-import { EMPTY_TRACK, StatusTypes } from "../../../utils";
+import { EMPTY_TRACK, FUNCTIONS, StatusTypes } from "../../../utils";
 import { useStatusUpdate } from "../modules/StatusProvider";
 
 function Tracked({ selectedTabId }) {
@@ -17,7 +17,7 @@ function Tracked({ selectedTabId }) {
   // ask background script for track info from database
   useEffect(() => {
     (async () => {
-      const info = await background("getTrackInfoFromDB", {
+      const info = await background(FUNCTIONS.getTrackByTabUrl, {
         tabId: selectedTabId,
       });
       setTrackInfo(info);
@@ -32,12 +32,7 @@ function Tracked({ selectedTabId }) {
   const edit = useCallback(async () => {
     updateStatus("Editing track...");
     try {
-      await background(
-        "editTrack",
-        editingTrackInfo,
-        trackInfo.url,
-        selectedTabId
-      );
+      await background(FUNCTIONS.editTrack, editingTrackInfo, selectedTabId);
 
       updateStatus("Track edited successfully", StatusTypes.SUCCESS);
       setTrackInfo(editingTrackInfo); // set updated track info
@@ -47,7 +42,7 @@ function Tracked({ selectedTabId }) {
       console.error("failed to edit track", e);
       updateStatus("Track could not be edited", StatusTypes.ERROR);
     }
-  }, [editingTrackInfo, selectedTabId, trackInfo, updateStatus]);
+  }, [editingTrackInfo, selectedTabId, updateStatus]);
 
   return (
     <div className="page" style={{ display: "flex", flexDirection: "column" }}>

@@ -3,7 +3,7 @@ import Button from "../components/Button";
 import { useStatusUpdate } from "../modules/StatusProvider";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { StatusTypes } from "../../../utils";
+import { FUNCTIONS, StatusTypes } from "../../../utils";
 import Filters from "../modules/Filters";
 import List from "../modules/List";
 import Stats from "../modules/Stats";
@@ -30,10 +30,9 @@ function NewMix() {
   const preview = useCallback(async () => {
     updateStatus("fetching playlist...");
     try {
-      let { playlist, stats } = await background("getPlaylist", filters);
-      playlist = await background("addPlaylistTrackData", playlist);
+      let playlist = await background(FUNCTIONS.previewPlaylist, filters);
       setPlaylistPreview(playlist);
-      setStats(stats);
+      setStats({}); // TODO
       updateStatus("");
     } catch (e) {
       updateStatus(e.message, StatusTypes.ERROR);
@@ -41,15 +40,21 @@ function NewMix() {
   }, [filters, updateStatus]);
 
   const play = useCallback(async () => {
-    await background("startPlaying", mixName, theme, filters, playlistPreview);
+    await background(
+      FUNCTIONS.startPlaying,
+      mixName,
+      theme,
+      filters,
+      playlistPreview
+    );
   }, [filters, mixName, playlistPreview, theme]);
 
   const saveMix = useCallback(async () => {
-    await background("saveMix", filters);
+    // await background(FUNCTIONS.saveMix, filters); // TODO
   }, [filters]);
 
   const reshuffle = useCallback(async () => {
-    const shuffled = await background("reshuffle", playlistPreview);
+    const shuffled = await background(FUNCTIONS.reshuffle, playlistPreview);
     setPlaylistPreview(shuffled);
   }, [playlistPreview]);
 

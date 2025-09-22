@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { BORDER_STYLE, formatTime } from "../../../utils";
+import { BORDER_STYLE, formatTime, FUNCTIONS } from "../../../utils";
 import Thumbnail from "../components/Thumbnail";
 import Scrollable from "../components/Scrollable";
 import Rating from "../components/Rating";
@@ -70,7 +70,7 @@ function List({
   const [artists, setArtists] = useState({});
   useEffect(() => {
     (async () => {
-      const result = await background("getAllArtists");
+      const result = await background(FUNCTIONS.getAllArtists);
       if (!result || result.length === 0) return;
       setArtists(result);
     })();

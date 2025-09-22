@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { background } from "../util";
-import { MessageTypes, Pages, Themes } from "../../../utils";
+import { FUNCTIONS, MessageTypes, Pages, Themes } from "../../../utils";
 import Scrollable from "../components/Scrollable";
 import { useListener } from "../hooks";
 import { Icon, Icons } from "../icons";
@@ -30,7 +30,7 @@ function Tabs({ selectedTabId, selectTab }) {
 
   /** ask background script for all supported site tabs in browser */
   const askBackgroundForTabs = useCallback(async () => {
-    const tabs = await background("getSupportedTabs");
+    const tabs = await background(FUNCTIONS.getSupportedTabs);
     setAllTabs(tabs);
   }, []);
 
@@ -58,7 +58,7 @@ function Tabs({ selectedTabId, selectTab }) {
    */
   async function selectOrSwitch(id) {
     if (id === selectedTabId) {
-      await background("switchToTab", id);
+      await background(FUNCTIONS.switchToTab, id);
     } else {
       selectTab(id);
     }

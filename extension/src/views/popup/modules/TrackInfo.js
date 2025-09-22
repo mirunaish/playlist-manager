@@ -3,7 +3,7 @@ import Thumbnail from "../components/Thumbnail";
 import Rating from "../components/Rating";
 import Tag from "../components/Tag";
 import { background, closePopup } from "../util";
-import { SupportedSites } from "../../../utils";
+import { FUNCTIONS, SupportedSites } from "../../../utils";
 import Button from "../components/Button";
 import { Icons } from "../icons";
 import ArtistsDropdown from "./ArtistsDropdown";
@@ -27,7 +27,7 @@ function TrackInfo({
   useEffect(() => {
     (async () => {
       // get objects from ids
-      const artists = await background("getTrackArtists", track.id);
+      const artists = await background(FUNCTIONS.getTrackArtists, track.id);
       const string = artists.map((a) => a.name).join(", "); // join them
       setArtistString(string);
     })();
@@ -37,7 +37,7 @@ function TrackInfo({
   const [tags, setTags] = useState([]);
   useEffect(() => {
     (async () => {
-      const result = await background("getTrackTags", track.tags);
+      const result = await background(FUNCTIONS.getTrackTags, track.tags);
       setTags(result);
     })();
   }, [track]);
@@ -46,7 +46,7 @@ function TrackInfo({
     async (site) => {
       // background will open a new tab with the search
       await background(
-        "searchOtherSite",
+        FUNCTIONS.searchOtherSite,
         artistString + " - " + track.title,
         site
       );

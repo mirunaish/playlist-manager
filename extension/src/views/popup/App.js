@@ -3,7 +3,7 @@ import "./App.css";
 import Status from "./modules/Status";
 import Tabs from "./modules/Tabs";
 import { background } from "./util";
-import { MessageTypes, Pages } from "../../utils";
+import { FUNCTIONS, MessageTypes, Pages } from "../../utils";
 import {
   NewMix,
   Search,
@@ -34,7 +34,7 @@ function App() {
       }
 
       // else get type of normal tab and switch to that page
-      const type = await background("getTabType", tabId);
+      const type = await background(FUNCTIONS.getTabType, tabId);
       _setSelectedTabIdAndPage({ selectedTabId: tabId, page: type });
     })();
   }, []);
@@ -42,7 +42,7 @@ function App() {
   // ask background script for initial selected tab id
   useEffect(() => {
     (async () => {
-      const tabId = await background("getMostImportantTabId");
+      const tabId = await background(FUNCTIONS.getMostImportantTabId);
       if (tabId) setSelectedTabId(tabId);
     })();
   }, [setSelectedTabId]);

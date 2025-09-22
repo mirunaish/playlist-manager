@@ -3,7 +3,12 @@ import { useListener } from "../hooks";
 import { useStatusUpdate } from "../modules/StatusProvider";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { EMPTY_TRACK, MessageTypes, StatusTypes } from "../../../utils";
+import {
+  EMPTY_TRACK,
+  FUNCTIONS,
+  MessageTypes,
+  StatusTypes,
+} from "../../../utils";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
 
@@ -20,7 +25,7 @@ function Untracked({ selectedTabId, navigate }) {
       const { artists, ...trackInfo } = payload;
 
       // determine which artists are real and which aren't
-      const artistData = await background("artistMatch", artists);
+      const artistData = await background(FUNCTIONS.artistMatch, artists);
 
       setUntrackedInfo({ ...untrackedInfo, ...trackInfo, artists: artistData });
     })();
@@ -31,7 +36,7 @@ function Untracked({ selectedTabId, navigate }) {
     // reset untracked info
     setUntrackedInfo(EMPTY_TRACK);
     // ask background script to get track info from page
-    background("getTrackInfoFromTab", selectedTabId);
+    background(FUNCTIONS.guessTrackInfo, selectedTabId);
     // background will later send a message with the info which the listener will catch
   }, [selectedTabId]);
 
@@ -41,7 +46,7 @@ function Untracked({ selectedTabId, navigate }) {
     updateStatus("Saving track...");
 
     try {
-      await background("createTrack", untrackedInfo);
+      await background(FUNCTIONS.createTrack, untrackedInfo);
 
       updateStatus("track saved", StatusTypes.SUCCESS);
       // tell popup to switch to tracked view (but same tab id)

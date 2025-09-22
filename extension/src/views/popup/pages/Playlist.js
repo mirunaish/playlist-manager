@@ -9,6 +9,7 @@ import PlayBar from "../components/PlayBar";
 import {
   EMPTY_PLAYLIST,
   EMPTY_TRACK,
+  FUNCTIONS,
   MessageTypes,
   StatusTypes,
 } from "../../../utils";
@@ -29,7 +30,10 @@ function Playlist({ selectedTabId }) {
   // includes playlist name and theme, list, and playing track info
   useEffect(() => {
     (async () => {
-      const info = await background("getPlaylistInfo", selectedTabId);
+      const info = await background(
+        FUNCTIONS.getPlaylistByTabId,
+        selectedTabId
+      );
       setPlaylistInfo(info);
       setPlayingIndex(info.playingIndex);
     })();
@@ -46,7 +50,7 @@ function Playlist({ selectedTabId }) {
 
   const selectTrack = useCallback(
     (index) => {
-      background("playTrack", selectedTabId, index);
+      background(FUNCTIONS.playTrack, selectedTabId, index);
     },
     [selectedTabId]
   );
@@ -59,12 +63,7 @@ function Playlist({ selectedTabId }) {
   const edit = useCallback(async () => {
     updateStatus("editing track...");
     try {
-      await background(
-        "editTrack",
-        editingTrackInfo,
-        trackInfo.url,
-        selectedTabId
-      );
+      await background(FUNCTIONS.editTrack, editingTrackInfo, selectedTabId);
       updateStatus("track edited", StatusTypes.SUCCESS);
       // set edited track info in playlist
       const newPlaylistInfo = { ...playlistInfo };
@@ -81,7 +80,6 @@ function Playlist({ selectedTabId }) {
     playingIndex,
     playlistInfo,
     selectedTabId,
-    trackInfo,
     updateStatus,
   ]);
 

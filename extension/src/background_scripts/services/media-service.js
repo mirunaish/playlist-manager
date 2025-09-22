@@ -15,9 +15,7 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
 
   // if playlist not provided, get it from filters
   if (playlistData.tracks === null) {
-    playlistData.tracks = (
-      await playlistService.previewPlaylist(filters)
-    ).playlist;
+    playlistData.tracks = await playlistService.previewPlaylist(filters);
   } else {
     // if tracks were provided, keep only the ids
     playlistData.tracks = playlistData.tracks.map((t) => t.id);
@@ -44,7 +42,7 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
 
 /** ready to play, load and play track at current index */
 async function playTrack(tabId, index) {
-  const playlist = await playlistService.getPlaylist(tabId);
+  const playlist = await playlistService.getPlaylistByTabId(tabId);
   const track = playlist.tracks[index];
 
   // navigate the playing tab to new url
@@ -64,7 +62,7 @@ async function playTrack(tabId, index) {
  * if last song, stop playing
  */
 async function next(tabId) {
-  const p = await playlistService.getPlaylist(tabId);
+  const p = await playlistService.getPlaylistByTabId(tabId);
   if (p.playingIndex < p.length - 1) {
     playTrack(tabId, p.playingIndex + 1);
   } else {
@@ -78,7 +76,7 @@ async function next(tabId) {
  * if first song, restart it instead
  */
 async function previous(tabId) {
-  const p = await playlistService.getPlaylist(tabId);
+  const p = await playlistService.getPlaylistByTabId(tabId);
   const index = p.playingIndex > 0 ? p.playingIndex - 1 : p.playingIndex;
   playTrack(tabId, index);
 }

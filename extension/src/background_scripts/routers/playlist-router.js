@@ -3,5 +3,6 @@ import { playlistService } from "../services";
 
 export const playlistRouter = {
   [FUNCTIONS.reshuffle]: playlistService.reshuffle,
-  [FUNCTIONS.getPlaylist]: playlistService.getPlaylist,
+  [FUNCTIONS.getPlaylistByTabId]: playlistService.getPlaylistByTabId,
+  [FUNCTIONS.previewPlaylist]: playlistService.previewPlaylist,
 };

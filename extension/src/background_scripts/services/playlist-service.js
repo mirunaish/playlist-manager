@@ -62,18 +62,14 @@ async function previewPlaylist(filters) {
     tracks = reshuffle(tracks);
   }
 
-  // get playlist stats
-  // const stats = getPlaylistStats(tracks);
-  // TODO
-
-  return { playlist: tracks, stats: undefined };
+  return tracks;
 }
 
 /**
  * get all info about playlist.
  * also include all track data for each track in the playlist
  */
-async function getPlaylist(tabId) {
+async function getPlaylistByTabId(tabId) {
   const playlist = await playlistRepository.getPlaylist(tabId);
   if (!playlist) return null;
 
@@ -87,7 +83,7 @@ async function getPlaylist(tabId) {
 
 export const playlistService = {
   ...playlistRepository,
-  getPlaylist, // overwrite the method from repository
+  getPlaylistByTabId, // overwrite the method from repository
   reshuffle,
   previewPlaylist,
 };

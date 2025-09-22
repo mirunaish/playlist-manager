@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
 import { background } from "../util";
 import { useStatusUpdate } from "./StatusProvider";
-import { StatusTypes } from "../../../utils";
+import { FUNCTIONS, StatusTypes } from "../../../utils";
 
 const ArtistsDropdown = ({
   createable = false,
@@ -16,7 +16,7 @@ const ArtistsDropdown = ({
 
   useEffect(() => {
     (async () => {
-      const result = await background("getAllArtists");
+      const result = await background(FUNCTIONS.getAllArtists);
       setArtists(result);
     })();
   }, []);
@@ -25,7 +25,7 @@ const ArtistsDropdown = ({
     (artistName) => {
       (async () => {
         try {
-          const artist = await background("createArtist", {
+          const artist = await background(FUNCTIONS.createArtist, {
             name: artistName,
           });
 
