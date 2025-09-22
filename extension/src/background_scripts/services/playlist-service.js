@@ -1,8 +1,29 @@
 import { pick } from "../../utils";
-import { artistRepository, trackRepository } from "../repository";
+import {
+  artistRepository,
+  trackRepository,
+  playlistRepository,
+} from "../repository";
+
+/** shuffle tracks in playlist */
+function reshuffle(playlist) {
+  for (let i = 0; i < playlist.length - 1; i++) {
+    // pick random track
+    let j = Math.floor(Math.random() * (playlist.length - i)) + i;
+    // move it to the front (j can be =i in which case i doesn't move)
+    [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+  }
+  return playlist;
+}
+
+// function getPlaylistStats(playlist) {
+//   let stats = {};
+
+//   return stats;
+// }
 
 // filter + sort tracks
-export async function getPlaylist(filters) {
+async function previewPlaylist(filters) {
   const query = {
     artists: filters.artists?.length > 0 ? filters.artists : undefined,
     rating: filters.rating?.length > 0 ? filters.rating : undefined,
@@ -26,11 +47,11 @@ export async function getPlaylist(filters) {
   }
 
   // get playlist with filters
-  let playlist = (await trackRepository.getTracks(query)).map((t) =>
+  let tracks = (await trackRepository.getTracks(query)).map((t) =>
     pick(t, ["id", "url"])
   );
 
-  if (playlist.length === 0) {
+  if (tracks.length === 0) {
     throw Error("Found no tracks matching these filters");
   }
 
@@ -38,24 +59,34 @@ export async function getPlaylist(filters) {
   // TODO add more sorts
   if (filters.sort === "shuffle") {
     // shuffle the playlist
-    for (let i = 0; i < playlist.length - 1; i++) {
-      // pick random track and move it to the front
-      let j = Math.floor(Math.random() * (playlist.length - i)) + i;
-
-      // swap
-      [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
-    }
+    tracks = reshuffle(tracks);
   }
 
   // get playlist stats
-  // const stats = getPlaylistStats(playlist);
+  // const stats = getPlaylistStats(tracks);
   // TODO
 
-  return { playlist, stats: undefined };
+  return { playlist: tracks, stats: undefined };
 }
 
-// function getPlaylistStats(playlist) {
-//   let stats = {};
+/**
+ * get all info about playlist.
+ * also include all track data for each track in the playlist
+ */
+async function getPlaylist(tabId) {
+  const playlist = await playlistRepository.getPlaylist(tabId);
+  if (!playlist) return null;
 
-//   return stats;
-// }
+  // attach track info to playlist
+  playlist.tracks = await Promise.all(
+    playlist.tracks.map((id) => trackRepository.getTrackById(id))
+  );
+
+  return playlist;
+}
+
+export const playlistService = {
+  reshuffle,
+  previewPlaylist,
+  getPlaylist,
+};

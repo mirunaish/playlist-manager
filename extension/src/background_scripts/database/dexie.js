@@ -72,42 +72,36 @@ class Field {
       if (exclude)
         return ignoreCase
           ? query.and(
-              (object) =>
-                object[this.name].toLowerCase() === value.toLowerCase()
+              (doc) => doc[this.name].toLowerCase() === value.toLowerCase()
             )
-          : query.and((object) => object[this.name] === value);
+          : query.and((doc) => doc[this.name] === value);
       else
         return ignoreCase
           ? query.and(
-              (object) =>
-                object[this.name].toLowerCase() !== value.toLowerCase()
+              (doc) => doc[this.name].toLowerCase() !== value.toLowerCase()
             )
-          : query.and((object) => object[this.name] !== value);
+          : query.and((doc) => doc[this.name] !== value);
     }
 
     // the field is a single value, i'm searching for any of the values in the array
     if (!this.isArray && isArray) {
       return exclude
-        ? query.and((object) => !value.includes(object[this.name]))
-        : query.and((object) => value.includes(object[this.name]));
+        ? query.and((doc) => !value.includes(doc[this.name]))
+        : query.and((doc) => value.includes(doc[this.name]));
     }
 
     // the field is an array and i'm searching for one value in it
     if (this.isArray && !isArray) {
       return exclude
-        ? query.and((object) => !object[this.name].includes(value))
-        : query.and((object) => object[this.name].includes(value));
+        ? query.and((doc) => !doc[this.name].includes(value))
+        : query.and((doc) => doc[this.name].includes(value));
     }
 
     // both the field and the value i'm searching for are arrays
     if (this.isArray && isArray) {
       return exclude
-        ? query.and((object) =>
-            object[this.name].some((v) => value.includes(v))
-          )
-        : query.and(
-            (object) => !object[this.name].some((v) => value.includes(v))
-          );
+        ? query.and((doc) => doc[this.name].some((v) => value.includes(v)))
+        : query.and((doc) => !doc[this.name].some((v) => value.includes(v)));
     }
 
     return query;
@@ -213,13 +207,13 @@ export function createModel(name, fields) {
       return query;
     }
 
-    /** find an object by the primary key */
+    /** find a document by the primary key */
     static async findById(id) {
       return await dexie[name].get(id);
     }
 
     /**
-     * find an object by any number of fields.
+     * find a document by any number of fields.
      * only the first field uses the db index, the others are filtered in memory;
      * so put the most restrictive filter first.
      * the first field must be indexed, but the others don't have to be.
@@ -234,7 +228,7 @@ export function createModel(name, fields) {
     }
 
     /**
-     * find all objects that match filters
+     * find all documents that match filters
      * only the first field uses the db index, the others are filtered in memory;
      * so put the most restrictive filter first.
      * the first field must be indexed, but the others don't have to be.
