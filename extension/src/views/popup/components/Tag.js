@@ -1,5 +1,5 @@
 import React from "react";
-import { contrastingColor } from "../../../util";
+import { contrastingColor } from "../../../utils";
 
 function Tag({ name, color }) {
   return (
