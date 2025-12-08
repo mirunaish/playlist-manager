@@ -46,7 +46,21 @@ function Untracked({ selectedTabId, navigate }) {
     updateStatus("Saving track...");
 
     try {
-      await background(FUNCTIONS.createTrack, untrackedInfo);
+      // first of all if there's unreal artists, create them
+      const artistIds = await Promise.all(
+        untrackedInfo.artists.map(async (info) => {
+          if (info.isReal === undefined) return info; // it's just the id
+          const newArtist = await background(FUNCTIONS.createArtist, {
+            name: info.name,
+          });
+          return newArtist.id;
+        })
+      );
+
+      await background(FUNCTIONS.createTrack, {
+        ...untrackedInfo,
+        artists: artistIds,
+      });
 
       updateStatus("track saved", StatusTypes.SUCCESS);
       // tell popup to switch to tracked view (but same tab id)

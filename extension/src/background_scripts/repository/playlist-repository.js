@@ -7,8 +7,8 @@ async function getPlaylistByTabId(tabId) {
 
 async function createPlaylist(tabId, playlistData) {
   const playlist = new Playlists({
-    _id: tabId,
     ...playlistData,
+    _id: tabId,
   });
 
   await playlist.save();

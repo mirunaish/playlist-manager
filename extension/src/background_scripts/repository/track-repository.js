@@ -7,6 +7,7 @@ async function getTracks(filters) {
 }
 
 async function getTrackById(id) {
+  if (!id || id === "") throw Error("Track does not exist.");
   const track = await Tracks.findById(id);
   if (!track) throw Error("Track does not exist.");
   return track.data;
@@ -31,7 +32,7 @@ async function getTrackByUrl(url) {
 
 async function createTrack(trackData) {
   let id = randomUUID();
-  const newTrack = new Tracks({ id, ...trackData });
+  const newTrack = new Tracks({ ...trackData, id });
   await newTrack.save();
   return newTrack.data;
 }

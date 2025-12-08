@@ -17,7 +17,7 @@ async function getTagById(id) {
 
 async function getTagByName(name) {
   const tag = await Tags.findOne({ name });
-  if (tag === null) return null;
+  if (tag) return null;
   return tag.data;
 }
 
@@ -30,7 +30,7 @@ async function createTag(tagData) {
     const existing = await getTagByName(tagData.name);
     if (existing) throw Error("Tag with that name already exists");
 
-    const newTag = new Tags({ id, ...tagData });
+    const newTag = new Tags({ ...tagData, id });
     await newTag.save();
     return newTag.data;
   });

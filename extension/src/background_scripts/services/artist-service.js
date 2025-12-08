@@ -6,9 +6,7 @@ async function getTrackArtists(trackId) {
 
   // need to do it this way to get them in order
   const artists = await Promise.all(
-    track.data.artists.map((artistId) =>
-      artistRepository.getArtistById(artistId)
-    )
+    track.artists.map((artistId) => artistRepository.getArtistById(artistId))
   );
 
   return artists;

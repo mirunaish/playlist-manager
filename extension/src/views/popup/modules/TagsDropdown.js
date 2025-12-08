@@ -8,16 +8,16 @@ const TagsDropdown = ({
   label = "Tags",
   createable = false,
   value = [],
-  onChange = () => {},
+  onChange = (newValue) => {},
   style = {},
 }) => {
   const updateStatus = useStatusUpdate();
 
-  const [tags, setTags] = useState({});
+  const [allTags, setAllTags] = useState({});
   useEffect(() => {
     (async () => {
       const result = await background(FUNCTIONS.getAllTags);
-      setTags(result);
+      setAllTags(result);
     })();
   }, []);
 
@@ -26,24 +26,25 @@ const TagsDropdown = ({
       (async () => {
         try {
           const tag = await background(FUNCTIONS.createTag, { name: tagName });
-          setTags({ ...tags, [tag.id]: tag });
+          setAllTags({ ...allTags, [tag.id]: tag });
+          onChange([...value, tag.id]);
         } catch (e) {
           console.error("failed to create tag", e);
           updateStatus(`Failed to create tag ${tagName}`, StatusTypes.ERROR);
         }
       })();
     },
-    [tags, updateStatus]
+    [allTags, onChange, updateStatus, value]
   );
 
   const tagOptions = useMemo(() => {
-    return Object.values(tags).map((tag) => ({
+    return Object.values(allTags).map((tag) => ({
       value: tag.id,
       label: tag.name,
       deco: SearchInputDeco.TAG,
       backgroundColor: tag.color,
     }));
-  }, [tags]);
+  }, [allTags]);
 
   return (
     <SearchInput

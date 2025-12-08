@@ -104,7 +104,7 @@ export function createModel(name, fields) {
 
     /** find a document by the primary key */
     static async findById(id) {
-      return await this.model.get(id);
+      return new Model(await this.model.get(id));
     }
 
     /**
@@ -119,7 +119,7 @@ export function createModel(name, fields) {
      */
     static async findOne(filters) {
       let query = this._select(filters);
-      return await query.first();
+      return new Model(await query.first());
     }
 
     /**
@@ -140,7 +140,7 @@ export function createModel(name, fields) {
         query = query.orderBy(options.orderBy);
       }
 
-      return await query.toArray();
+      return (await query.toArray()).map((d) => new Model(d));
     }
 
     /**
@@ -149,7 +149,7 @@ export function createModel(name, fields) {
      */
     static async modify(filters, callback) {
       let query = this._select(filters);
-      return await query.modify(callback);
+      return (await query.modify(callback)).map((d) => new Model(d));
     }
 
     constructor(data) {
@@ -161,11 +161,11 @@ export function createModel(name, fields) {
     }
 
     async save() {
-      return await dexie.models[name].put(this.data);
+      return await dexie.models[name].model.put(this.data);
     }
 
     async delete() {
-      return await dexie.models[name].delete(this.data.id);
+      return await dexie.models[name].model.delete(this.data.id);
     }
   };
 

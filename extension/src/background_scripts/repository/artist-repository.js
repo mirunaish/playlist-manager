@@ -34,7 +34,7 @@ async function createArtist(artistData) {
   const id = randomUUID();
   if (!artistData.starred) artistData.starred = false;
 
-  const artist = new Artists({ id, ...artistData });
+  const artist = new Artists({ ...artistData, id });
   await artist.save();
   return artist.data;
 }
