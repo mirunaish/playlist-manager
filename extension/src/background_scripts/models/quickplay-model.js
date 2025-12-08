@@ -1,4 +1,4 @@
-import { createModel } from "../database/dexie";
+import { createModel } from "../database/createModel";
 
 export const Quickplay = createModel("quickplays", {
   id: { type: "uuid", isPrimaryKey: true },

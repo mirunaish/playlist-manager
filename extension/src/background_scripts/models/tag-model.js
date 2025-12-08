@@ -1,4 +1,4 @@
-import { createModel } from "../database/dexie";
+import { createModel } from "../database/createModel";
 
 export const Tags = createModel("tags", {
   id: { type: "uuid", isPrimaryKey: true },

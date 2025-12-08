@@ -1,4 +1,4 @@
-import { createModel } from "../database/dexie";
+import { createModel } from "../database/createModel";
 
 export const Artists = createModel("artists", {
   id: { type: "uuid", isPrimaryKey: true },
