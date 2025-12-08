@@ -70,6 +70,8 @@ import { MessageTypes } from "../utils";
       func = soundcloud;
     } else if (where.includes("://open.spotify.com/")) {
       func = spotify;
+    } else {
+      return;
     }
 
     // get stuff from site-specific function

@@ -6,7 +6,6 @@ import { popup } from "../util";
 async function editTrack(trackData, tabId = null) {
   // find old track
   const oldTrack = await trackService.getTrackById(trackData.id);
-  if (!oldTrack) throw new Error("couldn't find track with id " + trackData.id);
 
   // edit track
   const editedTrack = await trackService.editTrack(trackData.id, trackData);

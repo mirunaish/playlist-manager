@@ -38,7 +38,7 @@ export function createModel(name, fields) {
     static _select(filters) {
       // no fields given; select entire table
       if (!filters || Object.keys(filters).length === 0) {
-        const query = dexie.models[name];
+        const query = this.model;
         return query;
       }
 
@@ -86,7 +86,7 @@ export function createModel(name, fields) {
           ];
         });
 
-      let query = dexie.models[name];
+      let query = this.model;
 
       // get the first field and query the db
       const { key, value, ...other } = search.shift();
@@ -104,7 +104,7 @@ export function createModel(name, fields) {
 
     /** find a document by the primary key */
     static async findById(id) {
-      return await dexie.models[name].get(id);
+      return await this.model.get(id);
     }
 
     /**

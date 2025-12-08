@@ -2,7 +2,7 @@ import { Playlists } from "../models";
 
 async function getPlaylistByTabId(tabId) {
   const playlist = await Playlists.findById(tabId);
-  return playlist.data;
+  return playlist?.data;
 }
 
 async function createPlaylist(tabId, playlistData) {

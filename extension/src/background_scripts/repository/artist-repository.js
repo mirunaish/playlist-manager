@@ -27,7 +27,7 @@ async function getArtistByName(name) {
   const artist = await Artists.findOne({
     name: { value: name, ignoreCase: true },
   });
-  return artist.data;
+  return artist?.data;
 }
 
 async function createArtist(artistData) {

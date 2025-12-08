@@ -70,7 +70,7 @@ async function previewPlaylist(filters) {
  * also include all track data for each track in the playlist
  */
 async function getPlaylistByTabId(tabId) {
-  const playlist = await playlistRepository.getPlaylist(tabId);
+  const playlist = await playlistRepository.getPlaylistByTabId(tabId);
   if (!playlist) return null;
 
   // attach track info to playlist

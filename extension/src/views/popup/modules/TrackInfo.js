@@ -20,27 +20,32 @@ function TrackInfo({
 }) {
   // construct comma-separated artist names for displaying etc
   const [artistString, setArtistString] = useState("");
+
   // TODO this (and some other stuff in this component) only works for tracked tracks
   // but track info is used in the untracked page too
   // and i (probably) can't just use track.artists because it might be outdated
   // unless i edit the playlists object every time i delete a tag for example
   useEffect(() => {
+    if (editing) return;
+
     (async () => {
       // get objects from ids
       const artists = await background(FUNCTIONS.getTrackArtists, track.id);
       const string = artists.map((a) => a.name).join(", "); // join them
       setArtistString(string);
     })();
-  }, [track]);
+  }, [editing, track]);
 
-  // tag labels + colors
+  // track tag labels + colors
   const [tags, setTags] = useState([]);
   useEffect(() => {
+    if (editing) return;
+
     (async () => {
-      const result = await background(FUNCTIONS.getTrackTags, track.tags);
+      const result = await background(FUNCTIONS.getTrackTags, track.id);
       setTags(result);
     })();
-  }, [track]);
+  }, [editing, track]);
 
   const search = useCallback(
     async (site) => {

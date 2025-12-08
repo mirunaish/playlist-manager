@@ -8,7 +8,9 @@ export class Tabs {
   }
 
   static async findAll(filter) {
-    return (await this.tabs.query(filter)).map((tab) => new Tabs({}, tab));
+    return (await this.tabs.query(filter ?? {})).map(
+      (tab) => new Tabs({}, tab)
+    );
   }
 
   static async findOne(filter) {

@@ -21,11 +21,11 @@ async function getTabType(tabId) {
 
   // is a playlist playing in this tab?
   const playlist = await playlistRepository.getPlaylistByTabId(tabId);
-  if (playlist !== null) return Pages.PLAYLIST;
+  if (playlist) return Pages.PLAYLIST;
 
   // is there a track with this url in the database?
   const track = await trackRepository.getTrackByUrl(tab.url);
-  if (track !== null) return Pages.TRACKED;
+  if (track) return Pages.TRACKED;
 
   // idk what this is. untracked?
   return Pages.UNTRACKED;
