@@ -78,7 +78,7 @@ function List({
 
   const artistString = useCallback(
     (track) => {
-      if (!artists) return "";
+      if (!artists || !track.artists) return "";
       return track.artists.map((id) => artists[id]?.name ?? "").join(", ");
     },
     [artists]

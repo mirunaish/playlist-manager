@@ -1,4 +1,3 @@
-import { pick } from "../../utils";
 import {
   artistRepository,
   trackRepository,
@@ -47,9 +46,7 @@ async function previewPlaylist(filters) {
   }
 
   // get playlist with filters
-  let tracks = (await trackRepository.getTracks(query)).map((t) =>
-    pick(t, ["id", "url"])
-  );
+  let tracks = await trackRepository.getTracks(query);
 
   if (tracks.length === 0) {
     throw Error("Found no tracks matching these filters");

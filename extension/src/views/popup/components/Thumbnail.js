@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 
 const placeholderPath = "../../placeholder.png";
 
-function Thumbnail({ src, maxWidth = 200, square = false, style }) {
+function Thumbnail({ src, maxWidth = 200, square = false, style = {} }) {
   const [width, height] = useMemo(() => {
     return [maxWidth, square ? maxWidth : (maxWidth * 3) / 4];
   }, [maxWidth, square]);

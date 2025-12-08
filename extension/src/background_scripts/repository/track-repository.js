@@ -7,9 +7,9 @@ async function getTracks(filters) {
 }
 
 async function getTrackById(id) {
-  if (!id || id === "") throw Error("Track does not exist.");
+  if (!id || id === "") throw Error(`Track ${id} does not exist.`);
   const track = await Tracks.findById(id);
-  if (!track) throw Error("Track does not exist.");
+  if (!track) throw Error(`Track ${id} does not exist.`);
   return track.data;
 }
 

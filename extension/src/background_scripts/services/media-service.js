@@ -1,4 +1,4 @@
-import { MessageTypes } from "../../utils";
+import { MessageTypes, pick } from "../../utils";
 import { popup } from "../util";
 import { playlistService } from "./playlist-service";
 import { tabService } from "./tab-service";
@@ -16,10 +16,10 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
   // if playlist not provided, get it from filters
   if (playlistData.tracks === null) {
     playlistData.tracks = await playlistService.previewPlaylist(filters);
-  } else {
-    // if tracks were provided, keep only the ids
-    playlistData.tracks = playlistData.tracks.map((t) => t.id);
   }
+
+  // keep only the ids
+  playlistData.tracks = playlistData.tracks.map((t) => t.id);
 
   // create new tab to play in
   const tab = await tabService.createTab({

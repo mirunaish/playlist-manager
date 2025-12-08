@@ -40,14 +40,20 @@ function NewMix() {
   }, [filters, updateStatus]);
 
   const play = useCallback(async () => {
-    await background(
-      FUNCTIONS.startPlaying,
-      mixName,
-      theme,
-      filters,
-      playlistPreview
-    );
-  }, [filters, mixName, playlistPreview, theme]);
+    updateStatus("fetching playlist...");
+    try {
+      await background(
+        FUNCTIONS.startPlaying,
+        mixName,
+        theme,
+        filters,
+        playlistPreview
+      );
+      updateStatus("");
+    } catch (e) {
+      updateStatus(e.message, StatusTypes.ERROR);
+    }
+  }, [filters, mixName, playlistPreview, theme, updateStatus]);
 
   const saveMix = useCallback(async () => {
     // await background(FUNCTIONS.saveMix, filters); // TODO

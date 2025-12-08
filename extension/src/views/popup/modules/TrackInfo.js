@@ -26,7 +26,7 @@ function TrackInfo({
   // and i (probably) can't just use track.artists because it might be outdated
   // unless i edit the playlists object every time i delete a tag for example
   useEffect(() => {
-    if (editing) return;
+    if (editing || !track.id || track.id === "") return;
 
     (async () => {
       // get objects from ids
@@ -39,7 +39,7 @@ function TrackInfo({
   // track tag labels + colors
   const [tags, setTags] = useState([]);
   useEffect(() => {
-    if (editing) return;
+    if (editing || !track.id || track.id === "") return;
 
     (async () => {
       const result = await background(FUNCTIONS.getTrackTags, track.id);

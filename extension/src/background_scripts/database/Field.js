@@ -23,8 +23,6 @@ export class Field {
   addToQuery(query, { value, exclude, ignoreCase, isArray }) {
     query = query.where(this.name);
 
-    // the dexie methods are the same regardless of whether this field is an array or not
-
     if (!isArray) {
       // there's no case insensitive not equal
       if (exclude) return query.notEqual(value);

@@ -2,18 +2,18 @@ import { Playlists } from "../models";
 
 async function getPlaylistByTabId(tabId) {
   const playlist = await Playlists.findById(tabId);
-  return playlist?.data;
+  return playlist ? { ...playlist.data } : null;
 }
 
 async function createPlaylist(tabId, playlistData) {
   const playlist = new Playlists({
     ...playlistData,
-    _id: tabId,
+    tabId,
   });
 
   await playlist.save();
 
-  return playlist;
+  return { ...playlist.data };
 }
 
 async function editPlaylist(tabId, newData) {
@@ -22,7 +22,7 @@ async function editPlaylist(tabId, newData) {
 
   playlist.set(newData);
   await playlist.save();
-  return playlist.data;
+  return { ...playlist.data };
 }
 
 async function deletePlaylist(tabId) {
