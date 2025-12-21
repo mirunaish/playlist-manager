@@ -102,8 +102,8 @@ function TrackInfo({
               <ArtistsDropdown
                 createable
                 value={track.artists.map((a) =>
-                  a.isReal
-                    ? a.id
+                  a.isReal === undefined
+                    ? a // it's just an id
                     : {
                         // use just the name
                         // putting a special character at the start so i can more easily tell names apart from ids later...
@@ -117,9 +117,7 @@ function TrackInfo({
                 onChange={(value) => {
                   // updatedValue is an array of ids for real artists and names for non real ones
                   const newValue = value.map((v) =>
-                    v.startsWith("!")
-                      ? { isReal: false, name: v.slice(1) }
-                      : { isReal: true, id: v }
+                    v.startsWith("!") ? { isReal: false, name: v.slice(1) } : v
                   );
                   updateTrack({ artists: newValue });
                 }}

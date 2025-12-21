@@ -20,6 +20,10 @@ class DexieDatabase {
     return await this.db.open();
   }
 
+  clear() {
+    Object.values(this.models).forEach((model) => model.model.clear());
+  }
+
   async transaction(mode, tables, callback) {
     return await this.db.transaction(mode, tables, callback);
   }

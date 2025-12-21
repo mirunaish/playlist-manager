@@ -68,6 +68,7 @@ function App() {
        * status is first so the status update listener is added
        * before other components are rendered.
        * root has flexDirection: column-reverse so this is at the bottom
+       * TODO probably no longer necessary?
        */}
       <Status />
 
