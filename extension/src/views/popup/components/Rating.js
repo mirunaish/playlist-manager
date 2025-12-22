@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Star, Stars } from "../icons/Star";
-import { GRADIENT } from "../../../consts";
+import { GRADIENT } from "../../../utils";
 
 function Rating({
   // !multiselect: value is a number
@@ -13,7 +13,10 @@ function Rating({
   disabled = false,
   size = 20,
 }) {
-  const [rating, setRating] = useState(value ?? (multiselect ? [] : -1));
+  const rating = useMemo(
+    () => value ?? (multiselect ? [] : -1),
+    [value, multiselect]
+  );
 
   // build array of icons to render
   const icons = useMemo(() => {
@@ -46,7 +49,6 @@ function Rating({
 
     if (!multiselect) {
       onChange(index);
-      setRating(index);
       return;
     }
 
@@ -56,7 +58,6 @@ function Rating({
       : [...rating, index];
 
     onChange(newRating);
-    setRating(newRating);
   }
 
   return (

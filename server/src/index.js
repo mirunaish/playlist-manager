@@ -12,7 +12,9 @@ import { stripUrls } from "./middleware.js";
 dotenv.config();
 
 // connect to database
-export const sequelize = new Sequelize(process.env.DATABASE_URL); // , { logging: false }
+export const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: "postgres",
+});
 
 try {
   await sequelize.authenticate();

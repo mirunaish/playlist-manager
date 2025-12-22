@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { BORDER_STYLE } from "../../../consts";
-import { formatTime } from "../../../util";
+import { BORDER_STYLE, formatTime, FUNCTIONS } from "../../../utils";
 import Thumbnail from "../components/Thumbnail";
 import Scrollable from "../components/Scrollable";
 import Rating from "../components/Rating";
@@ -71,7 +70,7 @@ function List({
   const [artists, setArtists] = useState({});
   useEffect(() => {
     (async () => {
-      const result = await background("getAllArtists");
+      const result = await background(FUNCTIONS.getAllArtists);
       if (!result || result.length === 0) return;
       setArtists(result);
     })();
@@ -79,7 +78,7 @@ function List({
 
   const artistString = useCallback(
     (track) => {
-      if (!artists) return "";
+      if (!artists || !track.artists) return "";
       return track.artists.map((id) => artists[id]?.name ?? "").join(", ");
     },
     [artists]

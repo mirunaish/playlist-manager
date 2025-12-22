@@ -1,6 +1,7 @@
 import Color from "color";
 import { SupportedSites } from "./consts";
 import { startCase } from "lodash";
+import { v4 as uuid } from "uuid";
 
 /** shortens a string to max 25 characters and adds ... at the end */
 export function shorten(string) {
@@ -113,4 +114,8 @@ export function contrastingColor(code) {
       s: color.saturationl(),
       l: 5,
     }).hex();
+}
+
+export function randomUUID() {
+  return uuid();
 }

@@ -3,8 +3,8 @@ import { background } from "../util";
 import Banner from "../components/Banner";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
-import { EMPTY_TRACK, StatusTypes } from "../../../consts";
-import { useStatusUpdate } from "../hooks";
+import { EMPTY_TRACK, FUNCTIONS, StatusTypes } from "../../../utils";
+import { useStatusUpdate } from "../providers/StatusProvider";
 
 function Tracked({ selectedTabId }) {
   const updateStatus = useStatusUpdate();
@@ -17,7 +17,7 @@ function Tracked({ selectedTabId }) {
   // ask background script for track info from database
   useEffect(() => {
     (async () => {
-      const info = await background("getTrackedInfo", { tabId: selectedTabId });
+      const info = await background(FUNCTIONS.getTrackByTabUrl, selectedTabId);
       setTrackInfo(info);
     })();
   }, [selectedTabId]);
@@ -28,20 +28,19 @@ function Tracked({ selectedTabId }) {
   }, [editing, trackInfo]);
 
   const edit = useCallback(async () => {
-    updateStatus("editing track...");
-    const ok = await background(
-      "editTrack",
-      editingTrackInfo,
-      trackInfo.url,
-      selectedTabId
-    );
-    if (ok) {
-      updateStatus("track edited", StatusTypes.SUCCESS);
+    updateStatus("Editing track...");
+    try {
+      await background(FUNCTIONS.editTrack, editingTrackInfo, selectedTabId);
+
+      updateStatus("Track edited successfully", StatusTypes.SUCCESS);
       setTrackInfo(editingTrackInfo); // set updated track info
       setEditing(false); // set editing to false
       // background will navigate to new url if it was changed
-    } else updateStatus("track could not be edited", StatusTypes.ERROR);
-  }, [editingTrackInfo, selectedTabId, trackInfo, updateStatus]);
+    } catch (e) {
+      console.error("failed to edit track", e);
+      updateStatus("Track could not be edited", StatusTypes.ERROR);
+    }
+  }, [editingTrackInfo, selectedTabId, updateStatus]);
 
   return (
     <div className="page" style={{ display: "flex", flexDirection: "column" }}>

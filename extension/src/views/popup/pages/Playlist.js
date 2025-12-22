@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Banner from "../components/Banner";
-import { useListener, useStatusUpdate } from "../hooks";
+import { useListener } from "../hooks";
+import { useStatusUpdate } from "../providers/StatusProvider";
 import { background } from "../util";
 import List from "../modules/List";
 import TrackInfo from "../modules/TrackInfo";
@@ -8,9 +9,12 @@ import PlayBar from "../components/PlayBar";
 import {
   EMPTY_PLAYLIST,
   EMPTY_TRACK,
+  FUNCTIONS,
   MessageTypes,
   StatusTypes,
-} from "../../../consts";
+} from "../../../utils";
+import Button from "../components/Button";
+import { Icons } from "../icons";
 
 function Playlist({ selectedTabId }) {
   const updateStatus = useStatusUpdate();
@@ -26,7 +30,10 @@ function Playlist({ selectedTabId }) {
   // includes playlist name and theme, list, and playing track info
   useEffect(() => {
     (async () => {
-      const info = await background("getPlaylistInfo", selectedTabId);
+      const info = await background(
+        FUNCTIONS.getPlaylistByTabId,
+        selectedTabId
+      );
       setPlaylistInfo(info);
       setPlayingIndex(info.playingIndex);
     })();
@@ -43,7 +50,7 @@ function Playlist({ selectedTabId }) {
 
   const selectTrack = useCallback(
     (index) => {
-      background("playTrack", selectedTabId, index);
+      background(FUNCTIONS.playTrack, selectedTabId, index);
     },
     [selectedTabId]
   );
@@ -55,13 +62,8 @@ function Playlist({ selectedTabId }) {
 
   const edit = useCallback(async () => {
     updateStatus("editing track...");
-    const ok = await background(
-      "editTrack",
-      editingTrackInfo,
-      trackInfo.url,
-      selectedTabId
-    );
-    if (ok) {
+    try {
+      await background(FUNCTIONS.editTrack, editingTrackInfo, selectedTabId);
       updateStatus("track edited", StatusTypes.SUCCESS);
       // set edited track info in playlist
       const newPlaylistInfo = { ...playlistInfo };
@@ -69,13 +71,15 @@ function Playlist({ selectedTabId }) {
       setPlaylistInfo(newPlaylistInfo);
       setEditing(false); // set editing to false
       // background will navigate to new url if it was changed
-    } else updateStatus("track could not be edited", StatusTypes.ERROR);
+    } catch (e) {
+      console.error("failed to edit track", e);
+      updateStatus("Track could not be edited", StatusTypes.ERROR);
+    }
   }, [
     editingTrackInfo,
     playingIndex,
     playlistInfo,
     selectedTabId,
-    trackInfo,
     updateStatus,
   ]);
 
@@ -103,7 +107,11 @@ function Playlist({ selectedTabId }) {
           playlist={playlistInfo.tracks}
           selectedTrackIndex={playingIndex}
           onTrackClick={selectTrack}
-        ></List>
+        >
+          {/* TODO stop button, something else? */}
+          <Button icon={{ icon: Icons.SETTINGS }} />
+          <Button icon={{ icon: Icons.PIN }} />
+        </List>
 
         <div style={{ display: "flex", flexDirection: "column", width: "50%" }}>
           <TrackInfo

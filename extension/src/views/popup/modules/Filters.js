@@ -1,6 +1,6 @@
 import React from "react";
 import Rating from "../components/Rating";
-import { BORDER_STYLE } from "../../../consts";
+import { BORDER_STYLE } from "../../../utils";
 import ArtistsDropdown from "./ArtistsDropdown";
 import TagsDropdown from "./TagsDropdown";
 
@@ -30,7 +30,14 @@ function Filters({ setFilters, filters = null, children = null }) {
           <ArtistsDropdown
             value={filters.artists}
             onChange={(value) => setFilters({ ...filters, artists: value })}
-            extraOptions
+            extraOptions={[
+              {
+                value: "artistless",
+                label: "Artistless",
+                backgroundColor: "var(--backgroundAccent)",
+                color: "var(--text)",
+              },
+            ]}
           />
         </div>
         <div style={{ width: "max-content" }}>

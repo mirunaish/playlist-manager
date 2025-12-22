@@ -1,16 +1,22 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useListener, useStatusUpdate } from "../hooks";
+import { useListener } from "../hooks";
+import { useStatusUpdate } from "../providers/StatusProvider";
 import { background } from "../util";
 import Banner from "../components/Banner";
-import { EMPTY_TRACK, MessageTypes, StatusTypes } from "../../../consts";
+import {
+  EMPTY_TRACK,
+  FUNCTIONS,
+  MessageTypes,
+  StatusTypes,
+} from "../../../utils";
 import PlayBar from "../components/PlayBar";
 import TrackInfo from "../modules/TrackInfo";
 
 function Untracked({ selectedTabId, navigate }) {
   const updateStatus = useStatusUpdate();
 
-  const [guessedArtists, setGuessedArtists] = useState([]); // artists guessed by content script
   const [untrackedInfo, setUntrackedInfo] = useState(EMPTY_TRACK); // info from the content script
+  // untrackedInfo.artists is an array of {id, name, isReal}
 
   // add listener that adds track info from content script
   useListener(MessageTypes.TRACK_INFO_FORWARD, (payload) => {
@@ -19,16 +25,9 @@ function Untracked({ selectedTabId, navigate }) {
       const { artists, ...trackInfo } = payload;
 
       // determine which artists are real and which aren't
-      const real = [];
-      const notReal = [];
-      for (const artistName of artists) {
-        const artist = await background("getArtistByName", artistName);
-        if (artist) real.push(artist.id);
-        else notReal.push(artistName);
-      }
+      const artistData = await background(FUNCTIONS.artistMatch, artists);
 
-      setUntrackedInfo({ ...untrackedInfo, ...trackInfo, artists: real });
-      setGuessedArtists(notReal);
+      setUntrackedInfo({ ...untrackedInfo, ...trackInfo, artists: artistData });
     })();
   });
 
@@ -36,56 +35,51 @@ function Untracked({ selectedTabId, navigate }) {
   useEffect(() => {
     // reset untracked info
     setUntrackedInfo(EMPTY_TRACK);
-    setGuessedArtists([]);
     // ask background script to get track info from page
-    background("getUntrackedInfo", selectedTabId);
+    background(FUNCTIONS.guessTrackInfo, selectedTabId);
     // background will later send a message with the info which the listener will catch
   }, [selectedTabId]);
 
   // save untracked track to backend
   const save = useCallback(async () => {
     console.log("saving track", untrackedInfo.title);
-    updateStatus("saving track...");
+    updateStatus("Saving track...");
 
-    // create guessed artists if any
-    const artistIds = [];
-    for (const artistName of guessedArtists) {
-      const { ok, artist, error } = await background("createArtist", {
-        name: artistName,
+    try {
+      // first of all if there's unreal artists, create them
+      const artistIds = await Promise.all(
+        untrackedInfo.artists.map(async (info) => {
+          if (info.isReal === undefined) return info; // it's just the id
+          const newArtist = await background(FUNCTIONS.createArtist, {
+            name: info.name,
+          });
+          return newArtist.id;
+        })
+      );
+
+      await background(FUNCTIONS.createTrack, {
+        ...untrackedInfo,
+        artists: artistIds,
       });
-      if (!ok) {
-        updateStatus(`failed to create artist: ${error}`, StatusTypes.ERROR);
-        return;
-      }
-      artistIds.push(artist.id);
+
+      updateStatus("track saved", StatusTypes.SUCCESS);
+      // tell popup to switch to tracked view (but same tab id)
+      navigate(selectedTabId); // will get tab type etc again
+    } catch (e) {
+      console.error("failed to save track", e);
+      updateStatus("Failed to save track", StatusTypes.ERROR);
     }
-
-    const { ok, error } = await background("createTrack", {
-      ...untrackedInfo,
-      artists: [...untrackedInfo.artists, ...artistIds],
-    });
-
-    if (!ok) {
-      updateStatus(`track could not be saved: ${error}`, StatusTypes.ERROR);
-      return;
-    }
-
-    updateStatus("track saved", StatusTypes.SUCCESS);
-    // tell popup to switch to tracked view (but same tab id)
-    navigate(selectedTabId); // will get tab type etc again
-  }, [guessedArtists, navigate, selectedTabId, untrackedInfo, updateStatus]);
+  }, [navigate, selectedTabId, untrackedInfo, updateStatus]);
 
   return (
     <div className="page" style={{ display: "flex", flexDirection: "column" }}>
-      <Banner title="Untracked" />
+      <Banner title="New Track" />
 
       <TrackInfo
         track={untrackedInfo}
         updateTrack={(newTrack) =>
           setUntrackedInfo({ ...untrackedInfo, ...newTrack })
         }
-        guessedArtists={guessedArtists}
-        setGuessedArtists={setGuessedArtists}
         editing={true}
         allowEditingUrl={false}
         actions={[{ title: "save", primary: true, func: save }]}

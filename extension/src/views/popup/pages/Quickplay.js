@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Banner from "../components/Banner";
 import QuickplayCard from "../modules/QuickplayCard";
 import { background } from "../util";
+import { FUNCTIONS } from "../../../utils";
 
 function Quickplay() {
   const [quickplay, setQuickplay] = useState([]);
@@ -9,23 +10,29 @@ function Quickplay() {
   // ask background script for quickplay cards from database
   useEffect(() => {
     (async () => {
-      const quickplay = await background("getQuickplay");
-      setQuickplay(
-        quickplay ?? [
-          { title: "test", theme: "BEACH", id: 1 },
-          { title: "test", theme: "DARK_PINK", id: 2 },
-          { title: "test", theme: "BLUEJAY", id: 3 },
-          { title: "test", theme: "BLUEJAY", id: 4 },
-          { title: "test", theme: "WATERMELON", id: 5 },
-          { title: "test", theme: "BEACH", id: 6 },
-          { title: "test", theme: "DARK_PINK", id: 7 },
-        ] // TODO remove
-      );
+      // TODO
+      // const quickplay = await background(FUNCTIONS.getQuickplay);
+      // setQuickplay(
+      //   quickplay ?? [
+      //     { title: "test", theme: "BEACH", id: 1 },
+      //     { title: "test", theme: "DARK_PINK", id: 2 },
+      //     { title: "test", theme: "BLUEJAY", id: 3 },
+      //     { title: "test", theme: "BLUEJAY", id: 4 },
+      //     { title: "test", theme: "WATERMELON", id: 5 },
+      //     { title: "test", theme: "BEACH", id: 6 },
+      //     { title: "test", theme: "DARK_PINK", id: 7 },
+      //   ] // TODO remove
+      // );
     })();
   }, []);
 
   const play = useCallback(async (card) => {
-    await background("startPlaying", card.title, card.theme, card.filters);
+    await background(
+      FUNCTIONS.startPlaying,
+      card.title,
+      card.theme,
+      card.filters
+    );
   }, []);
 
   return (

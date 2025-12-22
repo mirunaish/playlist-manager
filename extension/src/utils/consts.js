@@ -15,10 +15,6 @@ export const SupportedSites = {
   },
 };
 
-export const SUPPORTED_QUERY = Object.values(SupportedSites).map(
-  (obj) => obj.query
-);
-
 export const Pages = {
   DEFAULT: "NEW_MIX",
 
@@ -46,6 +42,10 @@ export const MessageTypes = {
   TRACK_INFO: "track-info",
   TRACK_INFO_FORWARD: "track-info-forward",
   MEDIA_CONTROL: "media-control",
+};
+
+export const Listeners = {
+  TAB_DELETE: "tab-delete",
 };
 
 export const StatusTypes = {

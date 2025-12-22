@@ -1,4 +1,4 @@
-import { Themes } from "../../../themes";
+import { Themes } from "../../../utils";
 
 /** a card on the quickplay screen. */
 function QuickplayCard({ id, title, theme, onClick }) {

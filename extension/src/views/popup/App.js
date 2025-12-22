@@ -3,7 +3,7 @@ import "./App.css";
 import Status from "./modules/Status";
 import Tabs from "./modules/Tabs";
 import { background } from "./util";
-import { MessageTypes, Pages } from "../../consts";
+import { FUNCTIONS, MessageTypes, Pages } from "../../utils";
 import {
   NewMix,
   Search,
@@ -14,6 +14,7 @@ import {
   Untracked,
 } from "./pages";
 import { useListener } from "./hooks";
+import StatusProvider from "./providers/StatusProvider";
 
 function App() {
   // made these into a single state to force both to update at the same time
@@ -33,7 +34,7 @@ function App() {
       }
 
       // else get type of normal tab and switch to that page
-      const type = await background("getTabType", tabId);
+      const type = await background(FUNCTIONS.getTabType, tabId);
       _setSelectedTabIdAndPage({ selectedTabId: tabId, page: type });
     })();
   }, []);
@@ -41,7 +42,7 @@ function App() {
   // ask background script for initial selected tab id
   useEffect(() => {
     (async () => {
-      const tabId = await background("getMostImportantTabId");
+      const tabId = await background(FUNCTIONS.getMostImportantTabId);
       if (tabId) setSelectedTabId(tabId);
     })();
   }, [setSelectedTabId]);
@@ -62,11 +63,12 @@ function App() {
   );
 
   return (
-    <>
+    <StatusProvider>
       {/*
        * status is first so the status update listener is added
        * before other components are rendered.
        * root has flexDirection: column-reverse so this is at the bottom
+       * TODO probably no longer necessary?
        */}
       <Status />
 
@@ -88,7 +90,7 @@ function App() {
           setSelectedTabId(tabId);
         }}
       />
-    </>
+    </StatusProvider>
   );
 }
 

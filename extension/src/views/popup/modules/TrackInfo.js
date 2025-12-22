@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Thumbnail from "../components/Thumbnail";
 import Rating from "../components/Rating";
 import Tag from "../components/Tag";
 import { background, closePopup } from "../util";
-import { SupportedSites } from "../../../consts";
+import { FUNCTIONS, SupportedSites } from "../../../utils";
 import Button from "../components/Button";
 import { Icons } from "../icons";
 import ArtistsDropdown from "./ArtistsDropdown";
@@ -11,8 +11,6 @@ import TagsDropdown from "./TagsDropdown";
 
 function TrackInfo({
   track,
-  guessedArtists = [], // in case of untracked
-  setGuessedArtists = (v) => {}, // just forward these to ArtistsDropdown
   big = true,
   editing = false,
   allowEditingUrl = true,
@@ -20,31 +18,40 @@ function TrackInfo({
   actions = [],
   showSearch = false,
 }) {
-  // comma-separated artist names
+  // construct comma-separated artist names for displaying etc
   const [artistString, setArtistString] = useState("");
+
+  // TODO this (and some other stuff in this component) only works for tracked tracks
+  // but track info is used in the untracked page too
+  // and i (probably) can't just use track.artists because it might be outdated
+  // unless i edit the playlists object every time i delete a tag for example
   useEffect(() => {
+    if (editing || !track.id || track.id === "") return;
+
     (async () => {
       // get objects from ids
-      const artists = await background("getTrackArtists", track.artists);
+      const artists = await background(FUNCTIONS.getTrackArtists, track.id);
       const string = artists.map((a) => a.name).join(", "); // join them
       setArtistString(string);
     })();
-  }, [track]);
+  }, [editing, track]);
 
-  // tag labels + colors
+  // track tag labels + colors
   const [tags, setTags] = useState([]);
   useEffect(() => {
+    if (editing || !track.id || track.id === "") return;
+
     (async () => {
-      const result = await background("getTrackTags", track.tags);
+      const result = await background(FUNCTIONS.getTrackTags, track.id);
       setTags(result);
     })();
-  }, [track]);
+  }, [editing, track]);
 
   const search = useCallback(
     async (site) => {
       // background will open a new tab with the search
       await background(
-        "searchOtherSite",
+        FUNCTIONS.searchOtherSite,
         artistString + " - " + track.title,
         site
       );
@@ -94,10 +101,26 @@ function TrackInfo({
               />
               <ArtistsDropdown
                 createable
-                value={track.artists}
-                onChange={(value) => updateTrack({ artists: value })}
-                guessedValue={guessedArtists}
-                setGuessedValue={setGuessedArtists}
+                value={track.artists.map((a) =>
+                  a.isReal === undefined
+                    ? a // it's just an id
+                    : {
+                        // use just the name
+                        // putting a special character at the start so i can more easily tell names apart from ids later...
+                        value: "!" + a.name,
+                        // i need to put extra data here because this isn't in the options
+                        label: a.name,
+                        backgroundColor: "var(--backgroundAccent)",
+                        color: "var(--text)",
+                      }
+                )}
+                onChange={(value) => {
+                  // updatedValue is an array of ids for real artists and names for non real ones
+                  const newValue = value.map((v) =>
+                    v.startsWith("!") ? { isReal: false, name: v.slice(1) } : v
+                  );
+                  updateTrack({ artists: newValue });
+                }}
               />
             </>
           ) : (

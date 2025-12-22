@@ -1,4 +1,4 @@
-import { MessageTypes } from "../consts";
+import { MessageTypes } from "../utils";
 
 (function () {
   // get the text inside an element
@@ -70,6 +70,8 @@ import { MessageTypes } from "../consts";
       func = soundcloud;
     } else if (where.includes("://open.spotify.com/")) {
       func = spotify;
+    } else {
+      return;
     }
 
     // get stuff from site-specific function

@@ -1,12 +1,9 @@
-import { SERVER_URL } from "../consts";
-
 // this is to prevent error messages everywhere
+
+import { MessageTypes } from "../utils";
+
 // @ts-ignore
 export const getBrowser = () => browser;
-
-export async function getTab(tabId) {
-  return await getBrowser().tabs.get(tabId);
-}
 
 /** send a message to popup */
 export async function popup(messageType, payload) {
@@ -16,35 +13,12 @@ export async function popup(messageType, payload) {
   });
 }
 
-/**
- * make a request to the server.
- * options format: { method, body }.
- * default method is GET
- */
-export async function request(path, options = {}) {
+/** update status bar in popup with info (default), error, or success */
+export async function updateStatus(message, statusType) {
   try {
-    if (!options.method) options.method = "GET";
-
-    // if get, cannot use body. use query instead
-    if (options.method === "GET" && options.body) {
-      let reqQuery = "?";
-      for (var key in options.body) {
-        reqQuery += key + "=" + encodeURIComponent(options.body[key]) + "&";
-      }
-      reqQuery = reqQuery.slice(0, -1);
-      path += reqQuery;
-      delete options.body;
-    }
-    if (options.body) {
-      options.body = JSON.stringify(options.body);
-      options.headers = { "Content-Type": "application/json" };
-    }
-
-    const response = await fetch(SERVER_URL + path, options);
-    return { ok: response.ok, body: await response.json() };
+    await popup(MessageTypes.STATUS_UPDATE, { message, statusType });
   } catch (e) {
-    console.error("request error:", e);
-    throw Error("Could not connect to server.");
+    console.error('failed to update status "' + message + '";', e);
   }
 }
 

@@ -1,50 +1,50 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { background } from "../util";
 import SearchInput, { SearchInputDeco } from "../components/SearchInput";
-import { useStatusUpdate } from "../hooks";
+import { useStatusUpdate } from "../providers/StatusProvider";
+import { FUNCTIONS, StatusTypes } from "../../../utils";
 
 const TagsDropdown = ({
   label = "Tags",
   createable = false,
   value = [],
-  onChange = () => {},
+  onChange = (newValue) => {},
   style = {},
 }) => {
   const updateStatus = useStatusUpdate();
 
-  const [tags, setTags] = useState({});
+  const [allTags, setAllTags] = useState({});
   useEffect(() => {
     (async () => {
-      const result = await background("getAllTags");
-      setTags(result);
+      const result = await background(FUNCTIONS.getAllTags);
+      setAllTags(result);
     })();
   }, []);
 
   const createTag = useCallback(
     (tagName) => {
       (async () => {
-        const { ok, tag, error } = await background("createTag", {
-          name: tagName,
-        });
-        if (!ok) {
-          updateStatus("failed to create tag: " + error);
-          return;
+        try {
+          const tag = await background(FUNCTIONS.createTag, { name: tagName });
+          setAllTags({ ...allTags, [tag.id]: tag });
+          onChange([...value, tag.id]);
+        } catch (e) {
+          console.error("failed to create tag", e);
+          updateStatus(`Failed to create tag ${tagName}`, StatusTypes.ERROR);
         }
-
-        setTags({ [tag.id]: tag, ...tags });
       })();
     },
-    [tags, updateStatus]
+    [allTags, onChange, updateStatus, value]
   );
 
   const tagOptions = useMemo(() => {
-    return Object.values(tags).map((tag) => ({
+    return Object.values(allTags).map((tag) => ({
       value: tag.id,
       label: tag.name,
       deco: SearchInputDeco.TAG,
       backgroundColor: tag.color,
     }));
-  }, [tags]);
+  }, [allTags]);
 
   return (
     <SearchInput
