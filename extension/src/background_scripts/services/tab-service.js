@@ -1,4 +1,10 @@
-import { MessageTypes, Pages, pick, SupportedSites } from "../../utils";
+import {
+  MessageTypes,
+  Pages,
+  pick,
+  stripSupportedUrl,
+  SupportedSites,
+} from "../../utils";
 import {
   tabRepository,
   playlistRepository,
@@ -24,7 +30,8 @@ async function getTabType(tabId) {
   if (playlist) return Pages.PLAYLIST;
 
   // is there a track with this url in the database?
-  const track = await trackRepository.getTrackByUrl(tab.url);
+  const url = stripSupportedUrl(tab.url);
+  const track = await trackRepository.getTrackByUrl(url);
   if (track) return Pages.TRACKED;
 
   // idk what this is. untracked?
