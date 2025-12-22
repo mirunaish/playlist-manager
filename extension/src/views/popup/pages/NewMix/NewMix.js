@@ -40,21 +40,25 @@ function NewMix() {
     }
   }, [filters, updateStatus]);
 
-  const play = useCallback(async () => {
-    updateStatus("fetching playlist...");
-    try {
-      await background(
-        FUNCTIONS.startPlaying,
-        mixName,
-        theme,
-        filters,
-        playlistPreview
-      );
-      updateStatus("");
-    } catch (e) {
-      updateStatus(e.message, StatusTypes.ERROR);
-    }
-  }, [filters, mixName, playlistPreview, theme, updateStatus]);
+  const play = useCallback(
+    async (startIndex) => {
+      updateStatus("fetching playlist...");
+      try {
+        await background(
+          FUNCTIONS.startPlaying,
+          mixName,
+          theme,
+          filters,
+          playlistPreview,
+          startIndex
+        );
+        updateStatus("");
+      } catch (e) {
+        updateStatus(e.message, StatusTypes.ERROR);
+      }
+    },
+    [filters, mixName, playlistPreview, theme, updateStatus]
+  );
 
   const saveMix = useCallback(async () => {
     // await background(FUNCTIONS.saveMix, filters); // TODO
@@ -88,7 +92,7 @@ function NewMix() {
 
         <div className="buttons-row">
           <Button title="Preview" onClick={preview} />
-          <Button primary title="Play" onClick={play} />
+          <Button primary title="Play" onClick={() => play(0)} />
           <Button title="Save to Quickplay" onClick={saveMix} />
         </div>
       </Filters>
@@ -96,9 +100,21 @@ function NewMix() {
       {/* preview playlist */}
       {playlistPreview && stats ? (
         <div className="preview-container">
-          <List className="half" playlist={playlistPreview}>
-            <Button icon={{ icon: Icons.SHUFFLE }} onClick={reshuffle} />
-            <Button icon={{ icon: Icons.PIN }} onClick={saveMix} />
+          <List
+            className="half"
+            playlist={playlistPreview}
+            onTrackClick={(index) => play(index)}
+          >
+            <Button
+              icon={{ icon: Icons.SHUFFLE }}
+              onClick={reshuffle}
+              title="shuffle"
+            />
+            <Button
+              icon={{ icon: Icons.PIN }}
+              onClick={saveMix}
+              title="save mix"
+            />
           </List>
 
           <div className="half">

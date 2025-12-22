@@ -89,7 +89,7 @@ function List({
     (startIndex) => {
       return playlist
         .slice(startIndex)
-        .map((track) => track.duration)
+        .map((track) => parseInt(track.duration.toString()))
         .reduce((acc, val) => acc + val, 0); // sum all durations
     },
     [playlist]

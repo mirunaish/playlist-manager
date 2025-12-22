@@ -4,7 +4,13 @@ import { playlistService } from "./playlist-service";
 import { tabService } from "./tab-service";
 
 // start playlist button was pressed
-async function startPlaying(title, theme, filters = null, playlist = null) {
+async function startPlaying(
+  title,
+  theme,
+  filters = null,
+  playlist = null,
+  startIndex = 0
+) {
   const playlistData = {
     title,
     theme,
@@ -37,7 +43,7 @@ async function startPlaying(title, theme, filters = null, playlist = null) {
   popup(MessageTypes.SELECT_TAB, { id: tab.id });
 
   // start playing first track
-  playTrack(tab.id, 0);
+  playTrack(tab.id, startIndex);
 }
 
 /** ready to play, load and play track at current index */
