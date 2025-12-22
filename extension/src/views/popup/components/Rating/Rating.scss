@@ -1,0 +1,19 @@
+.rating {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  img,
+  svg {
+    padding: 3px 1.5px;
+  }
+
+  .icon.star.fill > path {
+    stroke: none !important;
+    stroke-width: 0 !important;
+  }
+  .icon.star.stroke > path {
+    stroke-width: 16px;
+    fill: none !important;
+  }
+}

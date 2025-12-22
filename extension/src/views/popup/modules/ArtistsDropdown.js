@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import SearchInput, { SearchInputDeco } from "../components/SearchInput";
+import SearchInput, {
+  SearchInputDeco,
+} from "../components/SearchInput/SearchInput";
 import { background } from "../util";
 import { useStatusUpdate } from "../providers/StatusProvider";
 import { FUNCTIONS, StatusTypes } from "../../../utils";

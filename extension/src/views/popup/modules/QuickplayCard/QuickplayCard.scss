@@ -1,0 +1,21 @@
+.quickplay-card {
+  height: 75px;
+
+  background-color: var(--primary);
+  color: var(--text);
+
+  border-radius: 8px;
+  margin: 5px;
+  padding: 5px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  p {
+    text-align: center;
+    font-size: 18px;
+  }
+}

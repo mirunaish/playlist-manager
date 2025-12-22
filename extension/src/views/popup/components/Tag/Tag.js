@@ -1,5 +1,6 @@
 import React from "react";
-import { contrastingColor } from "../../../utils";
+import { contrastingColor } from "../../../../utils";
+import "./Tag.scss";
 
 function Tag({ name, color }) {
   return (

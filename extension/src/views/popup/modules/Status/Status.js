@@ -1,6 +1,7 @@
 import React from "react";
-import { StatusTypes } from "../../../utils";
-import { useStatus, useStatusUpdate } from "../providers/StatusProvider";
+import { StatusTypes } from "../../../../utils";
+import { useStatus, useStatusUpdate } from "../../providers/StatusProvider";
+import "./Status.scss";
 
 function Status() {
   const status = useStatus();

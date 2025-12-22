@@ -1,4 +1,5 @@
-import { Themes } from "../../../utils";
+import { Themes } from "../../../../utils";
+import "./QuickplayCard.scss";
 
 /** a card on the quickplay screen. */
 function QuickplayCard({ id, title, theme, onClick }) {
@@ -16,14 +17,7 @@ function QuickplayCard({ id, title, theme, onClick }) {
           color: Themes[theme].primaryText,
         }}
       >
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: 18,
-          }}
-        >
-          {title}
-        </p>
+        <p>{title}</p>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import "./App.css";
-import Status from "./modules/Status";
-import Tabs from "./modules/Tabs";
+import Status from "./modules/Status/Status";
+import Tabs from "./modules/Tabs/Tabs";
 import { background } from "./util";
 import { FUNCTIONS, MessageTypes, Pages } from "../../utils";
 import {

@@ -43,108 +43,6 @@ body {
   overflow: hidden;
 }
 
-.tabs {
-  background-color: var(--backgroundAccent);
-
-  white-space: nowrap;
-
-  width: 100%;
-  height: 36px;
-  box-sizing: border-box;
-  flex-shrink: 0;
-
-  overflow: hidden;
-  padding-top: 4px;
-  padding-left: 2px;
-  padding-right: 2px;
-}
-.scrollable-container {
-  overflow: scroll;
-  scrollbar-width: none;
-  white-space: nowrap;
-
-  border: 0px 1px 0px 1px solid var(--ui);
-}
-.tab {
-  display: inline-block;
-  background-color: var(--secondary);
-  color: var(--secondaryText);
-  border-radius: 4px;
-  transition-duration: 0.1s;
-  user-select: none;
-
-  font-size: 13px;
-  max-width: 200px;
-
-  align-content: center;
-  padding: 8px 12px;
-  margin: 0px 2px;
-  box-sizing: border-box;
-
-  cursor: pointer;
-}
-.tab > p {
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-}
-.tab > svg.icon > path {
-  fill: var(--secondaryText);
-  stroke: var(--secondaryText);
-}
-.tab.selected {
-  background-color: var(--primary);
-  padding-bottom: 18px;
-}
-.tab.selected > svg.icon > path {
-  fill: var(--primaryText);
-  stroke: var(--primaryText);
-}
-
-.banner {
-  background-color: var(--primary);
-  color: var(--primaryText);
-
-  height: 38px;
-
-  text-align: center;
-}
-.banner > p {
-  font-size: 20px;
-  line-height: 38px; /* this centers the text vertically */
-}
-.banner > div {
-  height: 100%;
-  width: 80px;
-  line-height: 38px;
-}
-.banner > div > .icon {
-  display: inline;
-  line-height: 38px;
-}
-
-.status {
-  color: var(--textFineprint);
-  border-top: 1px solid var(--ui);
-
-  width: 100%;
-  height: 30px;
-  flex-shrink: 0;
-
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding-left: 5px;
-}
-.status.info {
-  color: var(--textFineprint);
-}
-.status.error {
-  color: var(--error);
-}
-.status.success {
-  color: var(--success);
-}
-
 .playlist {
   height: 100%;
   overflow: hidden;
@@ -158,27 +56,6 @@ body {
   color: var(--secondaryText);
 }
 
-.tag {
-  border-radius: 3px 8px 8px 3px;
-}
-
-.quickplay-card {
-  height: 75px;
-
-  background-color: var(--primary);
-  color: var(--text);
-
-  border-radius: 8px;
-  margin: 5px;
-  padding: 5px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  cursor: pointer;
-}
-
 p {
   line-height: 1;
   margin: 0;
@@ -187,13 +64,6 @@ p {
 .fineprint {
   font-size: 12px;
   color: var(--textFineprint);
-}
-
-img {
-  object-fit: contain;
-}
-.hue {
-  filter: hue-rotate(var(--hue));
 }
 
 .icon {
@@ -245,53 +115,6 @@ select > option:checked {
   background-color: var(--secondaryDark);
 }
 
-.searchinput__control--menu-is-open {
-  border-radius: 4px 4px 0px 0px;
-}
-.searchinput__menu {
-  background-color: var(--background);
-  color: var(--text);
-  padding: 5px;
-  border: 1px solid var(--backgroundAccent);
-  border-radius: 0px 0px 4px 4px;
-}
-.searchinput__option {
-  padding: 5px;
-}
-.searchinput__option--is-focused {
-  background: var(--backgroundAccent);
-}
-.searchinput__indicators {
-  display: none !important;
-}
-.searchinput__placeholder {
-  color: var(--textFineprint);
-}
-.searchinput__no-options-message {
-  padding: 5px;
-}
-.searchinput__no-options-message {
-  padding: 5px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-.searchinput__value-container {
-  gap: 5px;
-}
-.searchinput__input-container {
-  cursor: text;
-}
-.searchinput__multi-value {
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  padding: 3px;
-  gap: 3px;
-}
-.searchinput__multi-value__label {
-  text-wrap: wrap;
-}
-
 button {
   background-color: var(--secondary);
   color: var(--secondaryText);
@@ -318,24 +141,6 @@ button.primary {
 button.primary > svg.icon > path {
   fill: var(--primaryText);
   stroke: var(--primaryText);
-}
-
-.rating {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-}
-.rating > img,
-.rating > svg {
-  padding: 3px 1.5px;
-}
-.rating > .icon.star.fill > path {
-  stroke: none !important;
-  stroke-width: 0 !important;
-}
-.rating > .icon.star.stroke > path {
-  stroke-width: 16px;
-  fill: none !important;
 }
 
 button:hover,

@@ -5,11 +5,12 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { background } from "../util";
-import { FUNCTIONS, MessageTypes, Pages, Themes } from "../../../utils";
-import Scrollable from "../components/Scrollable";
-import { useListener } from "../hooks";
-import { Icon, Icons } from "../icons";
+import { background } from "../../util";
+import { FUNCTIONS, MessageTypes, Pages, Themes } from "../../../../utils";
+import Scrollable from "../../components/Scrollable/Scrollable";
+import { useListener } from "../../hooks";
+import { Icon, Icons } from "../../icons";
+import "./Tabs.scss";
 
 const Tab = forwardRef(({ tab, selected, onClick, color }, ref) => {
   return (

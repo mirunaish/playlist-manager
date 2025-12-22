@@ -1,0 +1,68 @@
+.track-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 10px;
+  gap: 10px;
+
+  .title-card {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    flex-direction: column;
+
+    .title-and-artist {
+      display: inline;
+      flex-grow: 1;
+
+      .title {
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .artist {
+        font-size: 16px;
+      }
+    }
+
+    .other-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      justify-items: stretch;
+    }
+
+    &.big {
+      flex-direction: row;
+
+      .thumbnail {
+        align-self: center;
+      }
+
+      .title-and-artist {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .title,
+        .artist {
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .tags {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .buttons-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+  }
+}

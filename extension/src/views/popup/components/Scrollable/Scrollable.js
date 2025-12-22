@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { isMouse } from "../../../utils";
+import { isMouse } from "../../../../utils";
+import "./Scrollable.scss";
 
 /** query selectors need the container and items to have a className */
 function Scrollable({

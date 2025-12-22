@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import Select from "react-select";
 import Creatable from "react-select/creatable";
-import { contrastingColor } from "../../../utils";
+import { contrastingColor } from "../../../../utils";
+import "./SearchInput.scss";
 
 export const SearchInputDeco = {
   STAR: "star",

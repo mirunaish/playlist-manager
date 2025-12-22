@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BORDER_STYLE, formatTime, FUNCTIONS } from "../../../utils";
-import Thumbnail from "../components/Thumbnail";
-import Scrollable from "../components/Scrollable";
-import Rating from "../components/Rating";
+import Thumbnail from "../components/Thumbnail/Thumbnail";
+import Scrollable from "../components/Scrollable/Scrollable";
+import Rating from "../components/Rating/Rating";
 import { background } from "../util";
 
 function ListItem({

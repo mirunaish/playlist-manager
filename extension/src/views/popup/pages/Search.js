@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "../components/Button";
-import Banner from "../components/Banner";
+import Banner from "../components/Banner/Banner";
 
 function Search() {
   return (

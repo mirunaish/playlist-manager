@@ -1,0 +1,7 @@
+.thumbnail {
+  object-fit: cover;
+}
+
+.hue {
+  filter: hue-rotate(var(--hue));
+}
