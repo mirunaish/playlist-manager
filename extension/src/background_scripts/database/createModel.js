@@ -41,20 +41,18 @@ export function createModel(name, fields) {
         const query = this.model;
         return query;
       }
+
       // convert all filters from whatever format they were given in
       // to { key, value, isArray, exclude: boolean, ignoreCase }
       // remove any values that are undefined
       const search = Object.entries(filters)
-        .filter(
-          ([key, value]) =>
-            !(
-              value === undefined ||
-              (Array.isArray(value) && value.length === 0) ||
-              (typeof value === "object" &&
-                value.value === undefined &&
-                value.exclude === undefined)
-            )
-        )
+        .filter(([key, value]) => {
+          if (value === undefined) return false;
+          if (Array.isArray(value)) return value.length > 0;
+          if (typeof value === "object")
+            return !(value.value === undefined && value.exclude === undefined);
+          return true;
+        })
         .flatMap(([key, value]) => {
           const DEFAULTS = { exclude: false, ignoreCase: false };
           // if it's not an object, fill in with defaults
@@ -83,11 +81,25 @@ export function createModel(name, fields) {
               },
             ];
 
+          // if it has exclude but no value...
+          if (value.exclude !== undefined)
+            return [
+              {
+                ...DEFAULTS,
+                ...value,
+                value: value.exclude,
+                exclude: true,
+                isArray: Array.isArray(value.exclude),
+                key,
+              },
+            ];
+
           // otherwise just fill in missing keys
           return [
             {
               ...DEFAULTS,
               ...value,
+              exclude: false,
               isArray: Array.isArray(value.value),
               key,
             },
