@@ -24,13 +24,6 @@
       }
     }
 
-    .other-info {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      justify-items: stretch;
-    }
-
     &.big {
       flex-direction: row;
 
@@ -49,6 +42,13 @@
         }
       }
     }
+  }
+
+  .other-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-items: stretch;
   }
 
   .tags {

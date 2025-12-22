@@ -93,6 +93,7 @@ function TrackInfo({
                 }}
               />
               <TagsDropdown
+                long
                 createable
                 value={track.tags}
                 onChange={(value) => updateTrack({ tags: value })}

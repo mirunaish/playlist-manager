@@ -1,4 +1,4 @@
-import NewMix from "./NewMix";
+import NewMix from "./NewMix/NewMix";
 import Playlist from "./Playlist";
 import Quickplay from "./Quickplay";
 import Search from "./Search";

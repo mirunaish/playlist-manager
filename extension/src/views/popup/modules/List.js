@@ -65,6 +65,7 @@ function List({
   onTrackClick = (trackIndex) => {},
   children = [], // buttons at bottom
   style = {},
+  className = "",
 }) {
   // get all artists for track artist names
   const [artists, setArtists] = useState({});
@@ -106,7 +107,7 @@ function List({
 
   return (
     <div
-      className="playlist"
+      className={"playlist " + className}
       style={{
         ...style,
         borderRight: BORDER_STYLE,

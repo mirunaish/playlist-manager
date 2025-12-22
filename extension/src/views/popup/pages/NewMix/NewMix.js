@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Button from "../components/Button";
-import { useStatusUpdate } from "../providers/StatusProvider";
-import { background } from "../util";
-import Banner from "../components/Banner/Banner";
-import { FUNCTIONS, StatusTypes } from "../../../utils";
-import Filters from "../modules/Filters/Filters";
-import List from "../modules/List";
-import Stats from "../modules/Stats";
-import ThemesDropdown from "../modules/ThemesDropdown";
-import { Icons } from "../icons";
+import Button from "../../components/Button";
+import { useStatusUpdate } from "../../providers/StatusProvider";
+import { background } from "../../util";
+import Banner from "../../components/Banner/Banner";
+import { FUNCTIONS, StatusTypes } from "../../../../utils";
+import Filters from "../../modules/Filters/Filters";
+import List from "../../modules/List";
+import Stats from "../../modules/Stats";
+import ThemesDropdown from "../../modules/ThemesDropdown";
+import { Icons } from "../../icons";
+import "./NewMix.scss";
 
 /** start new custom playlist page */
 function NewMix() {
@@ -70,41 +71,37 @@ function NewMix() {
   }, [filters]);
 
   return (
-    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
+    <div className="page new-mix">
       <Banner title="New mix" />
 
       <Filters filters={filters} setFilters={setFilters}>
         {/** title and theme inputs */}
-        <input
-          placeholder="Mix title"
-          value={mixName}
-          // @ts-ignore
-          onChange={(e) => setMixName(e.target.value)}
-        />
-        <ThemesDropdown value={theme} onChange={(value) => setTheme(value)} />
+        <div className="buttons-row">
+          <input
+            placeholder="Mix title"
+            value={mixName}
+            // @ts-ignore
+            onChange={(e) => setMixName(e.target.value)}
+          />
+          <ThemesDropdown value={theme} onChange={(value) => setTheme(value)} />
+        </div>
 
-        <Button title="Preview" onClick={preview} />
-        <Button primary title="Play" onClick={play} />
-        <Button title="Save to Quickplay" onClick={saveMix} />
+        <div className="buttons-row">
+          <Button title="Preview" onClick={preview} />
+          <Button primary title="Play" onClick={play} />
+          <Button title="Save to Quickplay" onClick={saveMix} />
+        </div>
       </Filters>
 
       {/* preview playlist */}
       {playlistPreview && stats ? (
-        <div
-          style={{
-            flexGrow: 1,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "stretch",
-            overflow: "hidden",
-          }}
-        >
-          <List playlist={playlistPreview} style={{ width: "50%" }}>
+        <div className="preview-container">
+          <List className="half" playlist={playlistPreview}>
             <Button icon={{ icon: Icons.SHUFFLE }} onClick={reshuffle} />
             <Button icon={{ icon: Icons.PIN }} onClick={saveMix} />
           </List>
 
-          <div style={{ width: "50%" }}>
+          <div className="half">
             <Stats stats={stats} />
           </div>
         </div>

@@ -3,6 +3,7 @@ import Rating from "../../components/Rating/Rating";
 import { BORDER_STYLE } from "../../../../utils";
 import ArtistsDropdown from "../ArtistsDropdown";
 import TagsDropdown from "../TagsDropdown";
+import "./Filters.scss";
 
 function Filters({ setFilters, filters = null, children = null }) {
   return (

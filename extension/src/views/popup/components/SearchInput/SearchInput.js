@@ -22,6 +22,7 @@ function SearchInput({
   style = {},
   createable = false,
   createOption = (newOption) => {},
+  long = false,
 }) {
   /** add decoration to options: star or tag shaped background */
   const optionStyle = useCallback((baseStyles, { data }) => {
@@ -137,7 +138,7 @@ function SearchInput({
     placeholder: label,
     unstyled: true,
     classNamePrefix: "searchinput",
-    className: "searchinput",
+    className: (long ? "long " : "") + "searchinput",
     styles: {
       container: propStyle,
       control: propStyle,

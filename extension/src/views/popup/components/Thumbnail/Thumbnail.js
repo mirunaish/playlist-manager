@@ -19,7 +19,7 @@ function Thumbnail({
   return (
     <img
       src={src ?? placeholderPath}
-      className={fullClassName + src ? "" : " hue"}
+      className={fullClassName + (src ? "" : " hue")}
       width={width.toString() + "px"}
       height={height.toString() + "px"}
       alt="thumbnail"

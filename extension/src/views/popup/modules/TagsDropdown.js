@@ -12,6 +12,7 @@ const TagsDropdown = ({
   value = [],
   onChange = (newValue) => {},
   style = {},
+  long = false,
 }) => {
   const updateStatus = useStatusUpdate();
 
@@ -50,6 +51,7 @@ const TagsDropdown = ({
 
   return (
     <SearchInput
+      long={long}
       createable={createable}
       label={label}
       options={tagOptions}

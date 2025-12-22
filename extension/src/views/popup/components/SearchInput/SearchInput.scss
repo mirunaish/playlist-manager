@@ -30,7 +30,6 @@
 }
 .searchinput__value-container {
   gap: 5px;
-  align-self: flex-start;
 }
 .searchinput__input-container {
   cursor: text;
@@ -44,4 +43,10 @@
 }
 .searchinput__multi-value__label {
   text-wrap: wrap;
+}
+
+.long {
+  .searchinput__value-container {
+    align-self: flex-start;
+  }
 }
