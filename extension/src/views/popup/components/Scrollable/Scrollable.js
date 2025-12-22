@@ -16,15 +16,8 @@ function Scrollable({
   /** enable horizontal scrolling with mouse */
   const scroll = horizontal
     ? (e) => {
-        // https://stackoverflow.com/questions/68658249/how-to-do-react-horizontal-scroll-using-mouse-wheel
-        if (isMouse(e)) {
-          const el = e.currentTarget;
-          el.scrollTo({
-            left: el.scrollLeft + e.deltaY * 3,
-            behavior: "smooth",
-          });
-        }
-        // if touchpad, do nothing (default behavior)
+        e.preventDefault();
+        e.currentTarget.scrollLeft += e.deltaY;
       }
     : () => {};
 
