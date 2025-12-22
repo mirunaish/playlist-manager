@@ -61,6 +61,7 @@ function Untracked({ selectedTabId, navigate }) {
       await background(FUNCTIONS.createTrack, {
         ...untrackedInfo,
         artists: artistIds,
+        duration: parseInt(untrackedInfo.duration),
       });
 
       updateStatus("track saved", StatusTypes.SUCCESS);

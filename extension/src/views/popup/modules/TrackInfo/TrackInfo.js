@@ -140,6 +140,14 @@ function TrackInfo({
               updateTrack({ imageLink: e.target.value });
             }}
           ></input>
+          <input
+            placeholder="duration in seconds"
+            style={{ flexGrow: 1 }}
+            value={track.duration.toString() ?? ""}
+            onChange={(e) => {
+              updateTrack({ duration: e.target.value });
+            }}
+          ></input>
         </div>
       ) : null}
 

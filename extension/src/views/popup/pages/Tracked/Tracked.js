@@ -64,7 +64,7 @@ function Tracked({ selectedTabId }) {
         showSearch={!editing}
       />
 
-      <PlayBar totalTime={60 * 3} currentTime={44} />
+      <PlayBar totalTime={trackInfo.duration} currentTime={44} />
     </div>
   );
 }
