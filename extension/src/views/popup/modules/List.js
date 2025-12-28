@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BORDER_STYLE, formatTime, FUNCTIONS } from "../../../utils";
-import Thumbnail from "../components/Thumbnail";
-import Scrollable from "../components/Scrollable";
-import Rating from "../components/Rating";
+import Thumbnail from "../components/Thumbnail/Thumbnail";
+import Scrollable from "../components/Scrollable/Scrollable";
+import Rating from "../components/Rating/Rating";
 import { background } from "../util";
 
 function ListItem({
@@ -65,6 +65,7 @@ function List({
   onTrackClick = (trackIndex) => {},
   children = [], // buttons at bottom
   style = {},
+  className = "",
 }) {
   // get all artists for track artist names
   const [artists, setArtists] = useState({});
@@ -88,7 +89,7 @@ function List({
     (startIndex) => {
       return playlist
         .slice(startIndex)
-        .map((track) => track.duration)
+        .map((track) => parseInt(track.duration.toString()))
         .reduce((acc, val) => acc + val, 0); // sum all durations
     },
     [playlist]
@@ -106,7 +107,7 @@ function List({
 
   return (
     <div
-      className="playlist"
+      className={"playlist " + className}
       style={{
         ...style,
         borderRight: BORDER_STYLE,

@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
-import Banner from "../components/Banner";
+import Banner from "../components/Banner/Banner";
 import { useListener } from "../hooks";
 import { useStatusUpdate } from "../providers/StatusProvider";
 import { background } from "../util";
 import List from "../modules/List";
-import TrackInfo from "../modules/TrackInfo";
-import PlayBar from "../components/PlayBar";
+import TrackInfo from "../modules/TrackInfo/TrackInfo";
+import PlayBar from "../components/PlayBar/PlayBar";
 import {
   EMPTY_PLAYLIST,
   EMPTY_TRACK,

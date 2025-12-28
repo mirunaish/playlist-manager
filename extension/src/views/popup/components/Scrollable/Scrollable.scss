@@ -1,0 +1,8 @@
+.scrollable-container {
+  overflow-x: scroll;
+  scrollbar-width: none;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+
+  border: 0px 1px 0px 1px solid var(--ui);
+}

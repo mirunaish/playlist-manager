@@ -71,8 +71,8 @@ export class Field {
     // both the field and the value i'm searching for are arrays
     if (this.isArray && isArray) {
       return exclude
-        ? query.and((doc) => doc[this.name].some((v) => value.includes(v)))
-        : query.and((doc) => !doc[this.name].some((v) => value.includes(v)));
+        ? query.and((doc) => !doc[this.name].some((v) => value.includes(v)))
+        : query.and((doc) => doc[this.name].some((v) => value.includes(v)));
     }
 
     return query;

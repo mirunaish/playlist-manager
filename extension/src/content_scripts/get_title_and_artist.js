@@ -9,11 +9,23 @@ import { MessageTypes } from "../utils";
   function youtube() {
     const vidId = window.location.href.match(/(?<=watch\?v=)[a-zA-Z0-9_\\-]*/g);
 
+    const d = getText(".ytp-time-duration")
+      .split(":")
+      .map((t) => parseInt(t));
+
+    let duration = 0;
+    if (d.length === 3) duration = d[0] * 3600 + d[1] * 60 + d[2];
+    else if (d.length === 2) duration = d[0] * 60 + d[1];
+    // perhaps it's longer than a day...
+    else if (d.length === 4)
+      duration = d[0] * 24 * 3600 + d[1] * 3600 + d[2] * 60 + d[3];
+
     return {
       fullTitle: document.title.slice(0, -10),
       posterName: getText("a.yt-formatted-string"),
       imageLink: "https://i.ytimg.com/vi/" + vidId + "/hqdefault.jpg",
       url: window.location.href.replace(/&.*/, ""),
+      duration,
     };
   }
 
@@ -75,7 +87,7 @@ import { MessageTypes } from "../utils";
     }
 
     // get stuff from site-specific function
-    const { fullTitle, posterName, imageLink, url } = func();
+    const { fullTitle, posterName, imageLink, url, duration } = func();
 
     // parse data into title and artists
     const { title, artists } = parseData(fullTitle, posterName);
@@ -83,7 +95,7 @@ import { MessageTypes } from "../utils";
     // send data to background script
     browser.runtime.sendMessage({
       type: MessageTypes.TRACK_INFO,
-      payload: { title, artists, imageLink, url },
+      payload: { title, artists, imageLink, url, duration },
     });
   }
 

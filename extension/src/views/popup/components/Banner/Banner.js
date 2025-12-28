@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { changeTheme } from "../../../utils";
+import { changeTheme } from "../../../../utils";
+import "./Banner.scss";
 
 function Banner({ title = null, theme = "DARK_PINK", disabled = false }) {
   // set css variables to theme

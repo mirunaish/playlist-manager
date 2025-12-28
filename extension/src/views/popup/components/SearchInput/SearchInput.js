@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import Select from "react-select";
 import Creatable from "react-select/creatable";
-import { contrastingColor } from "../../../utils";
+import { contrastingColor } from "../../../../utils";
+import "./SearchInput.scss";
 
 export const SearchInputDeco = {
   STAR: "star",
@@ -21,6 +22,7 @@ function SearchInput({
   style = {},
   createable = false,
   createOption = (newOption) => {},
+  long = false,
 }) {
   /** add decoration to options: star or tag shaped background */
   const optionStyle = useCallback((baseStyles, { data }) => {
@@ -136,7 +138,7 @@ function SearchInput({
     placeholder: label,
     unstyled: true,
     classNamePrefix: "searchinput",
-    className: "searchinput",
+    className: (long ? "long " : "") + "searchinput",
     styles: {
       container: propStyle,
       control: propStyle,

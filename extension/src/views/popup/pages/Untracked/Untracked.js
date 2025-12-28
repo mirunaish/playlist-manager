@@ -1,16 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useListener } from "../hooks";
-import { useStatusUpdate } from "../providers/StatusProvider";
-import { background } from "../util";
-import Banner from "../components/Banner";
+import { useListener } from "../../hooks";
+import { useStatusUpdate } from "../../providers/StatusProvider";
+import { background } from "../../util";
+import Banner from "../../components/Banner/Banner";
 import {
   EMPTY_TRACK,
   FUNCTIONS,
   MessageTypes,
   StatusTypes,
-} from "../../../utils";
-import PlayBar from "../components/PlayBar";
-import TrackInfo from "../modules/TrackInfo";
+} from "../../../../utils";
+import PlayBar from "../../components/PlayBar/PlayBar";
+import TrackInfo from "../../modules/TrackInfo/TrackInfo";
+import "./Untracked.scss";
 
 function Untracked({ selectedTabId, navigate }) {
   const updateStatus = useStatusUpdate();
@@ -60,6 +61,7 @@ function Untracked({ selectedTabId, navigate }) {
       await background(FUNCTIONS.createTrack, {
         ...untrackedInfo,
         artists: artistIds,
+        duration: parseInt(untrackedInfo.duration),
       });
 
       updateStatus("track saved", StatusTypes.SUCCESS);
@@ -72,7 +74,7 @@ function Untracked({ selectedTabId, navigate }) {
   }, [navigate, selectedTabId, untrackedInfo, updateStatus]);
 
   return (
-    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
+    <div className="page untracked">
       <Banner title="New Track" />
 
       <TrackInfo

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Banner from "../components/Banner";
-import QuickplayCard from "../modules/QuickplayCard";
+import Banner from "../components/Banner/Banner";
+import QuickplayCard from "../modules/QuickplayCard/QuickplayCard";
 import { background } from "../util";
 import { FUNCTIONS } from "../../../utils";
 

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { background } from "../util";
-import SearchInput, { SearchInputDeco } from "../components/SearchInput";
+import SearchInput, {
+  SearchInputDeco,
+} from "../components/SearchInput/SearchInput";
 import { useStatusUpdate } from "../providers/StatusProvider";
 import { FUNCTIONS, StatusTypes } from "../../../utils";
 
@@ -10,6 +12,7 @@ const TagsDropdown = ({
   value = [],
   onChange = (newValue) => {},
   style = {},
+  long = false,
 }) => {
   const updateStatus = useStatusUpdate();
 
@@ -48,6 +51,7 @@ const TagsDropdown = ({
 
   return (
     <SearchInput
+      long={long}
       createable={createable}
       label={label}
       options={tagOptions}

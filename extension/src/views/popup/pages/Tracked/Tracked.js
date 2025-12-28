@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { background } from "../util";
-import Banner from "../components/Banner";
-import PlayBar from "../components/PlayBar";
-import TrackInfo from "../modules/TrackInfo";
-import { EMPTY_TRACK, FUNCTIONS, StatusTypes } from "../../../utils";
-import { useStatusUpdate } from "../providers/StatusProvider";
+import { background } from "../../util";
+import Banner from "../../components/Banner/Banner";
+import PlayBar from "../../components/PlayBar/PlayBar";
+import TrackInfo from "../../modules/TrackInfo/TrackInfo";
+import { EMPTY_TRACK, FUNCTIONS, StatusTypes } from "../../../../utils";
+import { useStatusUpdate } from "../../providers/StatusProvider";
+import "./Tracked.scss";
 
 function Tracked({ selectedTabId }) {
   const updateStatus = useStatusUpdate();
@@ -43,7 +44,7 @@ function Tracked({ selectedTabId }) {
   }, [editingTrackInfo, selectedTabId, updateStatus]);
 
   return (
-    <div className="page" style={{ display: "flex", flexDirection: "column" }}>
+    <div className="page tracked">
       <Banner theme="DARK_PINK" />
 
       <TrackInfo
@@ -55,15 +56,15 @@ function Tracked({ selectedTabId }) {
         actions={
           editing
             ? [
-                { title: "save", primary: true, func: edit },
                 { title: "cancel", func: () => setEditing(false) },
+                { title: "save", primary: true, func: edit },
               ]
             : [{ title: "edit", func: () => setEditing(true) }]
         }
         showSearch={!editing}
       />
 
-      <PlayBar totalTime={60 * 3} currentTime={44} />
+      <PlayBar totalTime={trackInfo.duration} currentTime={44} />
     </div>
   );
 }

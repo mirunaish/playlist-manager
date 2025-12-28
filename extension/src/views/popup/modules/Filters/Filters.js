@@ -1,31 +1,14 @@
 import React from "react";
-import Rating from "../components/Rating";
-import { BORDER_STYLE } from "../../../utils";
-import ArtistsDropdown from "./ArtistsDropdown";
-import TagsDropdown from "./TagsDropdown";
+import Rating from "../../components/Rating/Rating";
+import { BORDER_STYLE } from "../../../../utils";
+import ArtistsDropdown from "../ArtistsDropdown";
+import TagsDropdown from "../TagsDropdown";
+import "./Filters.scss";
 
 function Filters({ setFilters, filters = null, children = null }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        borderBottom: BORDER_STYLE,
-        padding: 8,
-        boxSizing: "border-box",
-        gap: 6,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-          alignItems: "center",
-          gap: 6,
-        }}
-      >
+    <div className="filters" style={{ borderBottom: BORDER_STYLE }}>
+      <div className="first-row">
         <div style={{ flexGrow: 1 }}>
           <ArtistsDropdown
             value={filters.artists}
@@ -60,13 +43,7 @@ function Filters({ setFilters, filters = null, children = null }) {
         </div>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-        }}
-      >
+      <div className="second-row">
         <div style={{ width: "50%", paddingRight: 3 }}>
           <TagsDropdown
             label="Include tags"

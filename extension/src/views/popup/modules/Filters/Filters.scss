@@ -1,0 +1,22 @@
+.filters {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  gap: 6px;
+
+  .first-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .second-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+}
