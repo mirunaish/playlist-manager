@@ -1,0 +1,16 @@
+.settings-page {
+  .section {
+    gap: 16px;
+  }
+
+  .row {
+    margin-top: 4px;
+    justify-self: stretch;
+
+    display: flex;
+    flex-direction: row;
+
+    justify-content: space-around;
+    gap: 10px;
+  }
+}

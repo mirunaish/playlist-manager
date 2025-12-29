@@ -51,6 +51,10 @@ async function removeTagFromTracks(tagId) {
   }));
 }
 
+async function loadTracks(tracks) {
+  await Tracks.load(tracks);
+}
+
 export const trackRepository = {
   getTracks,
   getTrackById,
@@ -58,4 +62,5 @@ export const trackRepository = {
   createTrack,
   updateTrack,
   removeTagFromTracks,
+  loadTracks,
 };

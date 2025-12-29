@@ -178,6 +178,15 @@ export function createModel(name, fields) {
       return (await query.modify(callback)).map((d) => new Model(d));
     }
 
+    static async clear() {
+      return await this.model.clear();
+    }
+
+    static async load(records) {
+      await this.model.clear();
+      return await this.model.bulkPut(records);
+    }
+
     constructor(data) {
       this.data = data;
     }

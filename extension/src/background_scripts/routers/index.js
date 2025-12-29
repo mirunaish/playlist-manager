@@ -4,3 +4,4 @@ export * from "./tab-router";
 export * from "./tag-router";
 export * from "./track-router";
 export * from "./media-router";
+export * from "./backup-router";

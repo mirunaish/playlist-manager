@@ -56,7 +56,10 @@ body {
   color: var(--secondaryText);
 }
 
-p {
+p,
+h1,
+h2,
+h3 {
   line-height: 1;
   margin: 0;
   padding: 0;
@@ -115,7 +118,9 @@ select > option:checked {
   background-color: var(--secondaryDark);
 }
 
-button {
+button,
+.button {
+  display: block;
   background-color: var(--secondary);
   color: var(--secondaryText);
   border: none;
@@ -127,23 +132,28 @@ button {
   cursor: pointer;
   transition-duration: 0.1s;
 }
-button.wide {
+button.wide,
+.button.wide {
   padding: 5px 20px 5px 20px;
 }
-button > svg.icon > path {
+button > svg.icon > path,
+.button > svg.icon > path {
   fill: var(--secondaryText);
   stroke: var(--secondaryText);
 }
-button.primary {
+button.primary,
+.button.primary {
   background-color: var(--primary);
   color: var(--primaryText);
 }
-button.primary > svg.icon > path {
+button.primary > svg.icon > path,
+.button.primary > svg.icon > path {
   fill: var(--primaryText);
   stroke: var(--primaryText);
 }
 
 button:hover,
+.button:hover,
 select:hover,
 select > option:hover,
 .icon:not(.disabled):hover,
@@ -151,6 +161,14 @@ select > option:hover,
 .playlistItem:not(.selected):hover,
 .quickplay-card:hover {
   filter: brightness(0.7) contrast(1.2);
+}
+
+.section {
+  border-bottom: 1px solid var(--ui);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 8px;
 }
 
 .hidden {

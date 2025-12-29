@@ -4,3 +4,4 @@ export * from "./tag-service";
 export * from "./tab-service";
 export * from "./playlist-service";
 export * from "./media-service";
+export * from "./backup-service";

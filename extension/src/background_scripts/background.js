@@ -8,6 +8,7 @@ import {
   tagRouter,
   trackRouter,
   mediaRouter,
+  backupRouter,
 } from "./routers";
 
 // open dexie database
@@ -24,6 +25,7 @@ const allRoutes = {
   ...tagRouter,
   ...trackRouter,
   ...mediaRouter,
+  ...backupRouter,
 };
 
 // receive messages from content script and popup
@@ -49,7 +51,10 @@ getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else {
     // otherwise, the message handler should be defined in allRoutes
     const handler = allRoutes[message.type];
-    if (!handler) console.warn("background received unknown message", message);
+    if (!handler) {
+      console.warn("background received unknown message", message);
+      return;
+    }
 
     handler(message);
   }

@@ -63,6 +63,10 @@ async function deleteTag(id) {
   await tag.delete();
 }
 
+async function loadTags(tags) {
+  await Tags.load(tags);
+}
+
 export const tagRepository = {
   getAllTags,
   getTagById,
@@ -70,4 +74,5 @@ export const tagRepository = {
   createTag,
   editTag,
   deleteTag,
+  loadTags,
 };
