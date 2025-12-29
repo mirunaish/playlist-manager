@@ -1,14 +1,9 @@
 import { Op } from "sequelize";
-import {
-  sequelize,
-  Track,
-  Artist,
-  TrackArtist,
-  TrackTag,
-  Tag,
-} from "../../src/index.js";
+import { Track, Artist, TrackArtist } from "../../src/index.js";
 import { getTrackArtists, getTrackTags } from "./track-service.js";
 import { removeFromArray } from "../util.js";
+import { getAllTags } from "./tag-service.js";
+import { getAllArtists } from "./artist-service.js";
 
 function getPlaylistStats(playlist) {
   let stats = {};
@@ -100,3 +95,23 @@ export async function getPlaylist(filters) {
 
   return { playlist, stats };
 }
+
+export const exportEverything = async (req, res) => {
+  // get all tags
+  const tags = await getAllTags();
+  const artists = await getAllArtists();
+
+  const tracks = await Track.findAll();
+  // attach artists + tags to each track
+  const tracksWithArtistsAndTags = await Promise.all(
+    tracks.map(async (t) => {
+      return {
+        ...t.dataValues,
+        artists: await getTrackArtists(t.id),
+        tags: await getTrackTags(t.id),
+      };
+    })
+  );
+
+  res.json({ tags, artists, tracks: tracksWithArtistsAndTags });
+};

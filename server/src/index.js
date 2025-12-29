@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import * as routers from "./routes/index.js";
 import * as define from "./models.js";
 import { stripUrls } from "./middleware.js";
+import { exportEverything } from "./services/playlist-service.js";
 
 // config environment variables
 dotenv.config();
@@ -45,6 +46,8 @@ app.use("/artists", routers.artistRouter);
 app.use("/playlist", routers.playlistRouter);
 app.use("/tags", routers.tagRouter);
 app.use("/tracks", routers.trackRouter);
+
+app.use("/export", exportEverything);
 
 // add 404 route for all requests not caught by one of the above ^
 app.use((req, res, next) => {

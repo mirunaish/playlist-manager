@@ -12,6 +12,7 @@ export async function getAllTags() {
 export async function getTagById(id) {
   const tag = await Tag.findByPk(id);
   if (tag === null) throw Error("could not find tag");
+  return tag;
 }
 
 export async function createTag(tagData, transaction = null) {
