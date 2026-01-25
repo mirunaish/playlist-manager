@@ -22,6 +22,10 @@ async function createTrack(trackData) {
   // const { artists, tags, ...track } = trackData;
   const track = trackData;
   track.url = stripSupportedUrl(track.url); // strip url if supported
+  if (!track.addedAt) track.addedAt = new Date(); // added is now by default
+  track.lastPlayedAt = track.addedAt;
+  track.plays = 1;
+  track.skips = 0;
 
   return await dexie.transaction(
     "rw",
@@ -41,7 +45,7 @@ async function createTrack(trackData) {
       // await editTrackTags(id, tags);
 
       return newTrack;
-    }
+    },
   );
 }
 
@@ -49,7 +53,7 @@ async function createTrack(trackData) {
 async function editTrack(id, trackData) {
   // const { artists, tags, ...track } = trackData;
   const track = trackData;
-  track.url = stripSupportedUrl(track.url); // strip url if supported
+  if (track.url) track.url = stripSupportedUrl(track.url); // strip url if supported
 
   return await dexie.transaction(
     "rw",
@@ -61,7 +65,7 @@ async function editTrack(id, trackData) {
       const currentTrack = await trackRepository.getTrackById(id);
 
       // if url was changed, check that new url does not exist
-      if (track.url !== currentTrack.url) {
+      if (track.url && track.url !== currentTrack.url) {
         const existing = await getTrackByUrl(track.url);
         if (existing != null) throw Error("That URL has already been saved");
       }
@@ -75,8 +79,24 @@ async function editTrack(id, trackData) {
 
       // return edited track
       return editedTrack;
-    }
+    },
   );
+}
+
+async function addPlay(id) {
+  // get track number of plays
+  const track = await trackRepository.getTrackById(id);
+  await editTrack(id, {
+    plays: track.plays + 1,
+    lastPlayedAt: new Date(),
+  });
+}
+
+async function addSkip(id) {
+  const track = await trackRepository.getTrackById(id);
+  await editTrack(id, {
+    skips: track.skips + 1,
+  });
 }
 
 /** edit the mappings from track to artists (add or remove track artists) */
@@ -110,4 +130,6 @@ export const trackService = {
   getTrackByUrl,
   createTrack,
   editTrack,
+  addPlay,
+  addSkip,
 };

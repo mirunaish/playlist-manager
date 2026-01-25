@@ -9,6 +9,11 @@ export const Tracks = createModel("tracks", {
   tags: { type: "uuid", isIndexed: true, isArray: true },
   artists: { type: "uuid", isIndexed: true, isArray: true },
 
-  duration: { type: "number" },
+  duration: { type: "number", isIndexed: true },
   imageLink: { type: "string" },
+
+  addedAt: { type: "datetime", isIndexed: true },
+  lastPlayedAt: { type: "datetime", isIndexed: true },
+  plays: { type: "number", isIndexed: true },
+  skips: { type: "number", isIndexed: true },
 });
