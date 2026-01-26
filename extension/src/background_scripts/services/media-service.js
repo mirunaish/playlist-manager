@@ -80,7 +80,7 @@ async function next(tabId, options = { skip: false }) {
     await trackService.addSkip(currentTrack.id);
   }
 
-  if (p.playingIndex < p.length - 1) {
+  if (p.playingIndex < p.tracks.length - 1) {
     playTrack(tabId, p.playingIndex + 1);
   } else {
     // ive reached the end of the playlist
