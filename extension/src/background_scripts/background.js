@@ -1,5 +1,5 @@
-import { Listeners, MessageTypes } from "../utils/consts";
-import { getBrowser } from "./util";
+import { Listeners, MessageTypes, SupportedSites } from "../utils/consts";
+import { getBrowser, insertScript, updateStatus } from "./util";
 import { dexie } from "./database/dexie";
 import {
   tabRouter,
@@ -8,7 +8,9 @@ import {
   tagRouter,
   trackRouter,
   mediaRouter,
+  backupRouter,
 } from "./routers";
+import { FUNCTIONS } from "../utils";
 
 // open dexie database
 dexie
@@ -24,6 +26,7 @@ const allRoutes = {
   ...tagRouter,
   ...trackRouter,
   ...mediaRouter,
+  ...backupRouter,
 };
 
 // receive messages from content script and popup
@@ -43,45 +46,48 @@ getBrowser().runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.error(
         "failed to run function %s: %s",
         message.functionName,
-        e.message
+        e.message,
       );
     }
   } else {
     // otherwise, the message handler should be defined in allRoutes
     const handler = allRoutes[message.type];
-    if (!handler) console.warn("background received unknown message", message);
+    if (!handler) {
+      console.warn("background received unknown message", message);
+      return;
+    }
 
     handler(message);
   }
 });
 
-// add event listener that injects content script after the page loads
+// add event listener that injects content script into playlist tabs after the page loads
+// it only inserts into supported sites, even though playlists can contain non-supported
+// but the script is site-specific so it won't work for non-supported sites anyway
 // TODO inject listener and send track info if inactive tab becomes active
-// TODO fix this
-// getBrowser().tabs.onUpdated.addListener(
-//   async (tabId, changeInfo, tabInfo) => {
-//     if (
-//       siteSupported(tabInfo.url) &&
-//       tabId === playingTabId &&
-//       changeInfo.status === "complete"
-//     ) {
-//       try {
-//         // content script won't run if it already has
-//         // if page is refreshed content script will run again
-//         await browser.tabs.executeScript(playingTabId, {
-//           file: "./insert_listener.js",
-//         });
-//       } catch (e) {
-//         console.error(e);
-//         updateStatus("failed to execute the content script.", { error: true });
-//       }
-//     }
-//   },
-//   {
-//     urls: supportedSites,
-//     properties: ["status"],
-//   }
-// );
+getBrowser().tabs.onUpdated.addListener(
+  async (tabId, changeInfo, tabInfo) => {
+    if (changeInfo.status !== "complete") return;
+
+    // check if this tab is a playlist
+    const playlist = await playlistRouter[FUNCTIONS.getPlaylistByTabId](tabId);
+
+    if (playlist) {
+      try {
+        // content script won't run if it already has
+        // if page is refreshed content script will run again
+        await insertScript(tabId, "insert_listener.js");
+      } catch (e) {
+        console.error(e);
+        updateStatus("failed to execute the content script.", { error: true });
+      }
+    }
+  },
+  {
+    urls: Object.values(SupportedSites).map((site) => site.query),
+    properties: ["status"],
+  },
+);
 
 // add event listener that refreshes popup if tabs change
 // TODO

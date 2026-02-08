@@ -16,7 +16,7 @@ async function handleMediaMessage(message) {
   }
 
   if (message.action === "next") {
-    mediaService.next(affectedTab.id);
+    mediaService.next(affectedTab.id, { skip: true });
   } else if (message.action === "previous") {
     // if player is in first 10 seconds,
     // tab will restart track instead of sending "previous" message

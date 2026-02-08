@@ -1,0 +1,24 @@
+import { artistService } from "./artist-service";
+import { tagService } from "./tag-service";
+import { trackService } from "./track-service";
+
+async function saveBackup() {
+  const artists = await artistService.getAllArtists();
+  const tags = await tagService.getAllTags();
+  // const quickplay = await quickplayService.getAllQuickplay();
+  const tracks = await trackService.getTracks({});
+
+  return { artists, tags, tracks };
+}
+
+async function loadBackup(file) {
+  const { artists, tags, tracks } = JSON.parse(await file.text());
+  await artistService.loadArtists(artists);
+  await tagService.loadTags(tags);
+  await trackService.loadTracks(tracks);
+}
+
+export const backupService = {
+  saveBackup,
+  loadBackup,
+};

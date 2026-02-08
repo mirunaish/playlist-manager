@@ -39,6 +39,10 @@ async function createArtist(artistData) {
   return artist.data;
 }
 
+async function loadArtists(artists) {
+  await Artists.load(artists);
+}
+
 export const artistRepository = {
   getAllArtists,
   getArtists,
@@ -46,4 +50,5 @@ export const artistRepository = {
   getArtistsByIds,
   getArtistByName,
   createArtist,
+  loadArtists,
 };

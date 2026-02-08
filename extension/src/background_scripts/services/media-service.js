@@ -2,6 +2,7 @@ import { MessageTypes, pick } from "../../utils";
 import { popup } from "../util";
 import { playlistService } from "./playlist-service";
 import { tabService } from "./tab-service";
+import { trackService } from "./track-service";
 
 // start playlist button was pressed
 async function startPlaying(
@@ -9,7 +10,7 @@ async function startPlaying(
   theme,
   filters = null,
   playlist = null,
-  startIndex = 0
+  startIndex = 0,
 ) {
   const playlistData = {
     title,
@@ -57,6 +58,9 @@ async function playTrack(tabId, index) {
   // update currently playing
   await playlistService.editPlaylist(tabId, { playingIndex: index });
 
+  // also update track last played and total plays
+  await trackService.addPlay(track.id);
+
   // tell popup that playing index changed
   popup(MessageTypes.PLAYLIST_UPDATE, { tabId, index });
   // tell popup that tabs changed too
@@ -67,9 +71,16 @@ async function playTrack(tabId, index) {
  * increase index and load next song.
  * if last song, stop playing
  */
-async function next(tabId) {
+async function next(tabId, options = { skip: false }) {
   const p = await playlistService.getPlaylistByTabId(tabId);
-  if (p.playingIndex < p.length - 1) {
+
+  if (options.skip) {
+    // add a skip to the current track
+    const currentTrack = p.tracks[p.playingIndex];
+    await trackService.addSkip(currentTrack.id);
+  }
+
+  if (p.playingIndex < p.tracks.length - 1) {
     playTrack(tabId, p.playingIndex + 1);
   } else {
     // ive reached the end of the playlist

@@ -25,4 +25,6 @@ export const FUNCTIONS = {
   getTrackTags: "getTrackTags",
   createTag: "createTag",
   createTrack: "createTrack",
+  saveBackup: "saveBackup",
+  loadBackup: "loadBackup",
 };

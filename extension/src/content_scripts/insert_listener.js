@@ -1,5 +1,3 @@
-import { MessageTypes } from "../utils";
-
 (function () {
   // only run once
   if (window.hasRun) {
@@ -7,15 +5,19 @@ import { MessageTypes } from "../utils";
   }
   window.hasRun = true;
 
+  // set these for each site
+  let pastTenSeconds = () => false;
+  let restart = () => {};
+
   const forward = async () => {
     await browser.runtime.sendMessage({
-      type: MessageTypes.MEDIA_CONTROL,
+      type: "media-control",
       action: "next",
     });
   };
   const backward = async () => {
     await browser.runtime.sendMessage({
-      type: MessageTypes.MEDIA_CONTROL,
+      type: "media-control",
       action: "previous",
     });
   };
@@ -58,14 +60,10 @@ import { MessageTypes } from "../utils";
     });
   }
 
-  // set these for each site
-  let pastTenSeconds = () => {};
-  let restart = () => {};
-
   function youtube() {
     function elemExists() {
-      const search = "h1.title.style-scope.ytd-video-primary-info-renderer";
-      return document.querySelector(search)?.firstChild;
+      const search = ".video-stream";
+      return document.querySelector(search);
     }
 
     // wait for everything to properly load (:/)

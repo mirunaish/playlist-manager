@@ -49,9 +49,8 @@ export function siteSupported(url) {
   return false;
 }
 
-/** should be identical to one in backend */
 export function stripSupportedUrl(url) {
-  if (url.includes("youtube")) {
+  if (url?.includes("youtube")) {
     // remove everything after the first argument
     url = url.replace(/&.*$/, "");
   }
