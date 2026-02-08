@@ -61,6 +61,7 @@ function TrackInfo({
                 onChange={(e) => {
                   updateTrack({ title: e.target.value });
                 }}
+                placeholder="Title"
               />
               <ArtistsDropdown
                 createable

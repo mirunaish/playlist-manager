@@ -23,7 +23,7 @@ function NewMix() {
     sort: "shuffle",
   });
   const [mixName, setMixName] = useState("Custom Mix");
-  const [theme, setTheme] = useState("DARK_PINK");
+  const [theme, setTheme] = useState("PINK_CHAMPAGNE");
 
   const [playlistPreview, setPlaylistPreview] = useState(null);
   const [stats, setStats] = useState(null);
@@ -50,14 +50,14 @@ function NewMix() {
           theme,
           filters,
           playlistPreview,
-          startIndex
+          startIndex,
         );
         updateStatus("");
       } catch (e) {
         updateStatus(e.message, StatusTypes.ERROR);
       }
     },
-    [filters, mixName, playlistPreview, theme, updateStatus]
+    [filters, mixName, playlistPreview, theme, updateStatus],
   );
 
   const saveMix = useCallback(async () => {

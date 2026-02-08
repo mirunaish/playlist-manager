@@ -45,7 +45,7 @@ function Tracked({ selectedTabId }) {
 
   return (
     <div className="page tracked">
-      <Banner theme="DARK_PINK" />
+      <Banner theme="PINK_CHAMPAGNE" />
 
       <TrackInfo
         track={editing ? editingTrackInfo : trackInfo}

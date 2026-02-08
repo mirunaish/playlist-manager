@@ -67,7 +67,7 @@ export const EMPTY_TRACK = {
 };
 export const EMPTY_PLAYLIST = {
   title: "Playlist",
-  theme: "DARK_PINK",
+  theme: "PINK_CHAMPAGNE",
 
   tracks: [],
   filters: {},
