@@ -38,7 +38,13 @@ import { MessageTypes } from "../utils";
 
   // TODO
   function spotify() {
-    return { fullTitle: "", posterName: "" };
+    return {
+      fullTitle: "",
+      posterName: "",
+      imageLink: "",
+      duration: 0,
+      url: window.location.href,
+    };
   }
 
   function parseData(fullTitle, posterName) {
@@ -83,7 +89,13 @@ import { MessageTypes } from "../utils";
     } else if (where.includes("://open.spotify.com/")) {
       func = spotify;
     } else {
-      return;
+      func = () => ({
+        fullTitle: "",
+        posterName: "",
+        imageLink: "",
+        duration: 0,
+        url: window.location.href,
+      });
     }
 
     // get stuff from site-specific function

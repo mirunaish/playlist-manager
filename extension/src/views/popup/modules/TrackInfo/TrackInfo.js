@@ -76,12 +76,12 @@ function TrackInfo({
                         label: a.name,
                         backgroundColor: "var(--backgroundAccent)",
                         color: "var(--text)",
-                      }
+                      },
                 )}
                 onChange={(value) => {
                   // updatedValue is an array of ids for real artists and names for non real ones
                   const newValue = value.map((v) =>
-                    v.startsWith("!") ? { isReal: false, name: v.slice(1) } : v
+                    v.startsWith("!") ? { isReal: false, name: v.slice(1) } : v,
                   );
                   updateTrack({ artists: newValue });
                 }}
@@ -144,7 +144,7 @@ function TrackInfo({
           <input
             placeholder="duration in seconds"
             style={{ flexGrow: 1 }}
-            value={track.duration.toString() ?? ""}
+            value={track.duration?.toString() ?? ""}
             onChange={(e) => {
               updateTrack({ duration: e.target.value });
             }}

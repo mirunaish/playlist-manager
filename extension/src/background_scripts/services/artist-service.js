@@ -6,7 +6,7 @@ async function getTrackArtists(trackId) {
 
   // need to do it this way to get them in order
   const artists = await Promise.all(
-    track.artists.map((artistId) => artistRepository.getArtistById(artistId))
+    track.artists.map((artistId) => artistRepository.getArtistById(artistId)),
   );
 
   return artists;
@@ -21,6 +21,8 @@ async function artistMatch(names) {
 
   // TODO could maybe do this with a map?
   for (let name of names) {
+    if (!name || name.trim() === "") continue;
+
     // does the artist exist? (case insensitive)
     const id = (await artistRepository.getArtistByName(name))?.id;
 
