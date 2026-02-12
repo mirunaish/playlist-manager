@@ -57,8 +57,7 @@ body {
   background-color: var(--background);
 }
 .playlistItem.selected {
-  background-color: var(--secondary);
-  color: var(--secondaryText);
+  background-color: var(--backgroundAccent);
 }
 
 p,

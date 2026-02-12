@@ -1,30 +1,22 @@
 import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Banner from "../components/Banner/Banner";
 import { useListener } from "../hooks";
-import { useStatusUpdate } from "../providers/StatusProvider";
 import { background } from "../util";
 import List from "../modules/List";
-import TrackInfo from "../modules/TrackInfo/TrackInfo";
 import PlayBar from "../components/PlayBar/PlayBar";
 import {
   EMPTY_PLAYLIST,
   EMPTY_TRACK,
   FUNCTIONS,
   MessageTypes,
-  StatusTypes,
 } from "../../../utils";
 import Button from "../components/Button";
 import { Icons } from "../icons";
+import TrackInfoEditable from "../modules/TrackInfoEditable";
 
 function Playlist({ selectedTabId }) {
-  const updateStatus = useStatusUpdate();
-
   const [playlistInfo, setPlaylistInfo] = useState(EMPTY_PLAYLIST);
   const [playingIndex, setPlayingIndex] = useState(null);
-  const [editingTrackInfo, setEditingTrackInfo] = useState(EMPTY_TRACK);
-
-  // editing currently playing track?
-  const [editing, setEditing] = useState(false);
 
   // ask background script for playlist info
   // includes playlist name and theme, list, and playing track info
@@ -32,7 +24,7 @@ function Playlist({ selectedTabId }) {
     (async () => {
       const info = await background(
         FUNCTIONS.getPlaylistByTabId,
-        selectedTabId
+        selectedTabId,
       );
       setPlaylistInfo(info);
       setPlayingIndex(info.playingIndex);
@@ -43,16 +35,11 @@ function Playlist({ selectedTabId }) {
     return playlistInfo.tracks[playingIndex] ?? EMPTY_TRACK;
   }, [playingIndex, playlistInfo]);
 
-  // if trackInfo changes or i start/stop editing, reset editingTrackInfo
-  useEffect(() => {
-    setEditingTrackInfo(trackInfo);
-  }, [editing, trackInfo]);
-
   const selectTrack = useCallback(
     (index) => {
       background(FUNCTIONS.playTrack, selectedTabId, index);
     },
-    [selectedTabId]
+    [selectedTabId],
   );
 
   // if track changes, set new playing index
@@ -60,28 +47,15 @@ function Playlist({ selectedTabId }) {
     if (selectedTabId === tabId) setPlayingIndex(index);
   });
 
-  const edit = useCallback(async () => {
-    updateStatus("editing track...");
-    try {
-      await background(FUNCTIONS.editTrack, editingTrackInfo, selectedTabId);
-      updateStatus("track edited", StatusTypes.SUCCESS);
+  const onTrackEdit = useCallback(
+    async (updatedTrack) => {
       // set edited track info in playlist
       const newPlaylistInfo = { ...playlistInfo };
-      newPlaylistInfo.tracks[playingIndex] = editingTrackInfo;
+      newPlaylistInfo.tracks[playingIndex] = updatedTrack;
       setPlaylistInfo(newPlaylistInfo);
-      setEditing(false); // set editing to false
-      // background will navigate to new url if it was changed
-    } catch (e) {
-      console.error("failed to edit track", e);
-      updateStatus("Track could not be edited", StatusTypes.ERROR);
-    }
-  }, [
-    editingTrackInfo,
-    playingIndex,
-    playlistInfo,
-    selectedTabId,
-    updateStatus,
-  ]);
+    },
+    [playingIndex, playlistInfo],
+  );
 
   return (
     <div
@@ -114,22 +88,11 @@ function Playlist({ selectedTabId }) {
         </List>
 
         <div style={{ display: "flex", flexDirection: "column", width: "50%" }}>
-          <TrackInfo
+          <TrackInfoEditable
             big={false}
-            track={editing ? editingTrackInfo : trackInfo}
-            editing={editing}
-            updateTrack={(newTrack) =>
-              setEditingTrackInfo({ ...editingTrackInfo, ...newTrack })
-            }
-            showSearch={!editing}
-            actions={
-              editing
-                ? [
-                    { title: "save", primary: true, func: edit },
-                    { title: "cancel", func: () => setEditing(false) },
-                  ]
-                : [{ title: "edit", func: () => setEditing(true) }]
-            }
+            track={trackInfo}
+            onChange={onTrackEdit}
+            showSearch={true}
           />
 
           <PlayBar totalTime={trackInfo.duration} currentTime={0} />

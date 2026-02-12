@@ -13,6 +13,7 @@ import "./TrackInfo.scss";
 function TrackInfo({
   track,
   big = true,
+  showImage = true,
   editing = false,
   allowEditingUrl = true,
   updateTrack = (updated) => {},
@@ -51,7 +52,9 @@ function TrackInfo({
   return (
     <div className="track-info">
       <div className={`title-card ${big ? "big" : ""}`}>
-        <Thumbnail src={track.imageLink} className="thumbnail" square />
+        {showImage && (
+          <Thumbnail src={track.imageLink} className="thumbnail" square />
+        )}
 
         <div className="title-and-artist">
           {editing ? (
@@ -94,7 +97,7 @@ function TrackInfo({
                 }}
               />
               <TagsDropdown
-                long
+                long={big}
                 createable
                 value={track.tags}
                 onChange={(value) => updateTrack({ tags: value })}
