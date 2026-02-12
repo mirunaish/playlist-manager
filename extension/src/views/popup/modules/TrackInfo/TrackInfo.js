@@ -13,7 +13,6 @@ import "./TrackInfo.scss";
 function TrackInfo({
   track,
   big = true,
-  showImage = true,
   editing = false,
   allowEditingUrl = true,
   updateTrack = (updated) => {},
@@ -52,8 +51,14 @@ function TrackInfo({
   return (
     <div className="track-info">
       <div className={`title-card ${big ? "big" : ""}`}>
-        {showImage && (
-          <Thumbnail src={track.imageLink} className="thumbnail" square />
+        {/* big: full image, not big not editing: small image, not big editing: no image */}
+        {(big || !editing) && (
+          <Thumbnail
+            src={track.imageLink}
+            className="thumbnail"
+            square
+            maxWidth={big ? undefined : 150}
+          />
         )}
 
         <div className="title-and-artist">
@@ -101,7 +106,7 @@ function TrackInfo({
                 createable
                 value={track.tags}
                 onChange={(value) => updateTrack({ tags: value })}
-                style={{ height: "100%", flexGrow: 1 }}
+                style={{ flexGrow: 1 }}
               />
             </>
           ) : (
@@ -136,14 +141,14 @@ function TrackInfo({
               updateTrack({ url: e.target.value });
             }}
           ></input>
-          <input
-            placeholder="image link"
-            style={{ flexGrow: 1 }}
-            value={track.imageLink ?? ""}
-            onChange={(e) => {
-              updateTrack({ imageLink: e.target.value });
-            }}
-          ></input>
+          {/* <input
+              placeholder="image link"
+              style={{ flexGrow: 1 }}
+              value={track.imageLink ?? ""}
+              onChange={(e) => {
+                updateTrack({ imageLink: e.target.value });
+              }}
+            ></input> */}
           <input
             placeholder="duration in seconds"
             style={{ flexGrow: 1 }}

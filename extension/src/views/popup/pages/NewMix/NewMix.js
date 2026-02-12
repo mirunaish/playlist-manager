@@ -134,7 +134,6 @@ function NewMix() {
             ) : (
               <TrackInfoEditable
                 big={false}
-                showImage={false}
                 allowEditingUrl={true}
                 track={playlistPreview[selectedIndex]}
                 actions={[{ title: "play", func: () => play(selectedIndex) }]}

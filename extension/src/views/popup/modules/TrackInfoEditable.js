@@ -7,7 +7,6 @@ import { background } from "../util";
 function TrackInfoEditable({
   track,
   big = true,
-  showImage = true,
   allowEditingUrl = true,
   showSearch = false,
   actions = [],
@@ -45,7 +44,6 @@ function TrackInfoEditable({
   return (
     <TrackInfo
       big={big}
-      showImage={showImage}
       track={editing ? editingTrackInfo : track}
       editing={editing}
       updateTrack={(newTrack) =>
