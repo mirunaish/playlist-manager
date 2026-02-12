@@ -48,117 +48,146 @@ function TrackInfo({
     })();
   }, [editing, track]);
 
-  return (
-    <div className="track-info">
-      <div className={`title-card ${big ? "big" : ""}`}>
-        {/* big: full image, not big not editing: small image, not big editing: no image */}
-        {(big || !editing) && (
+  // --------------------------- NOT EDITING --------------------------
+  // --------------------------- NOT EDITING --------------------------
+  // --------------------------- NOT EDITING --------------------------
+  if (!editing)
+    return (
+      <div className="track-info">
+        <div className={`title-card ${big ? "big" : ""}`}>
           <Thumbnail
             src={track.imageLink}
             className="thumbnail"
             square
             maxWidth={big ? undefined : 150}
           />
+
+          <div className="title-and-artist">
+            <span className="title">{track.title}</span>
+            <span className="artist">{(big ? "" : " - ") + artistString}</span>
+            <Rating value={track.rating} extended disabled />
+            <div className="tags">
+              {tags.map(({ name, color }) => (
+                <Tag
+                  key={name}
+                  name={name ?? "unknown tag"}
+                  color={color ?? "#9f8f9f"}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="buttons-row">
+          {actions.map(
+            ({ title = null, icon = null, func, primary = false }) => (
+              <Button
+                primary={primary}
+                key={title}
+                icon={icon}
+                title={title}
+                onClick={func}
+              />
+            ),
+          )}
+        </div>
+
+        {/* search on other sites buttons */}
+        {showSearch && (
+          <SearchOtherSite
+            artistString={track.artistString}
+            title={track.title}
+            url={track.url}
+          />
+        )}
+      </div>
+    );
+
+  // --------------------------- EDITING ---------------------------
+  // --------------------------- EDITING ---------------------------
+  // --------------------------- EDITING ---------------------------
+  return (
+    <div className="track-info">
+      <div className={`title-card ${big ? "big" : ""}`}>
+        {big && (
+          <Thumbnail src={track.imageLink} className="thumbnail" square />
         )}
 
         <div className="title-and-artist">
-          {editing ? (
-            <>
-              <input
-                value={track.title ?? ""}
-                onChange={(e) => {
-                  updateTrack({ title: e.target.value });
-                }}
-                placeholder="Title"
-              />
-              <ArtistsDropdown
-                createable
-                value={track.artists.map((a) =>
-                  a.isReal === undefined
-                    ? a // it's just an id
-                    : {
-                        // use just the name
-                        // putting a special character at the start so i can more easily tell names apart from ids later...
-                        value: "!" + a.name,
-                        // i need to put extra data here because this isn't in the options
-                        label: a.name,
-                        backgroundColor: "var(--backgroundAccent)",
-                        color: "var(--text)",
-                      },
-                )}
-                onChange={(value) => {
-                  // updatedValue is an array of ids for real artists and names for non real ones
-                  const newValue = value.map((v) =>
-                    v.startsWith("!") ? { isReal: false, name: v.slice(1) } : v,
-                  );
-                  updateTrack({ artists: newValue });
-                }}
-              />
-              <Rating
-                value={track.rating}
-                extended={true}
-                onChange={(value) => {
-                  updateTrack({ rating: value });
-                }}
-              />
-              <TagsDropdown
-                long={big}
-                createable
-                value={track.tags}
-                onChange={(value) => updateTrack({ tags: value })}
-                style={{ flexGrow: 1 }}
-              />
-            </>
-          ) : (
-            <>
-              <span className="title">{track.title}</span>
-              <span className="artist">
-                {(big ? "" : " - ") + artistString}
-              </span>
-              <Rating value={track.rating} extended disabled />
-              <div className="tags">
-                {tags.map(({ name, color }) => (
-                  <Tag
-                    key={name}
-                    name={name ?? "unknown tag"}
-                    color={color ?? "#9f8f9f"}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+          <input
+            value={track.title ?? ""}
+            onChange={(e) => {
+              updateTrack({ title: e.target.value });
+            }}
+            placeholder="Title"
+          />
+          <ArtistsDropdown
+            createable
+            value={track.artists.map((a) =>
+              a.isReal === undefined
+                ? a // it's just an id
+                : {
+                    // use just the name
+                    // putting a special character at the start so i can more easily tell names apart from ids later...
+                    value: "!" + a.name,
+                    // i need to put extra data here because this isn't in the options
+                    label: a.name,
+                    backgroundColor: "var(--backgroundAccent)",
+                    color: "var(--text)",
+                  },
+            )}
+            onChange={(value) => {
+              // updatedValue is an array of ids for real artists and names for non real ones
+              const newValue = value.map((v) =>
+                v.startsWith("!") ? { isReal: false, name: v.slice(1) } : v,
+              );
+              updateTrack({ artists: newValue });
+            }}
+          />
+          <Rating
+            value={track.rating}
+            extended={true}
+            onChange={(value) => {
+              updateTrack({ rating: value });
+            }}
+          />
+          <TagsDropdown
+            long={big}
+            createable
+            value={track.tags}
+            onChange={(value) => updateTrack({ tags: value })}
+            style={{ flexGrow: 1 }}
+          />
         </div>
       </div>
 
-      {editing ? (
-        <div className="other-info">
-          <input
-            disabled={!allowEditingUrl}
-            placeholder="url"
-            style={{ flexGrow: 1 }}
-            value={track.url ?? ""}
-            onChange={(e) => {
-              updateTrack({ url: e.target.value });
-            }}
-          ></input>
-          {/* <input
-              placeholder="image link"
-              style={{ flexGrow: 1 }}
-              value={track.imageLink ?? ""}
-              onChange={(e) => {
-                updateTrack({ imageLink: e.target.value });
-              }}
-            ></input> */}
-          <input
-            placeholder="duration in seconds"
-            style={{ flexGrow: 1 }}
-            value={track.duration?.toString() ?? ""}
-            onChange={(e) => {
-              updateTrack({ duration: e.target.value });
-            }}
-          ></input>
-        </div>
-      ) : null}
+      <div className="other-info">
+        <input
+          disabled={!allowEditingUrl}
+          placeholder="url"
+          style={{ flexGrow: 1 }}
+          value={track.url ?? ""}
+          onChange={(e) => {
+            updateTrack({ url: e.target.value });
+          }}
+        ></input>
+        <input
+          placeholder="image link"
+          style={{ flexGrow: 1 }}
+          value={track.imageLink ?? ""}
+          onChange={(e) => {
+            updateTrack({ imageLink: e.target.value });
+          }}
+        ></input>
+        <input
+          placeholder="duration in seconds"
+          style={{ flexGrow: 1 }}
+          value={track.duration?.toString() ?? ""}
+          onChange={(e) => {
+            updateTrack({ duration: e.target.value });
+          }}
+        ></input>
+      </div>
 
       <div className="buttons-row">
         {actions.map(({ title = null, icon = null, func, primary = false }) => (
@@ -171,15 +200,6 @@ function TrackInfo({
           />
         ))}
       </div>
-
-      {/* search on other sites buttons */}
-      {showSearch && (
-        <SearchOtherSite
-          artistString={track.artistString}
-          title={track.title}
-          url={track.url}
-        />
-      )}
     </div>
   );
 }
