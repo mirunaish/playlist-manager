@@ -1,18 +1,16 @@
 import { MessageTypes } from "../utils";
 
 (function () {
+  function getElement(sel) {
+    return document.querySelector(sel);
+  }
   // get the text inside an element
   function getText(sel) {
-    return document.querySelector(sel).textContent;
+    return getElement(sel).textContent;
   }
 
-  function youtube() {
-    const vidId = window.location.href.match(/(?<=watch\?v=)[a-zA-Z0-9_\\-]*/g);
-
-    const d = getText(".ytp-time-duration")
-      .split(":")
-      .map((t) => parseInt(t));
-
+  function parseDuration(durationString) {
+    const d = durationString.split(":").map((t) => parseInt(t));
     let duration = 0;
     if (d.length === 3) duration = d[0] * 3600 + d[1] * 60 + d[2];
     else if (d.length === 2) duration = d[0] * 60 + d[1];
@@ -20,19 +18,32 @@ import { MessageTypes } from "../utils";
     else if (d.length === 4)
       duration = d[0] * 24 * 3600 + d[1] * 3600 + d[2] * 60 + d[3];
 
+    return duration;
+  }
+
+  function youtube() {
+    const vidId = window.location.href.match(/(?<=watch\?v=)[a-zA-Z0-9_\\-]*/g);
+
     return {
       fullTitle: document.title.slice(0, -10),
       posterName: getText("a.yt-formatted-string"),
-      imageLink: "https://i.ytimg.com/vi/" + vidId + "/hqdefault.jpg",
+      imageLink: "https://i3.ytimg.com/vi/" + vidId + "/maxresdefault.jpg",
       url: window.location.href.replace(/&.*/, ""),
-      duration,
+      duration: getText(".ytp-time-duration"),
     };
   }
 
   function soundcloud() {
+    const imageSpan = getElement("span.sc-artwork-40x");
+    const imageLink = imageSpan?.style?.backgroundImage?.slice(5, -2) ?? "";
+
+    // duration might not be accurate. it's from the player at the bottom, not the actual track page..
     return {
       fullTitle: getText("h1.soundTitle__title > span"),
       posterName: getText("h2.soundTitle__username > a:nth-child(1)"),
+      imageLink,
+      duration: getText(".playbackTimeline__duration > span:nth-child(2)"),
+      url: window.location.href.replace(/\?.*/, ""),
     };
   }
 
@@ -99,10 +110,17 @@ import { MessageTypes } from "../utils";
     }
 
     // get stuff from site-specific function
-    const { fullTitle, posterName, imageLink, url, duration } = func();
+    const {
+      fullTitle,
+      posterName,
+      imageLink,
+      url,
+      duration: durationString,
+    } = func();
 
     // parse data into title and artists
     const { title, artists } = parseData(fullTitle, posterName);
+    const duration = parseDuration(durationString);
 
     // send data to background script
     return { title, artists, imageLink, url, duration };
