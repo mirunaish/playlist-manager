@@ -43,6 +43,7 @@ export const mediaRouter = {
   [FUNCTIONS.next]: mediaService.next,
   [FUNCTIONS.previous]: mediaService.previous,
   [FUNCTIONS.stopPlaying]: mediaService.stopPlaying,
+  [FUNCTIONS.stopAfterTrackEnds]: mediaService.stopAfterTrackEnds,
 
   [MessageTypes.MEDIA_CONTROL]: handleMediaMessage,
 

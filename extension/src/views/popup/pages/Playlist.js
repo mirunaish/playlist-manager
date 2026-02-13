@@ -57,6 +57,20 @@ function Playlist({ selectedTabId }) {
     [playingIndex, playlistInfo],
   );
 
+  const stop = useCallback(async () => {
+    await background(FUNCTIONS.stopPlaying, selectedTabId);
+    // background will message me to close the tab
+  }, [selectedTabId]);
+
+  const stopAfterTrackEnds = useCallback(async () => {
+    // remove all tracks after current one in playlist
+    const newPlaylist = await background(
+      FUNCTIONS.stopAfterTrackEnds,
+      selectedTabId,
+    );
+    setPlaylistInfo((prev) => ({ ...prev, tracks: newPlaylist.tracks }));
+  }, [selectedTabId]);
+
   return (
     <div
       className="page"
@@ -82,9 +96,10 @@ function Playlist({ selectedTabId }) {
           selectedTrackIndex={playingIndex}
           onTrackClick={selectTrack}
         >
-          {/* TODO stop button, something else? */}
-          <Button icon={{ icon: Icons.SETTINGS }} />
           <Button icon={{ icon: Icons.PIN }} />
+          <Button icon={{ icon: Icons.SHUFFLE }} />
+          <Button icon={{ icon: Icons.FINISH }} onClick={stopAfterTrackEnds} />
+          <Button icon={{ icon: Icons.STOP }} onClick={stop} />
         </List>
 
         <div style={{ display: "flex", flexDirection: "column", width: "50%" }}>

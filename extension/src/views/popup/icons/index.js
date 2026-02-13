@@ -13,6 +13,8 @@ import {
   FaGear,
   FaPlus,
   FaBolt,
+  FaStop,
+  FaRightToBracket,
 } from "react-icons/fa6";
 import { FaUndo } from "react-icons/fa";
 
@@ -22,6 +24,8 @@ export const Icons = {
 
   PLAY: FaPlay,
   PAUSE: FaPause,
+  STOP: FaStop,
+  FINISH: FaRightToBracket,
   NEXT: FaForwardStep,
   PREVIOUS: FaBackwardStep,
   RESTART: FaUndo,

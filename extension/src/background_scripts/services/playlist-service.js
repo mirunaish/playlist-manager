@@ -15,6 +15,16 @@ function reshuffle(playlist) {
   return playlist;
 }
 
+/** remove all tracks after this index. exclusive */
+async function removeTracksAfterIndex(tabId, endIndex) {
+  const playlist = await playlistRepository.getPlaylistByTabId(tabId);
+  const newTracks = [...playlist.tracks.slice(0, endIndex)];
+  const editedPlaylist = await playlistRepository.editPlaylist(tabId, {
+    tracks: newTracks,
+  });
+  return editedPlaylist;
+}
+
 // function getPlaylistStats(playlist) {
 //   let stats = {};
 
@@ -72,7 +82,7 @@ async function getPlaylistByTabId(tabId) {
 
   // attach track info to playlist
   playlist.tracks = await Promise.all(
-    playlist.tracks.map((id) => trackRepository.getTrackById(id))
+    playlist.tracks.map((id) => trackRepository.getTrackById(id)),
   );
 
   return playlist;
@@ -83,4 +93,5 @@ export const playlistService = {
   getPlaylistByTabId, // overwrite the method from repository
   reshuffle,
   previewPlaylist,
+  removeTracksAfterIndex,
 };
