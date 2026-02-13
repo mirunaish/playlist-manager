@@ -120,6 +120,15 @@ async function getFirstAudiblePlaylistTab() {
     if (playlist) return tab;
   }
 
+  // if none found but there is only one playlist, return that tab even if not audible
+  const playlists = await playlistRepository.getAllPlaylists();
+  if (playlists.length === 1) {
+    const tabId = playlists[0].tabId;
+    return await tabRepository.getTabById(tabId);
+  }
+
+  // TODO otherwise get the playlist that was last played (?)
+
   return null;
 }
 

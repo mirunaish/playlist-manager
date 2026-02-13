@@ -1,5 +1,10 @@
 import { Playlists } from "../models";
 
+async function getAllPlaylists() {
+  const playlists = await Playlists.findAll();
+  return playlists.map((p) => ({ ...p.data }));
+}
+
 async function getPlaylistByTabId(tabId) {
   const playlist = await Playlists.findById(tabId);
   return playlist ? { ...playlist.data } : null;
@@ -31,6 +36,7 @@ async function deletePlaylist(tabId) {
 }
 
 export const playlistRepository = {
+  getAllPlaylists,
   getPlaylistByTabId,
   createPlaylist,
   editPlaylist,

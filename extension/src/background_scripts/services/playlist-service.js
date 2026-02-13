@@ -5,8 +5,8 @@ import {
 } from "../repository";
 
 /** shuffle tracks in playlist */
-function reshuffle(playlist) {
-  for (let i = 0; i < playlist.length - 1; i++) {
+function reshuffle(playlist, startIndex = 0) {
+  for (let i = startIndex; i < playlist.length - 1; i++) {
     // pick random track
     let j = Math.floor(Math.random() * (playlist.length - i)) + i;
     // move it to the front (j can be =i in which case i doesn't move)
