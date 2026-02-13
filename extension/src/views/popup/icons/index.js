@@ -15,6 +15,7 @@ import {
   FaBolt,
   FaStop,
   FaRightToBracket,
+  FaEyeDropper,
 } from "react-icons/fa6";
 import { FaUndo } from "react-icons/fa";
 
@@ -36,6 +37,7 @@ export const Icons = {
   LIGHTNING: FaBolt,
   PIN: FaThumbtack,
   SHUFFLE: FaShuffle,
+  PICK: FaEyeDropper,
 
   YOUTUBE: FaYoutube,
   SOUNDCLOUD: FaSoundcloud,

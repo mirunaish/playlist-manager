@@ -108,6 +108,7 @@ function Playlist({ selectedTabId }) {
             track={trackInfo}
             onChange={onTrackEdit}
             showSearch
+            tabId={selectedTabId}
           />
 
           <PlayBar totalTime={trackInfo.duration} currentTime={0} />

@@ -105,19 +105,18 @@ import { MessageTypes } from "../utils";
     const { title, artists } = parseData(fullTitle, posterName);
 
     // send data to background script
-    browser.runtime.sendMessage({
-      type: MessageTypes.TRACK_INFO,
-      payload: { title, artists, imageLink, url, duration },
-    });
+    return { title, artists, imageLink, url, duration };
   }
 
   // listen for background asking me to send data
   browser.runtime.onMessage.addListener((message) => {
     if (message.type === MessageTypes.REQUEST_TRACK_INFO) {
-      run();
+      const requesterId = message.payload.requesterId;
+      const result = run();
+      browser.runtime.sendMessage({
+        type: MessageTypes.TRACK_INFO,
+        payload: { ...result, requesterId },
+      });
     }
   });
-
-  // also run once when loaded
-  run();
 })();

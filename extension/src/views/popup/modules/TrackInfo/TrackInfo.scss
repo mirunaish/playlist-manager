@@ -49,6 +49,10 @@
     flex-direction: column;
     gap: 5px;
     justify-items: stretch;
+
+    & > * {
+      flex-grow: 1;
+    }
   }
 
   .tags {

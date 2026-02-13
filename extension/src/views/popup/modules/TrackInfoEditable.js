@@ -11,6 +11,7 @@ function TrackInfoEditable({
   showSearch = false,
   actions = [],
   onChange = (updated) => {},
+  tabId = null,
 }) {
   const updateStatus = useStatusUpdate();
 
@@ -27,14 +28,18 @@ function TrackInfoEditable({
   }, [track]);
 
   const edit = useCallback(async () => {
-    updateStatus("editing track...");
+    // verify that all data is ok...
+    if (isNaN(editingTrackInfo.duration)) {
+      updateStatus("Cannot save. duration must be a number", StatusTypes.ERROR);
+      return;
+    }
+
+    updateStatus("Editing track...");
     try {
       await background(FUNCTIONS.editTrack, editingTrackInfo);
-      updateStatus("track edited", StatusTypes.SUCCESS);
-
-      setEditing(false); // set editing to false
-
+      setEditing(false);
       onChange(editingTrackInfo);
+      updateStatus("track edited", StatusTypes.SUCCESS);
     } catch (e) {
       console.error("failed to edit track", e);
       updateStatus("Track could not be edited", StatusTypes.ERROR);
@@ -60,6 +65,7 @@ function TrackInfoEditable({
           : [{ title: "edit", func: () => setEditing(true) }]),
         ...actions,
       ]}
+      tabId={tabId}
     />
   );
 }

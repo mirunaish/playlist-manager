@@ -21,7 +21,13 @@ function Tracked({ selectedTabId }) {
     <div className="page tracked">
       <Banner theme="PINK_CHAMPAGNE" />
 
-      <TrackInfoEditable big track={trackInfo} showSearch />
+      <TrackInfoEditable
+        big
+        track={trackInfo}
+        showSearch
+        tabId={selectedTabId}
+        onChange={(newTrack) => setTrackInfo(newTrack)}
+      />
 
       <PlayBar totalTime={trackInfo.duration} currentTime={44} />
     </div>

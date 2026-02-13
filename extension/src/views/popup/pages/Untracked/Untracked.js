@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useListener } from "../../hooks";
 import { useStatusUpdate } from "../../providers/StatusProvider";
 import { background } from "../../util";
@@ -15,6 +15,10 @@ import "./Untracked.scss";
 
 function Untracked({ selectedTabId, navigate }) {
   const updateStatus = useStatusUpdate();
+  const requesterId = useMemo(
+    () => `Untracked-${selectedTabId}`,
+    [selectedTabId],
+  );
 
   const [untrackedInfo, setUntrackedInfo] = useState(EMPTY_TRACK); // info from the content script
   // untrackedInfo.artists is an array of {id, name, isReal}
@@ -22,6 +26,8 @@ function Untracked({ selectedTabId, navigate }) {
   // add listener that adds track info from content script
   useListener(MessageTypes.TRACK_INFO_FORWARD, (payload) => {
     (async () => {
+      if (payload.requesterId !== requesterId) return;
+
       // populate track info with received data
       const { artists, ...trackInfo } = payload;
 
@@ -37,9 +43,9 @@ function Untracked({ selectedTabId, navigate }) {
     // reset untracked info
     setUntrackedInfo(EMPTY_TRACK);
     // ask background script to get track info from page
-    background(FUNCTIONS.guessTrackInfo, selectedTabId);
+    background(FUNCTIONS.guessTrackInfo, selectedTabId, requesterId);
     // background will later send a message with the info which the listener will catch
-  }, [selectedTabId]);
+  }, [requesterId, selectedTabId]);
 
   // save untracked track to backend
   const save = useCallback(async () => {
@@ -55,13 +61,13 @@ function Untracked({ selectedTabId, navigate }) {
             name: info.name,
           });
           return newArtist.id;
-        })
+        }),
       );
 
       await background(FUNCTIONS.createTrack, {
         ...untrackedInfo,
         artists: artistIds,
-        duration: parseInt(untrackedInfo.duration),
+        duration: parseInt(untrackedInfo.duration.toString()),
       });
 
       updateStatus("track saved", StatusTypes.SUCCESS);
@@ -86,6 +92,7 @@ function Untracked({ selectedTabId, navigate }) {
         allowEditingUrl={false}
         actions={[{ title: "save", primary: true, func: save }]}
         showSearch
+        tabId={selectedTabId}
       />
 
       <PlayBar totalTime={untrackedInfo.duration} currentTime={44} />

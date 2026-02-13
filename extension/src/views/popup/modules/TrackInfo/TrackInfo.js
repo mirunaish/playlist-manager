@@ -8,6 +8,8 @@ import Button from "../../components/Button";
 import ArtistsDropdown from "../ArtistsDropdown";
 import TagsDropdown from "../TagsDropdown";
 import SearchOtherSite from "../SearchOtherSite/SearchOtherSite";
+import LoadablePreviewImageInput from "../LoadablePreviewInput/LoadablePreviewImageInput";
+import LoadablePreviewDurationInput from "../LoadablePreviewInput/LoadablePreviewDurationInput";
 import "./TrackInfo.scss";
 
 function TrackInfo({
@@ -18,6 +20,7 @@ function TrackInfo({
   updateTrack = (updated) => {},
   actions = [],
   showSearch = false,
+  tabId = null,
 }) {
   // construct comma-separated artist names for displaying etc
   const [artistString, setArtistString] = useState("");
@@ -165,28 +168,21 @@ function TrackInfo({
         <input
           disabled={!allowEditingUrl}
           placeholder="url"
-          style={{ flexGrow: 1 }}
           value={track.url ?? ""}
           onChange={(e) => {
             updateTrack({ url: e.target.value });
           }}
         ></input>
-        <input
-          placeholder="image link"
-          style={{ flexGrow: 1 }}
-          value={track.imageLink ?? ""}
-          onChange={(e) => {
-            updateTrack({ imageLink: e.target.value });
-          }}
-        ></input>
-        <input
-          placeholder="duration in seconds"
-          style={{ flexGrow: 1 }}
-          value={track.duration?.toString() ?? ""}
-          onChange={(e) => {
-            updateTrack({ duration: e.target.value });
-          }}
-        ></input>
+        <LoadablePreviewImageInput
+          imageLink={track.imageLink}
+          setImageLink={(imageLink) => updateTrack({ imageLink })}
+          tabId={tabId}
+        />
+        <LoadablePreviewDurationInput
+          duration={track.duration}
+          setDuration={(duration) => updateTrack({ duration })}
+          tabId={tabId}
+        />
       </div>
 
       <div className="buttons-row">

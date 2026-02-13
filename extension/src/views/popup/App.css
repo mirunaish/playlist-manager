@@ -104,6 +104,11 @@ select,
 
 input {
   cursor: text;
+  outline: none;
+  min-width: 0px;
+}
+input:focus {
+  outline: none;
 }
 input:disabled {
   background-color: var(--backgroundAccent);
