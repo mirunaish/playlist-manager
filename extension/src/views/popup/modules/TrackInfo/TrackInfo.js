@@ -21,6 +21,7 @@ function TrackInfo({
   actions = [],
   showSearch = false,
   tabId = null,
+  imageSize = undefined,
 }) {
   // construct comma-separated artist names for displaying etc
   const [artistString, setArtistString] = useState("");
@@ -62,7 +63,7 @@ function TrackInfo({
             src={track.imageLink}
             className="thumbnail"
             square
-            maxWidth={big ? undefined : 150}
+            maxWidth={imageSize}
           />
 
           <div className="title-and-artist">

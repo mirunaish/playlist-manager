@@ -12,6 +12,7 @@ function TrackInfoEditable({
   actions = [],
   onChange = (updated) => {},
   tabId = null,
+  imageSize = undefined,
 }) {
   const updateStatus = useStatusUpdate();
 
@@ -66,6 +67,7 @@ function TrackInfoEditable({
         ...actions,
       ]}
       tabId={tabId}
+      imageSize={imageSize}
     />
   );
 }

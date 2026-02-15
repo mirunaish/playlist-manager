@@ -138,6 +138,7 @@ function NewMix() {
                 track={playlistPreview[selectedIndex]}
                 actions={[{ title: "play", func: () => play(selectedIndex) }]}
                 onChange={(newTrack) => onTrackEdit(newTrack, selectedIndex)}
+                imageSize={150}
               />
             )}
           </div>
