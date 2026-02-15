@@ -1,3 +1,4 @@
+import { SORTS } from "../../utils";
 import {
   artistRepository,
   trackRepository,
@@ -63,10 +64,13 @@ async function previewPlaylist(filters) {
   }
 
   // sort
-  // TODO add more sorts
-  if (filters.sort === "shuffle") {
+  if (filters.sort === SORTS.shuffle) {
     // shuffle the playlist
     tracks = reshuffle(tracks);
+  } else {
+    const [sortKey, sortDirection] = filters.sort.split(":");
+    tracks.sort((a, b) => b[sortKey] > a[sortKey]); // sort in descending order by default
+    if (sortDirection === "ASC") tracks.reverse();
   }
 
   return tracks;

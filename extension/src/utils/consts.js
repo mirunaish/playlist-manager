@@ -71,6 +71,16 @@ export const EMPTY_PLAYLIST = {
   filters: {},
 };
 
+export const SORTS = {
+  shuffle: "shuffle",
+  plays: "plays",
+  skips: "skips",
+  rating: "rating",
+  duration: "length",
+  addedAt: "latest added",
+  lastPlayedAt: "latest listened",
+};
+
 export const BORDER_STYLE = "1px solid var(--ui)";
 
 export const GRADIENT = {

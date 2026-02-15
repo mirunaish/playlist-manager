@@ -1,6 +1,6 @@
 import React from "react";
 import Rating from "../../components/Rating/Rating";
-import { BORDER_STYLE } from "../../../../utils";
+import { BORDER_STYLE, SORTS } from "../../../../utils";
 import ArtistsDropdown from "../ArtistsDropdown";
 import TagsDropdown from "../TagsDropdown";
 import "./Filters.scss";
@@ -36,9 +36,25 @@ function Filters({ setFilters, filters = null, children = null }) {
             value={filters.sort}
             onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
           >
-            {["shuffle"].map((sort) => (
-              <option key={sort} value={sort} label={sort} />
-            ))}
+            {Object.entries(SORTS).map(([key, sort]) => {
+              if (sort === SORTS.shuffle)
+                return <option key={key} value={key} label={sort} />;
+              else
+                return (
+                  <>
+                    <option
+                      key={`${key}:DESC`}
+                      value={`${key}:DESC`}
+                      label={sort}
+                    />
+                    <option
+                      key={`${key}:ASC`}
+                      value={`${key}:ASC`}
+                      label={`${sort} (rev)`}
+                    />
+                  </>
+                );
+            })}
           </select>
         </div>
       </div>
