@@ -1,16 +1,21 @@
 :root {
-  --background: #201e1f;
-  --backgroundAccent: #322c2f;
-  --ui: #9d6790;
-  --text: #faf1f9;
-  --textFineprint: #d6b2ce;
-  --primary: #d631d6;
-  --primaryDark: #961296;
-  --primaryText: #faf1f9;
-  --secondary: #4b0082;
-  --secondaryDark: #2c004b;
+  --background: #000000;
+  --backgroundAccent: #292929;
+  --ui: #4e4e4e;
+
+  --text: #ffffff;
+  --textFineprint: #d0d0d0;
+
+  --primary: #4988c4;
+  --primaryDark: #1c4d8d;
+  --primaryText: #bde8f5;
+
+  --secondary: #a2a2a2;
+  --secondaryDark: #777777;
   --secondaryText: #ffffff;
+
   --hue: 300deg;
+
   --error: #fc3f52;
   --success: #3ffc5b;
 }
@@ -52,8 +57,7 @@ body {
   background-color: var(--background);
 }
 .playlistItem.selected {
-  background-color: var(--secondary);
-  color: var(--secondaryText);
+  background-color: var(--backgroundAccent);
 }
 
 p,
@@ -91,7 +95,7 @@ select,
   background-color: var(--background);
   color: var(--text);
 
-  border: 1px solid var(--primaryDark);
+  border: 1px solid var(--secondaryDark);
 
   border-radius: 4px;
   font-size: 14px;
@@ -100,6 +104,11 @@ select,
 
 input {
   cursor: text;
+  outline: none;
+  min-width: 0px;
+}
+input:focus {
+  outline: none;
 }
 input:disabled {
   background-color: var(--backgroundAccent);

@@ -19,17 +19,23 @@ export function humanReadable(string) {
 
 /** return a string in format hh:mm:ss */
 export function formatTime(totalSeconds) {
-  const padNumber = (number) => (number > 9 ? number : "0" + number);
+  if (
+    !totalSeconds ||
+    isNaN(totalSeconds) ||
+    parseInt(totalSeconds.toString()) === 0
+  )
+    return "--:--";
 
-  const hours = Math.floor(totalSeconds / (60 * 60));
-  const minutes = Math.floor((totalSeconds - hours * 60 * 60) / 60);
-  const seconds = totalSeconds - hours * 60 * 60 - minutes * 60;
+  const durationNum = parseInt(totalSeconds);
 
-  var string = hours > 0 ? padNumber(hours) + ":" : ""; //exclude hours if 0
-  string += padNumber(minutes) + ":";
-  string += padNumber(seconds);
+  const hours = Math.floor(durationNum / 3600);
+  const minutes = Math.floor((durationNum % 3600) / 60);
+  const seconds = durationNum % 60;
 
-  return string;
+  const p = (n) => n.toString().padStart(2, "0");
+
+  if (hours > 0) return `${hours}:${p(minutes)}:${p(seconds)}`;
+  else return `${minutes}:${p(seconds)}`;
 }
 
 /** returns true if the scroll was a mouse, false if it was a touchpad */

@@ -1,5 +1,3 @@
-export const SERVER_URL = "http://localhost:5000";
-
 export const SupportedSites = {
   youtube: {
     query: "*://www.youtube.com/*",
@@ -67,7 +65,7 @@ export const EMPTY_TRACK = {
 };
 export const EMPTY_PLAYLIST = {
   title: "Playlist",
-  theme: "DARK_PINK",
+  theme: "PINK_CHAMPAGNE",
 
   tracks: [],
   filters: {},

@@ -42,17 +42,20 @@ async function getTabType(tabId) {
  * try to guess the title and artist of this track based on info in the tab.
  * will call insertGuessedInfo when done
  */
-async function guessTrackInfo(tabId) {
+async function guessTrackInfo(tabId, requesterId) {
   try {
     // insert content script if not already inserted
     await insertScript(tabId, "get_title_and_artist.js");
     // content script will send a message and background script will call insertGuessedInfo
   } catch (e) {
-    // script already inserted, send it a message instead
-    await sendMessage(tabId, {
-      type: MessageTypes.REQUEST_TRACK_INFO,
-    });
+    // script already inserted
   }
+
+  // send it a message asking for the info...
+  await sendMessage(tabId, {
+    type: MessageTypes.REQUEST_TRACK_INFO,
+    payload: { requesterId },
+  });
 }
 
 /** whether this tab is a supported site or not */
@@ -60,7 +63,7 @@ async function tabIsSupported(tabId) {
   const tab = await tabRepository.getTabById(tabId);
 
   return Object.values(SupportedSites).some((site) =>
-    tab.url.match(site.regex)
+    tab.url.match(site.regex),
   );
 }
 
@@ -99,7 +102,7 @@ async function getSupportedTabs() {
         track,
         playlist,
       };
-    })
+    }),
   );
 
   tabs = tabs.filter((t) => t !== null);
@@ -116,6 +119,15 @@ async function getFirstAudiblePlaylistTab() {
     const playlist = await playlistRepository.getPlaylistByTabId(tab.id);
     if (playlist) return tab;
   }
+
+  // if none found but there is only one playlist, return that tab even if not audible
+  const playlists = await playlistRepository.getAllPlaylists();
+  if (playlists.length === 1) {
+    const tabId = playlists[0].tabId;
+    return await tabRepository.getTabById(tabId);
+  }
+
+  // TODO otherwise get the playlist that was last played (?)
 
   return null;
 }

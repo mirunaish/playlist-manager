@@ -16,7 +16,11 @@ function ThemesDropdown({ value = null, onChange = (id) => {} }) {
   return (
     <select
       value={value}
-      style={{ backgroundColor: Themes[value]?.primary, border: "none" }}
+      style={{
+        backgroundColor: Themes[value]?.secondary,
+        color: Themes[value]?.secondaryText,
+        border: "none",
+      }}
       onChange={(e) => onChange(e.target.value)}
     >
       {Object.entries(Themes).map(([themeId, theme]) => (

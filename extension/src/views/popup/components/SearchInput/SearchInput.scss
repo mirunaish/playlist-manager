@@ -46,7 +46,15 @@
 }
 
 .long {
+  .searchinput__control {
+    height: 100%;
+  }
+
   .searchinput__value-container {
     align-self: flex-start;
+  }
+
+  .searchinput__multi-value__label {
+    text-wrap: nowrap;
   }
 }

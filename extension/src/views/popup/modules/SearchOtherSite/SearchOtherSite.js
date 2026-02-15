@@ -12,11 +12,11 @@ const SearchOtherSite = ({ artistString, title, url }) => {
       await background(
         FUNCTIONS.searchOtherSite,
         artistString + " - " + title,
-        site
+        site,
       );
       closePopup();
     },
-    [artistString, title]
+    [artistString, title],
   );
 
   return (
@@ -24,7 +24,7 @@ const SearchOtherSite = ({ artistString, title, url }) => {
       <p>Search for this track on:</p>
       {/* render buttons for sites except ones this track is on */}
       {Object.entries(SupportedSites).map(([site, { regex }]) => {
-        return url.match(regex) ? null : (
+        return url?.match(regex) ? null : (
           <Button
             key={site}
             icon={{ icon: Icons[site.toUpperCase()], size: 20 }}

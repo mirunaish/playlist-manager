@@ -12,7 +12,7 @@ function UploadButton({ onChange, type = "", accept, children }) {
 
       onChange?.(files[0]);
     },
-    [onChange]
+    [onChange],
   );
 
   return (

@@ -5,14 +5,24 @@ import {
 } from "../repository";
 
 /** shuffle tracks in playlist */
-function reshuffle(playlist) {
-  for (let i = 0; i < playlist.length - 1; i++) {
+function reshuffle(playlist, startIndex = 0) {
+  for (let i = startIndex; i < playlist.length - 1; i++) {
     // pick random track
     let j = Math.floor(Math.random() * (playlist.length - i)) + i;
     // move it to the front (j can be =i in which case i doesn't move)
     [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
   }
   return playlist;
+}
+
+/** remove all tracks after this index. exclusive */
+async function removeTracksAfterIndex(tabId, endIndex) {
+  const playlist = await playlistRepository.getPlaylistByTabId(tabId);
+  const newTracks = [...playlist.tracks.slice(0, endIndex)];
+  const editedPlaylist = await playlistRepository.editPlaylist(tabId, {
+    tracks: newTracks,
+  });
+  return editedPlaylist;
 }
 
 // function getPlaylistStats(playlist) {
@@ -72,7 +82,7 @@ async function getPlaylistByTabId(tabId) {
 
   // attach track info to playlist
   playlist.tracks = await Promise.all(
-    playlist.tracks.map((id) => trackRepository.getTrackById(id))
+    playlist.tracks.map((id) => trackRepository.getTrackById(id)),
   );
 
   return playlist;
@@ -83,4 +93,5 @@ export const playlistService = {
   getPlaylistByTabId, // overwrite the method from repository
   reshuffle,
   previewPlaylist,
+  removeTracksAfterIndex,
 };

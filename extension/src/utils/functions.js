@@ -10,6 +10,7 @@ export const FUNCTIONS = {
   next: "next",
   previous: "previous",
   stopPlaying: "stopPlaying",
+  stopAfterTrackEnds: "stopAfterTrackEnds",
   reshuffle: "reshuffle",
   getPlaylistByTabId: "getPlaylistByTabId",
   previewPlaylist: "previewPlaylist",

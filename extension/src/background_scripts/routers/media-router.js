@@ -11,7 +11,7 @@ async function handleMediaMessage(message) {
   const affectedTab = await tabService.getFirstAudiblePlaylistTab();
   if (!affectedTab) {
     // if popup is visible, let user know
-    updateStatus("No playing playlist found.", StatusTypes.ERROR);
+    updateStatus("Can't change track, playlist ambiguous", StatusTypes.ERROR);
     return;
   }
 
@@ -43,6 +43,7 @@ export const mediaRouter = {
   [FUNCTIONS.next]: mediaService.next,
   [FUNCTIONS.previous]: mediaService.previous,
   [FUNCTIONS.stopPlaying]: mediaService.stopPlaying,
+  [FUNCTIONS.stopAfterTrackEnds]: mediaService.stopAfterTrackEnds,
 
   [MessageTypes.MEDIA_CONTROL]: handleMediaMessage,
 

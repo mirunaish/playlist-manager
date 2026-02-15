@@ -4,6 +4,7 @@ import Thumbnail from "../components/Thumbnail/Thumbnail";
 import Scrollable from "../components/Scrollable/Scrollable";
 import Rating from "../components/Rating/Rating";
 import { background } from "../util";
+import { max } from "lodash";
 
 function ListItem({
   index,
@@ -66,6 +67,9 @@ function List({
   children = [], // buttons at bottom
   style = {},
   className = "",
+
+  maxToShow = 50, // null to show all
+  selectedPosition = 0.1, // how many tracks to show before and after selected. if maxToShow is not null
 }) {
   // get all artists for track artist names
   const [artists, setArtists] = useState({});
@@ -82,7 +86,7 @@ function List({
       if (!artists || !track.artists) return "";
       return track.artists.map((id) => artists[id]?.name ?? "").join(", ");
     },
-    [artists]
+    [artists],
   );
 
   const playlistDuration = useCallback(
@@ -92,18 +96,43 @@ function List({
         .map((track) => parseInt(track.duration.toString()))
         .reduce((acc, val) => acc + val, 0); // sum all durations
     },
-    [playlist]
+    [playlist],
   );
 
   // calculate total duration of playlist
   const totalDuration = useMemo(
     () => formatTime(playlistDuration(0)),
-    [playlistDuration]
+    [playlistDuration],
   );
   const remainingDuration = useMemo(
     () => formatTime(playlistDuration(selectedTrackIndex)),
-    [playlistDuration, selectedTrackIndex]
+    [playlistDuration, selectedTrackIndex],
   );
+
+  const [itemsToShow, startIndex] = useMemo(() => {
+    if (maxToShow === null) return [playlist, 0];
+    if (selectedTrackIndex === null) return [playlist.slice(0, maxToShow), 0];
+
+    const showBefore = maxToShow * selectedPosition;
+    const showAfter = maxToShow - showBefore;
+
+    if (selectedTrackIndex < showBefore)
+      return [playlist.slice(0, maxToShow), 0];
+
+    if (playlist.length - selectedTrackIndex - 1 < showAfter)
+      return [
+        playlist.slice(-maxToShow),
+        max([0, playlist.length - maxToShow]),
+      ];
+
+    return [
+      playlist.slice(
+        selectedTrackIndex - showBefore,
+        selectedTrackIndex + showAfter + 1,
+      ),
+      max([0, selectedTrackIndex - showBefore]),
+    ];
+  }, [maxToShow, playlist, selectedPosition, selectedTrackIndex]);
 
   return (
     <div
@@ -137,15 +166,16 @@ function List({
 
       {/* playlist */}
       <Scrollable style={{ flexGrow: 1 }}>
-        {playlist.map((track, index) => {
+        {itemsToShow.map((track, index) => {
+          const indexWithOffset = index + startIndex;
           return (
             <ListItem
               key={track.id}
-              index={index}
-              selected={index === selectedTrackIndex}
+              index={indexWithOffset}
+              selected={indexWithOffset === selectedTrackIndex}
               track={track}
               artistString={artistString(track)}
-              onClick={() => onTrackClick(index)}
+              onClick={() => onTrackClick(indexWithOffset)}
             />
           );
         })}

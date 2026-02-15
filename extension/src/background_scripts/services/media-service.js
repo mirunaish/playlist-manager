@@ -112,10 +112,20 @@ async function stopPlaying(tabId) {
   popup(MessageTypes.REMOVE_TAB, { id: tabId });
 }
 
+async function stopAfterTrackEnds(tabId) {
+  const playlist = await playlistService.getPlaylistByTabId(tabId);
+  const currentIndex = playlist.playingIndex;
+
+  await playlistService.removeTracksAfterIndex(tabId, currentIndex + 1);
+
+  return playlist;
+}
+
 export const mediaService = {
   startPlaying,
   playTrack,
   next,
   previous,
   stopPlaying,
+  stopAfterTrackEnds,
 };

@@ -3,8 +3,8 @@ import { tagService } from "./tag-service";
 import { trackService } from "./track-service";
 
 async function saveBackup() {
-  const artists = await artistService.getAllArtists();
-  const tags = await tagService.getAllTags();
+  const artists = Object.values(await artistService.getAllArtists());
+  const tags = Object.values(await tagService.getAllTags());
   // const quickplay = await quickplayService.getAllQuickplay();
   const tracks = await trackService.getTracks({});
 
