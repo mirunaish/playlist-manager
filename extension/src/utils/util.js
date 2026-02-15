@@ -19,12 +19,7 @@ export function humanReadable(string) {
 
 /** return a string in format hh:mm:ss */
 export function formatTime(totalSeconds) {
-  if (
-    !totalSeconds ||
-    isNaN(totalSeconds) ||
-    parseInt(totalSeconds.toString()) === 0
-  )
-    return "--:--";
+  if (!totalSeconds || isNaN(totalSeconds)) return "--:--";
 
   const durationNum = parseInt(totalSeconds);
 
