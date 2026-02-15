@@ -24,7 +24,7 @@ const SearchOtherSite = ({ artistString, title, url }) => {
       <p>Search for this track on:</p>
       {/* render buttons for sites except ones this track is on */}
       {Object.entries(SupportedSites).map(([site, { regex }]) => {
-        return url?.match(regex) ? null : (
+        return (
           <Button
             key={site}
             icon={{ icon: Icons[site.toUpperCase()], size: 20 }}

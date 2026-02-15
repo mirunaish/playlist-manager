@@ -99,7 +99,7 @@ function TrackInfo({
         {/* search on other sites buttons */}
         {showSearch && (
           <SearchOtherSite
-            artistString={track.artistString}
+            artistString={artistString}
             title={track.title}
             url={track.url}
           />
