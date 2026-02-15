@@ -6,7 +6,11 @@ async function saveBackup() {
   const artists = Object.values(await artistService.getAllArtists());
   const tags = Object.values(await tagService.getAllTags());
   // const quickplay = await quickplayService.getAllQuickplay();
-  const tracks = await trackService.getTracks({});
+  const tracks = trackService.sortTracks(
+    await trackService.getTracks({}),
+    "addedAt",
+    "ASC",
+  ); // sort by added date
 
   return { artists, tags, tracks };
 }

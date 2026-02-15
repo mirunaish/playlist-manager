@@ -4,6 +4,7 @@ import {
   trackRepository,
   playlistRepository,
 } from "../repository";
+import { trackService } from "./track-service";
 
 /** shuffle tracks in playlist */
 function reshuffle(playlist, startIndex = 0) {
@@ -69,8 +70,7 @@ async function previewPlaylist(filters) {
     tracks = reshuffle(tracks);
   } else {
     const [sortKey, sortDirection] = filters.sort.split(":");
-    tracks.sort((a, b) => b[sortKey] > a[sortKey]); // sort in descending order by default
-    if (sortDirection === "ASC") tracks.reverse();
+    tracks = trackService.sortTracks(tracks, sortKey, sortDirection);
   }
 
   return tracks;

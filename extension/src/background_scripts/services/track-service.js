@@ -99,30 +99,13 @@ async function addSkip(id) {
   });
 }
 
-/** edit the mappings from track to artists (add or remove track artists) */
-// async function editTrackArtists(trackId, artistIds, transaction = null) {
-//   // delete all existing mappings
-//   await TrackArtist.destroy({ where: { trackId }, transaction });
-
-//   // add new ones
-//   for (let artistId of artistIds) {
-//     await TrackArtist.create(
-//       { id: uuid(), artistId, trackId, main: false },
-//       { transaction }
-//     );
-//   }
-// }
-
-/** edit the mapping from track to tags */
-// async function editTrackTags(trackId, tagIds, transaction = null) {
-//   // delete all existing mappings
-//   await TrackTag.destroy({ where: { trackId }, transaction });
-
-//   // add new ones
-//   for (let tagId of tagIds) {
-//     await TrackTag.create({ id: uuid(), tagId, trackId }, { transaction });
-//   }
-// }
+function sortTracks(tracks, key, sortDirection = "DESC") {
+  const type = Tracks.fields[key].type;
+  const keyFunc = type === "datetime" ? (v) => new Date(v[key]) : (v) => v[key];
+  const sortedTracks = tracks.sort((a, b) => keyFunc(b) > keyFunc(a));
+  if (sortDirection === "ASC") return sortedTracks.reverse();
+  else return sortedTracks;
+}
 
 export const trackService = {
   ...trackRepository,
@@ -132,4 +115,5 @@ export const trackService = {
   editTrack,
   addPlay,
   addSkip,
+  sortTracks,
 };
