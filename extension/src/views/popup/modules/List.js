@@ -109,30 +109,25 @@ function List({
     [playlistDuration, selectedTrackIndex],
   );
 
-  const [itemsToShow, startIndex] = useMemo(() => {
-    if (maxToShow === null) return [playlist, 0];
-    if (selectedTrackIndex === null) return [playlist.slice(0, maxToShow), 0];
+  const startIndex = useMemo(() => {
+    if (maxToShow === null) return 0;
+    if (selectedTrackIndex === null) return 0;
 
     const showBefore = maxToShow * selectedPosition;
     const showAfter = maxToShow - showBefore;
 
-    if (selectedTrackIndex < showBefore)
-      return [playlist.slice(0, maxToShow), 0];
+    if (selectedTrackIndex < showBefore) return 0;
 
     if (playlist.length - selectedTrackIndex - 1 < showAfter)
-      return [
-        playlist.slice(-maxToShow),
-        max([0, playlist.length - maxToShow]),
-      ];
+      return max([0, playlist.length - maxToShow]);
 
-    return [
-      playlist.slice(
-        selectedTrackIndex - showBefore,
-        selectedTrackIndex + showAfter + 1,
-      ),
-      max([0, selectedTrackIndex - showBefore]),
-    ];
+    return max([0, selectedTrackIndex - showBefore]);
   }, [maxToShow, playlist, selectedPosition, selectedTrackIndex]);
+
+  const itemsToShow = useMemo(
+    () => playlist.slice(startIndex, startIndex + maxToShow),
+    [maxToShow, playlist, startIndex],
+  );
 
   return (
     <div

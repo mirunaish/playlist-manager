@@ -39,7 +39,7 @@ function TrackInfoEditable({
     try {
       await background(FUNCTIONS.editTrack, editingTrackInfo);
       setEditing(false);
-      onChange(editingTrackInfo);
+      await onChange(editingTrackInfo);
       updateStatus("track edited", StatusTypes.SUCCESS);
     } catch (e) {
       console.error("failed to edit track", e);

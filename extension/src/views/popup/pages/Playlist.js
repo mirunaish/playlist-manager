@@ -49,12 +49,13 @@ function Playlist({ selectedTabId }) {
 
   const onTrackEdit = useCallback(
     async (updatedTrack) => {
-      // set edited track info in playlist
-      const newPlaylistInfo = { ...playlistInfo };
-      newPlaylistInfo.tracks[playingIndex] = updatedTrack;
-      setPlaylistInfo(newPlaylistInfo);
+      setPlaylistInfo((prev) => {
+        const newTracks = [...prev.tracks];
+        newTracks[playingIndex] = updatedTrack;
+        return { ...prev, tracks: newTracks };
+      });
     },
-    [playingIndex, playlistInfo],
+    [playingIndex],
   );
 
   const stop = useCallback(async () => {
